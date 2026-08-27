@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sistema SPD Pro Cloud - Farmacia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- SDK FIREBASE CLOUD -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <!-- MANIFEST INTEGRADO PARA PWA -->
+    <link rel="manifest" href="data:application/manifest+json;utf-8,%7B%22name%22%3A%22SPD%20Farmacia%20Pro%22%2C%22short_name%22%3A%22SPD%20Pro%22%2C%22start_url%22%3A%22.%2Findex.html%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%230284c7%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F883%2F883407.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            const swBlob = new Blob([`
+                self.addEventListener('install', e => self.skipWaiting());
+                self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
+            `], { type: 'application/javascript' });
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
+        }
+    </script>
+
+    <style>
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #0284c7;
+            --accent-light: #e0f2fe;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --purple: #8b5cf6;
+            --purple-light: #ede9fe;
+            --bg: #f8fafc;
+            --border: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --sidebar-w: 260px;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; position: relative; }
+
+        /* PANTALLA LOGIN */
+        #pantalla-login { position: fixed; inset: 0; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); z-index: 99999; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .login-card { background: white; width: 100%; max-width: 420px; padding: 32px 28px; border-radius: var(--radius-lg); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); text-align: center; }
+        .login-brand-icon { width: 50px; height: 50px; background: var(--accent); color: white; font-size: 26px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; box-shadow: 0 4px 10px rgba(2,132,199,0.35); }
+        .login-card h2 { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+        .login-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+        
+        .auth-tabs { display: flex; border-bottom: 1.5px solid var(--border); margin-bottom: 18px; }
+        .auth-tab { flex: 1; padding: 10px; font-size: 13px; font-weight: 700; color: var(--text-muted); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; }
+        .auth-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .login-form { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+        .login-form label { font-size: 12px; font-weight: 700; color: var(--primary); }
+
+        /* MENÚ LATERAL / SIDEBAR RETRÁCTIL */
+        .sidebar { 
+            width: var(--sidebar-w); 
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            flex-shrink: 0; 
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1); 
+            transition: transform 0.28s ease, width 0.28s ease; 
+            z-index: 1000;
+        }
+
+        .sidebar.oculto { 
+            transform: translateX(-100%); 
+            position: absolute;
+            height: 100%;
+        }
+
+        .sidebar-brand { padding: 18px 20px; font-size: 15px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; }
+        .nav-list { list-style: none; padding: 15px 10px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+        .nav-item { padding: 12px 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); color: #94a3b8; transition: all 0.2s; }
+        .nav-item:hover { background: rgba(255,255,255,0.06); color: white; }
+        .nav-item.active { background: var(--accent); color: white; }
+        .nav-badge { background: var(--danger); color: white; padding: 2px 7px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+        .nav-badge.warning { background: var(--warning); color: #78350f; }
+        .nav-badge.purple { background: var(--purple); color: white; }
+
+        /* OVERLAY MÓVIL CUANDO EL MENÚ ESTÁ ABIERTO */
+        .sidebar-backdrop { 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(15, 23, 42, 0.5); 
+            z-index: 999; 
+        }
+        .sidebar-backdrop.activo { display: block; }
+
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%; }
+        
+        .topbar { 
+            background: white; 
+            padding: 12px 18px; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+        }
+
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        
+        .btn-menu-toggle {
+            background: #f1f5f9;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--primary);
+            transition: all 0.2s;
+        }
+        .btn-menu-toggle:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
+
+        .banner-semana-activa { display: flex; align-items: center; gap: 8px; background: linear-gradient(90deg, #e0f2fe 0%, #f0fdf4 100%); border: 1.5px solid #bae6fd; padding: 6px 12px; border-radius: 30px; }
+        .punto-parpadeo { width: 9px; height: 9px; border-radius: 50%; background-color: var(--success); box-shadow: 0 0 8px var(--success); animation: pulse 1.8s infinite; }
+
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
+
+        .tab-content { flex-grow: 1; padding: 18px; overflow-y: auto; display: none; }
+        .tab-content.active { display: block; }
+
+        .panel-card { background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px; margin-bottom: 18px; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 8px; }
+        .panel-title { font-size: 15px; font-weight: 800; color: var(--primary); }
+
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 12px; font-weight: 700; color: var(--primary); }
+        .form-control { padding: 9px 12px; font-size: 13px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); outline: none; background: white; }
+        .form-control:focus { border-color: var(--accent); }
+
+        .btn-primary { background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-success { background: var(--success); color: white; border: none; padding: 7px 11px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 11.5px; }
+        .btn-danger { background: var(--danger); color: white; border: none; padding: 6px 10px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 11px; }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; min-width: 550px; }
+        th { background: #f8fafc; font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 11px; padding: 10px 12px; border-bottom: 1.5px solid var(--border); }
+        td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:hover td { background: #f8fafc; }
+
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 16px; font-size: 11px; font-weight: 700; }
+        .badge-info { background: var(--accent-light); color: var(--accent); }
+        .badge-warning { background: var(--warning-light); color: #b45309; }
+        .badge-danger { background: var(--danger-light); color: var(--danger); }
+        .badge-success { background: var(--success-light); color: var(--success); }
+        .badge-neutral { background: #f1f5f9; color: #475569; }
+
+        /* CALENDARIO */
+        .grid-meses { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 12px; }
+        .mes-card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; }
+        .mes-card.actual { border-color: var(--accent); }
+        .mes-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+        .mes-title { font-weight: 800; font-size: 14px; color: var(--primary); }
+
+        .semana-bloque { background: #f8fafc; border-radius: var(--radius-sm); padding: 7px; border: 1px solid var(--border); }
+        .semana-bloque.semana-activa-borde { border: 2px solid var(--accent); background: #f0f9ff; }
+        .semana-bloque-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
+        .pacientes-chips-container { display: flex; flex-wrap: wrap; gap: 4px; }
+
+        .chip-paciente { background: white; border: 1px solid var(--border); border-radius: 6px; padding: 4px 7px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .chip-paciente.adelantado { background: #fff7ed; border-color: #ffedd5; color: #c2410c; }
+        .chip-paciente.listo { border-left: 3px solid var(--success); }
+        .chip-paciente.pendiente { border-left: 3px solid var(--warning); }
+
+        /* CHAT */
+        .chat-container { display: flex; flex-direction: column; height: calc(100vh - 170px); background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; }
+        .chat-messages { flex-grow: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8fafc; }
+        .msg-bubble { max-width: 85%; padding: 10px 12px; border-radius: var(--radius-md); font-size: 12.5px; box-shadow: var(--shadow); }
+        .msg-bubble.propio { align-self: flex-end; background: var(--accent); color: white; }
+        .msg-bubble.companera { align-self: flex-start; background: var(--purple); color: white; }
+        .msg-meta { font-size: 10px; margin-bottom: 3px; opacity: 0.85; font-weight: 700; display: flex; justify-content: space-between; gap: 8px; }
+        .chat-input-bar { padding: 10px; background: white; border-top: 1px solid var(--border); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(3px); z-index: 10000; justify-content: center; align-items: center; }
+        .modal-box { background: white; width: 780px; max-width: 95%; max-height: 90vh; border-radius: var(--radius-lg); display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { padding: 14px 18px; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                transform: translateX(-100%);
+            }
+            .sidebar.abierto-movil {
+                transform: translateX(0);
+            }
+            .topbar { padding: 10px 14px; }
+            .tab-content { padding: 12px; }
+            .panel-card { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PANTALLA LOGIN -->
+    <div id="pantalla-login">
+        <div class="login-card">
+            <div class="login-brand-icon">💊</div>
+            <h2>Acceso SPD Farmacia</h2>
+            <p>Identifícate para sincronizar la preparación de pastilleros.</p>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="cambiarModoAuth('login')">Iniciar Sesión</button>
+                <button class="auth-tab" onclick="cambiarModoAuth('registro')">Crear Cuenta</button>
+            </div>
+
+            <form id="form-login" class="login-form" onsubmit="procesarLogin(event)">
+                <div class="form-group">
+                    <label>Usuario:</label>
+                    <input type="text" id="login-user" class="form-control" placeholder="Ej: patricia" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña:</label>
+                    <input type="password" id="login-pass" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top: 6px;">Entrar al Sistema</button>
+            </form>
+
+            <form id="form-registro" class="login-form" style="display:none;" onsubmit="procesarRegistro(event)">
+                <div class="form-group">
+                    <label>Nombre de la Farmacia:</label>
+                    <input type="text" id="reg-farmacia" class="form-control" placeholder="Ej: Farmacia Central" required>
+                </div>
+                <div class="form-group">
+                    <label>Tu Nombre:</label>
+                    <input type="text" id="reg-nombre" class="form-control" placeholder="Ej: Patricia" required>
+                </div>
+                <div class="form-group">
+                    <label>Crear Usuario:</label>
+                    <input type="text" id="reg-user" class="form-control" placeholder="Ej: patricia_spd" required>
+                </div>
+                <div class="form-group">
+                    <label>Crear Contraseña:</label>
+                    <input type="password" id="reg-pass" class="form-control" placeholder="Mínimo 4 caracteres" required>
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top: 6px; background: var(--success);">Crear Cuenta y Entrar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- OVERLAY MÓVIL -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="cerrarMenuLateral()"></div>
+
+    <!-- SIDEBAR RETRÁCTIL -->
+    <aside id="sidebar-menu" class="sidebar">
+        <div class="sidebar-brand">
+            <span id="label-nombre-farmacia">🏥 Farmacia SPD Pro</span>
+            <button style="background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer;" onclick="cerrarMenuLateral()">✕</button>
+        </div>
+        <ul class="nav-list">
+            <li class="nav-item active" onclick="cambiarPestana('tab-preparacion', this)">
+                <span>📦 1. Preparación de Rollos</span>
+                <span id="badge-lab-count" class="nav-badge">0</span>
+            </li>
+            <li class="nav-item" onclick="cambiarPestana('tab-recogidas', this)">
+                <span>📞 2. Avisos de Recogida</span>
+                <span id="badge-recogidas-count" class="nav-badge warning">0</span>
+            </li>
+            <li class="nav-item" onclick="cambiarPestana('tab-cupones', this)">
+                <span>📋 3. Cupones & Adelantos</span>
+                <span id="badge-cupones-count" class="nav-badge">0</span>
+            </li>
+            <li class="nav-item" onclick="cambiarPestana('tab-calendario', this)">
+                <span>📅 4. Calendario Anual</span>
+            </li>
+            <li class="nav-item" onclick="cambiarPestana('tab-alta', this)">
+                <span>➕ 5. Alta de Paciente</span>
+            </li>
+            <li class="nav-item" onclick="cambiarPestana('tab-directorio', this)">
+                <span>👥 6. Directorio General</span>
+            </li>
+            <li class="nav-item" onclick="cambiarPestana('tab-mensajeria', this)">
+                <span>💬 7. Muro de Mensajería</span>
+                <span id="badge-chat-count" class="nav-badge purple">0</span>
+            </li>
+        </ul>
+        <div class="sidebar-footer" style="padding: 12px 10px;">
+            <button class="btn-primary" style="width: 100%; background: #334155; font-size: 11.5px;" onclick="cerrarSesion()">🔒 Cerrar Sesión</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="btn-menu-toggle" onclick="toggleMenuLateral()" title="Ocultar/Mostrar Menú">☰</button>
+                <h1 id="tab-title" style="font-size: 16px; font-weight: 800;">1. Preparación de Rollos</h1>
+            </div>
+            
+            <div class="banner-semana-activa">
+                <div class="punto-parpadeo"></div>
+                <div style="font-size: 12px; font-weight: 700; color: var(--primary);">
+                    FABRICANDO EN FARMACIA: <span id="label-semana-activa-header" style="color: var(--accent); font-size: 13px;">SEMANA 4</span>
+                </div>
+            </div>
+
+            <div class="active-user-badge" style="font-size: 12px;">
+                <span>👤 <strong id="nombre-usuario-sesion" style="color:var(--accent);">Patricia</strong></span>
+            </div>
+        </header>
+
+        <!-- 1. PREPARACIÓN -->
+        <section id="tab-preparacion" class="tab-content active">
+            <div class="panel-card">
+                <div class="panel-header">
+                    <span class="panel-title">Tanda de Trabajo Actual</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <label style="font-size: 12px; font-weight: 700;">Semana Visualizada:</label>
+                        <select id="filtro-semana-preparacion" class="form-control" style="padding: 5px 10px; font-weight: 700;" onchange="renderizarTablas()">
+                            <option value="1">Semana 1</option>
+                            <option value="2">Semana 2</option>
+                            <option value="3">Semana 3</option>
+                            <option value="4">Semana 4</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Paciente</th>
+                                <th>Semana Fija</th>
+                                <th>Avisos Médicos / RE</th>
+                                <th>Caducidad Plan</th>
+                                <th>Estado Rollo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-preparacion-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. RECOGIDAS -->
+        <section id="tab-recogidas" class="tab-content">
+            <div class="panel-card">
+                <div class="panel-header">
+                    <span class="panel-title">📞 Pastilleros Listos Pendientes de Llamada</span>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Paciente</th>
+                                <th>Teléfono</th>
+                                <th>Semana</th>
+                                <th>Estado Llamada</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-recogidas-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. CUPONES -->
+        <section id="tab-cupones" class="tab-content">
+            <div class="panel-card">
+                <div class="panel-header">
+                    <span class="panel-title">📋 Medicación Adelantada & Cupones</span>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Paciente</th>
+                                <th>Teléfono</th>
+                                <th>Medicamento Adelantado</th>
+                                <th>¿Avisó Patricia?</th>
+                                <th>¿Avisó Andrea?</th>
+                                <th>Estado Receta</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-cupones-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. CALENDARIO ANUAL -->
+        <section id="tab-calendario" class="tab-content">
+            <div class="panel-card">
+                <div class="panel-header">
+                    <span class="panel-title">📅 Control Anual por Semanas</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <label style="font-size: 12px; font-weight: 700;">Año:</label>
+                        <select id="select-ano-calendario" class="form-control" style="font-weight: 800;" onchange="renderizarCalendarioAnual()"></select>
+                    </div>
+                </div>
+                <div class="grid-meses" id="contenedor-meses-ano"></div>
+            </div>
+        </section>
+
+        <!-- 5. ALTA PACIENTE -->
+        <section id="tab-alta" class="tab-content">
+            <div class="panel-card" style="max-width: 800px; margin: 0 auto;">
+                <div class="panel-header">
+                    <span class="panel-title">➕ Registro de Paciente SPD</span>
+                </div>
+                <form id="form-nuevo-paciente" onsubmit="guardarNuevoPaciente(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nombre Completo:</label>
+                            <input type="text" id="alta-nombre" class="form-control" placeholder="Nombre y Apellidos" required>
+                        </div>
+                        <div class="form-group">
+                            <label>CIP / Tarjeta Sanitaria:</label>
+                            <input type="text" id="alta-cip" class="form-control" placeholder="Código CIP" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono de Contacto:</label>
+                            <input type="text" id="alta-telefono" class="form-control" placeholder="Teléfono" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Semana Fija:</label>
+                            <select id="alta-semana" class="form-control">
+                                <option value="1">Semana 1</option>
+                                <option value="2">Semana 2</option>
+                                <option value="3">Semana 3</option>
+                                <option value="4">Semana 4</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Caducidad Plan Terapéutico:</label>
+                            <input type="date" id="alta-caducidad" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Pastillero Adelantado:</label>
+                            <select id="alta-mes-adelanto" class="form-control">
+                                <option value="">Ninguno</option>
+                                <option value="Enero">Enero</option>
+                                <option value="Febrero">Febrero</option>
+                                <option value="Marzo">Marzo</option>
+                                <option value="Abril">Abril</option>
+                                <option value="Mayo">Mayo</option>
+                                <option value="Junio">Junio</option>
+                                <option value="Julio">Julio</option>
+                                <option value="Agosto">Agosto</option>
+                                <option value="Septiembre">Septiembre</option>
+                                <option value="Octubre">Octubre</option>
+                                <option value="Noviembre">Noviembre</option>
+                                <option value="Diciembre">Diciembre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Motivo del Adelanto:</label>
+                            <input type="text" id="alta-motivo-adelanto" class="form-control" placeholder="Motivo del adelanto">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 15px; padding: 12px; background: #f8fafc; border-radius: var(--radius-sm); border: 1.5px dashed var(--border);">
+                        <label style="font-size: 12.5px; font-weight: 700; color: var(--primary);">💊 Adelanto por Salto de Receta Electrónica</label>
+                        <div id="contenedor-adelantos-alta" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;"></div>
+                        <button type="button" class="btn-primary" style="font-size: 11.5px; padding: 5px 10px; margin-top: 8px;" onclick="agregarFilaAdelantoAlta()">+ Añadir Medicamento</button>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label>Observaciones Iniciales:</label>
+                        <textarea id="alta-notas" class="form-control" rows="2" placeholder="Escribe aquí las observaciones..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="margin-top: 16px; width: 100%; justify-content: center; padding: 10px;">Guardar Paciente</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 6. DIRECTORIO -->
+        <section id="tab-directorio" class="tab-content">
+            <div class="panel-card">
+                <div class="panel-header">
+                    <span class="panel-title">Directorio General de Pacientes</span>
+                    <input type="text" id="buscador-directorio" class="form-control" placeholder="🔍 Buscar por nombre..." style="width: 220px;" oninput="renderizarTablas()">
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>CIP</th>
+                                <th>Paciente</th>
+                                <th>Teléfono</th>
+                                <th>Semana Fija</th>
+                                <th>Mes Adelantado</th>
+                                <th>Avisos Activos</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-directorio-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. MENSAJERÍA -->
+        <section id="tab-mensajeria" class="tab-content">
+            <div class="chat-container">
+                <div id="chat-box" class="chat-messages"></div>
+                <div class="chat-input-bar">
+                    <select id="chat-tipo-aviso" class="form-control" style="width: 140px;">
+                        <option value="Salto RE / Cupón">⚠️ Salto RE / Cupón</option>
+                        <option value="Adelanto Mes">📦 Adelanto Mes</option>
+                        <option value="Cambio Pauta">💊 Cambio Pauta</option>
+                        <option value="General">💬 General</option>
+                    </select>
+                    <select id="chat-paciente-relacionado" class="form-control" style="width: 160px;"></select>
+                    <input type="text" id="chat-input-texto" class="form-control" placeholder="Mensaje para el equipo..." style="flex-grow:1;" onkeypress="if(event.key==='Enter') enviarMensajeChat()">
+                    <button class="btn-primary" onclick="enviarMensajeChat()">Enviar</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL EXPEDIENTE -->
+    <div id="modal-ficha-paciente" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modal-paciente-nombre">Expediente SPD</h3>
+                <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="cerrarModalFicha()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-paciente-contenido"></div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCiEhpRiIg_2NxIJbcWq6qKgoTNWiTwGwg",
+            authDomain: "spd-farmacia-759e7.firebaseapp.com",
+            projectId: "spd-farmacia-759e7",
+            storageBucket: "spd-farmacia-759e7.firebasestorage.app",
+            messagingSenderId: "367586228969",
+            appId: "1:367586228969:web:5d760a60736d721ba90e78",
+            measurementId: "G-3RD94STKJC"
+        };
+
+        let dbCloud = null;
+        try {
+            if (window.firebase && firebase.apps.length === 0) {
+                firebase.initializeApp(firebaseConfig);
+                dbCloud = firebase.firestore();
+            }
+        } catch(e) {
+            console.log("Modo híbrido activo.");
+        }
+
+        // CONTROL DEL MENÚ LATERAL
+        function toggleMenuLateral() {
+            const sidebar = document.getElementById('sidebar-menu');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('abierto-movil');
+                backdrop.classList.toggle('activo');
+            } else {
+                sidebar.classList.toggle('oculto');
+            }
+        }
+
+        function cerrarMenuLateral() {
+            const sidebar = document.getElementById('sidebar-menu');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.remove('abierto-movil');
+            backdrop.classList.remove('activo');
+        }
+
+        function calcularCicloFabricacionActual() {
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+
+            const fechaAnclaTomas = new Date(2026, 8, 2);
+            fechaAnclaTomas.setHours(0, 0, 0, 0);
+
+            const diaSemana = hoy.getDay();
+            
+            let diasHastaTomas;
+            if (diaSemana <= 3 && diaSemana >= 1) {
+                diasHastaTomas = (3 - diaSemana) + 7;
+            } else {
+                diasHastaTomas = (3 - diaSemana + 7) % 7;
+                if (diasHastaTomas === 0) diasHastaTomas = 7;
+            }
+
+            const miercolesTomas = new Date(hoy);
+            miercolesTomas.setDate(hoy.getDate() + diasHastaTomas);
+
+            const diferenciaMs = miercolesTomas.getTime() - fechaAnclaTomas.getTime();
+            const semanasPasadas = Math.round(diferenciaMs / (1000 * 60 * 60 * 24 * 7));
+
+            let indiceSemana = (3 + (semanasPasadas % 4)) % 4;
+            if (indiceSemana < 0) indiceSemana += 4;
+
+            const numeroSemana = indiceSemana + 1;
+
+            return {
+                semana: String(numeroSemana)
+            };
+        }
+
+        function actualizarIndicadorSemanaHeader() {
+            const ciclo = calcularCicloFabricacionActual();
+            document.getElementById('label-semana-activa-header').innerText = `SEMANA ${ciclo.semana}`;
+            
+            const selectFiltro = document.getElementById('filtro-semana-preparacion');
+            if (selectFiltro && !selectFiltro.dataset.modificadoManual) {
+                selectFiltro.value = ciclo.semana;
+            }
+        }
+
+        const DB_KEY_USUARIOS = 'spd_cloud_usuarios_v19';
+        const DB_KEY_PACIENTES = 'spd_cloud_pacientes_v19';
+        const DB_KEY_CHAT = 'spd_cloud_chat_v19';
+
+        let usuariosRegistrados = JSON.parse(localStorage.getItem(DB_KEY_USUARIOS)) || [
+            { user: "patricia", pass: "1234", nombre: "Patricia", farmacia: "Farmacia Central" },
+            { user: "andrea", pass: "1234", nombre: "Andrea", farmacia: "Farmacia Central" }
+        ];
+
+        let usuarioSesionActual = JSON.parse(localStorage.getItem('spd_usuario_activo')) || null;
+
+        function cambiarModoAuth(modo) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            if (modo === 'login') {
+                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                document.getElementById('form-login').style.display = 'flex';
+                document.getElementById('form-registro').style.display = 'none';
+            } else {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('form-login').style.display = 'none';
+                document.getElementById('form-registro').style.display = 'flex';
+            }
+        }
+
+        function comprobarSesion() {
+            if (usuarioSesionActual) {
+                document.getElementById('pantalla-login').style.display = 'none';
+                document.getElementById('nombre-usuario-sesion').innerText = usuarioSesionActual.nombre;
+                document.getElementById('label-nombre-farmacia').innerText = "🏥 " + (usuarioSesionActual.farmacia || "Farmacia SPD");
+                iniciarEscuchaTiempoReal();
+            }
+        }
+
+        function procesarLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('login-user').value.trim().toLowerCase();
+            const p = document.getElementById('login-pass').value.trim();
+
+            const encontrado = usuariosRegistrados.find(x => x.user.toLowerCase() === u && x.pass === p);
+            if (encontrado) {
+                usuarioSesionActual = encontrado;
+                localStorage.setItem('spd_usuario_activo', JSON.stringify(encontrado));
+                comprobarSesion();
+            } else {
+                alert("Usuario o contraseña no válidos.");
+            }
+        }
+
+        function procesarRegistro(e) {
+            e.preventDefault();
+            const farmacia = document.getElementById('reg-farmacia').value.trim();
+            const nombre = document.getElementById('reg-nombre').value.trim();
+            const user = document.getElementById('reg-user').value.trim().toLowerCase();
+            const pass = document.getElementById('reg-pass').value.trim();
+
+            if (usuariosRegistrados.some(x => x.user.toLowerCase() === user)) {
+                alert("Ese usuario ya existe.");
+                return;
+            }
+
+            const nuevoUsuario = { user, pass, nombre, farmacia };
+            usuariosRegistrados.push(nuevoUsuario);
+            localStorage.setItem(DB_KEY_USUARIOS, JSON.stringify(usuariosRegistrados));
+
+            usuarioSesionActual = nuevoUsuario;
+            localStorage.setItem('spd_usuario_activo', JSON.stringify(nuevoUsuario));
+            comprobarSesion();
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('spd_usuario_activo');
+            usuarioSesionActual = null;
+            document.getElementById('pantalla-login').style.display = 'flex';
+        }
+
+        const datosIniciales = [
+            {
+                id: 1,
+                nombre: "Rafael Romero Scola",
+                cip: "ROMS5001",
+                telefono: "600112233",
+                semana: "4",
+                caducidadPlan: "2026-09-15",
+                preparado: false,
+                avisadoRecogida: false,
+                mesAdelantado: "Febrero",
+                motivoAdelanto: "Viaje familiar",
+                adelantos: [
+                    { id: 101, med: "Adiro 100mg", limite: "2026-09-01", cobrado: false, avisadoPatricia: true, avisadoAndrea: false, motivo: "Salto en RE" }
+                ],
+                avisos: [],
+                notas: ""
+            },
+            {
+                id: 2,
+                nombre: "Carmen López Pérez",
+                cip: "LOPP6511",
+                telefono: "611223344",
+                semana: "4",
+                caducidadPlan: "2026-12-01",
+                preparado: true,
+                avisadoRecogida: false,
+                mesAdelantado: "",
+                motivoAdelanto: "",
+                adelantos: [],
+                avisos: [],
+                notas: ""
+            },
+            {
+                id: 3,
+                nombre: "Manuel García Martín",
+                cip: "GARM7712",
+                telefono: "622334455",
+                semana: "1",
+                caducidadPlan: "2026-11-20",
+                preparado: true,
+                avisadoRecogida: true,
+                mesAdelantado: "Agosto",
+                motivoAdelanto: "Vacaciones",
+                adelantos: [],
+                avisos: [],
+                notas: ""
+            },
+            {
+                id: 4,
+                nombre: "Ana Ruiz Blanco",
+                cip: "RUIB8004",
+                telefono: "633445566",
+                semana: "2",
+                caducidadPlan: "2026-10-10",
+                preparado: false,
+                avisadoRecogida: false,
+                mesAdelantado: "",
+                motivoAdelanto: "",
+                adelantos: [],
+                avisos: [],
+                notas: ""
+            }
+        ];
+
+        let pacientes = JSON.parse(localStorage.getItem(DB_KEY_PACIENTES)) || datosIniciales;
+        let chatMensajes = JSON.parse(localStorage.getItem(DB_KEY_CHAT)) || [];
+
+        function iniciarEscuchaTiempoReal() {
+            if (dbCloud && usuarioSesionActual) {
+                const idFarmacia = usuarioSesionActual.farmacia.replace(/\s+/g, '_').toLowerCase();
+                dbCloud.collection("farmacias").doc(idFarmacia).onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        if (data.pacientes) pacientes = data.pacientes;
+                        if (data.chatMensajes) chatMensajes = data.chatMensajes;
+                        localStorage.setItem(DB_KEY_PACIENTES, JSON.stringify(pacientes));
+                        localStorage.setItem(DB_KEY_CHAT, JSON.stringify(chatMensajes));
+                        renderizarTablas();
+                        renderizarCalendarioAnual();
+                    }
+                });
+            }
+        }
+
+        function guardarDatos() {
+            localStorage.setItem(DB_KEY_PACIENTES, JSON.stringify(pacientes));
+            localStorage.setItem(DB_KEY_CHAT, JSON.stringify(chatMensajes));
+
+            if (dbCloud && usuarioSesionActual) {
+                const idFarmacia = usuarioSesionActual.farmacia.replace(/\s+/g, '_').toLowerCase();
+                dbCloud.collection("farmacias").doc(idFarmacia).set({
+                    pacientes: pacientes,
+                    chatMensajes: chatMensajes,
+                    ultimaActualizacion: new Date().toISOString()
+                }, { merge: true });
+            }
+        }
+
+        function cambiarPestana(idTab, elemento) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(idTab).classList.add('active');
+            elemento.classList.add('active');
+
+            const titulos = {
+                'tab-preparacion': '1. Preparación de Rollos',
+                'tab-recogidas': '2. Avisos de Recogida',
+                'tab-cupones': '3. Control de Cupones y Teléfonos',
+                'tab-calendario': '4. Planificación Anual',
+                'tab-alta': '5. Registro de Pacientes',
+                'tab-directorio': '6. Directorio General',
+                'tab-mensajeria': '7. Muro de Mensajes'
+            };
+            document.getElementById('tab-title').innerText = titulos[idTab];
+            
+            if (window.innerWidth <= 768) {
+                cerrarMenuLateral();
+            }
+
+            renderizarTablas();
+            if(idTab === 'tab-calendario') renderizarCalendarioAnual();
+        }
+
+        function inicializarSelectorAnos() {
+            const selectAno = document.getElementById('select-ano-calendario');
+            const anoActual = new Date().getFullYear();
+            selectAno.innerHTML = "";
+            for (let i = anoActual - 1; i <= anoActual + 3; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.innerText = i;
+                if (i === anoActual) opt.selected = true;
+                selectAno.appendChild(opt);
+            }
+        }
+
+        function renderizarCalendarioAnual() {
+            const mesesNombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            const cont = document.getElementById('contenedor-meses-ano');
+            const anoSeleccionado = parseInt(document.getElementById('select-ano-calendario').value);
+            const fechaHoy = new Date();
+            const esAnoActual = fechaHoy.getFullYear() === anoSeleccionado;
+            const cicloActual = calcularCicloFabricacionActual();
+
+            cont.innerHTML = "";
+
+            mesesNombres.forEach((nombreMes, indexMes) => {
+                const esMesActual = esAnoActual && fechaHoy.getMonth() === indexMes;
+
+                let semanasHTML = "";
+                for (let semNum = 1; semNum <= 4; semNum++) {
+                    const pacientesSemana = pacientes.filter(p => p.semana === String(semNum));
+                    let chipsHTML = "";
+
+                    if (pacientesSemana.length === 0) {
+                        chipsHTML = '<span style="font-size:11px; color:#94a3b8;">Sin pacientes</span>';
+                    } else {
+                        pacientesSemana.forEach(p => {
+                            const esAdelantadoEsteMes = p.mesAdelantado === nombreMes;
+                            const claseEstado = p.preparado ? 'listo' : 'pendiente';
+                            const badgeAdelanto = esAdelantadoEsteMes ? '📦 ' : '';
+                            chipsHTML += `
+                                <div class="chip-paciente ${claseEstado} ${esAdelantadoEsteMes ? 'adelantado':''}" onclick="abrirFichaPaciente(${p.id})">
+                                    <span>${badgeAdelanto}${p.nombre.split(' ')[0]} ${p.nombre.split(' ')[1] ? p.nombre.split(' ')[1].charAt(0)+'.' : ''}</span>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    const esSemanaEnCurso = esMesActual && String(semNum) === cicloActual.semana;
+
+                    semanasHTML += `
+                        <div class="semana-bloque ${esSemanaEnCurso ? 'semana-activa-borde' : ''}">
+                            <div class="semana-bloque-header">
+                                <span style="${esSemanaEnCurso ? 'color:var(--accent); font-weight:800;' : ''}">Semana ${semNum}</span>
+                                <span>${pacientesSemana.length} pac.</span>
+                            </div>
+                            <div class="pacientes-chips-container">${chipsHTML}</div>
+                        </div>
+                    `;
+                }
+
+                cont.innerHTML += `
+                    <div class="mes-card ${esMesActual ? 'actual' : ''}">
+                        <div class="mes-header">
+                            <span class="mes-title">${nombreMes} ${anoSeleccionado}</span>
+                        </div>
+                        ${semanasHTML}
+                    </div>
+                `;
+            });
+        }
+
+        function renderizarTablas() {
+            renderizarPreparacion();
+            renderizarRecogidas();
+            renderizarCupones();
+            renderizarDirectorio();
+            renderizarChat();
+            actualizarBadges();
+            actualizarSelectPacientesChat();
+            actualizarIndicadorSemanaHeader();
+        }
+
+        function renderizarPreparacion() {
+            const sem = document.getElementById('filtro-semana-preparacion').value;
+            const tbody = document.getElementById('tabla-preparacion-body');
+            tbody.innerHTML = "";
+
+            const filtrados = pacientes.filter(p => p.semana === sem);
+            filtrados.forEach(p => {
+                const avisosActivos = p.avisos ? p.avisos.filter(a => !a.resuelto) : [];
+                let avisosHTML = '<span class="badge badge-neutral">Sin avisos</span>';
+                if (avisosActivos.length > 0) {
+                    avisosHTML = `<span class="badge badge-warning" style="cursor:pointer;" onclick="abrirFichaPaciente(${p.id})">⚠️ ${avisosActivos.length} aviso(s)</span>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${p.nombre}</strong><br><small style="color:#64748b;">CIP: ${p.cip} | Tlf: ${p.telefono}</small></td>
+                        <td><span class="badge badge-neutral">Semana ${p.semana}</span></td>
+                        <td>${avisosHTML}</td>
+                        <td>${p.caducidadPlan}</td>
+                        <td><span class="badge ${p.preparado ? 'badge-success' : 'badge-danger'}">${p.preparado ? '✓ Rollo Listo' : '⏳ Pendiente'}</span></td>
+                        <td>
+                            <button class="btn-success" onclick="conmutarPreparacion(${p.id})">${p.preparado ? 'Desmarcar' : 'Marcar Listo'}</button>
+                            <button class="btn-primary" style="padding:5px 10px; font-size:11.5px;" onclick="abrirFichaPaciente(${p.id})">Ficha</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderizarRecogidas() {
+            const tbody = document.getElementById('tabla-recogidas-body');
+            tbody.innerHTML = "";
+            const listado = pacientes.filter(p => p.preparado && !p.avisadoRecogida);
+
+            listado.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${p.nombre}</strong></td>
+                        <td><a href="tel:${p.telefono}" style="color:var(--accent); font-weight:700; text-decoration:none;">📞 ${p.telefono}</a></td>
+                        <td><span class="badge badge-neutral">Semana ${p.semana}</span></td>
+                        <td><span class="badge badge-danger">Pendiente avisar</span></td>
+                        <td><button class="btn-success" onclick="marcarAvisadoRecogida(${p.id})">✓ Ya avisado</button></td>
+                    </tr>
+                `;
+            });
+            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No hay pastilleros pendientes de llamada.</td></tr>`;
+        }
+
+        function renderizarCupones() {
+            const tbody = document.getElementById('tabla-cupones-body');
+            tbody.innerHTML = "";
+            const conAdelantos = pacientes.filter(p => p.adelantos && p.adelantos.length > 0);
+
+            conAdelantos.forEach(p => {
+                p.adelantos.forEach((ad, idx) => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${p.nombre}</strong></td>
+                            <td><a href="tel:${p.telefono}" style="color:var(--accent); font-weight:700; text-decoration:none;">📞 ${p.telefono}</a></td>
+                            <td><span class="badge badge-info">${ad.med}</span> (Límite: ${ad.limite})</td>
+                            <td><input type="checkbox" ${ad.avisadoPatricia ? 'checked' : ''} onchange="conmutarAvisoCupon(${p.id}, ${idx}, 'patricia')"> Patricia</td>
+                            <td><input type="checkbox" ${ad.avisadoAndrea ? 'checked' : ''} onchange="conmutarAvisoCupon(${p.id}, ${idx}, 'andrea')"> Andrea</td>
+                            <td><button class="btn-primary" style="font-size:11px; padding:4px 8px;" onclick="conmutarCobroAdelanto(${p.id}, ${idx})">${ad.cobrado ? '✓ Regularizado' : '⚠️ Pendiente'}</button></td>
+                        </tr>
+                    `;
+                });
+            });
+            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">No hay cupones pendientes.</td></tr>`;
+        }
+
+        function renderizarDirectorio() {
+            const query = document.getElementById('buscador-directorio').value.toLowerCase();
+            const tbody = document.getElementById('tabla-directorio-body');
+            tbody.innerHTML = "";
+
+            pacientes.filter(p => p.nombre.toLowerCase().includes(query) || p.cip.toLowerCase().includes(query)).forEach(p => {
+                const numAvisos = p.avisos ? p.avisos.filter(a => !a.resuelto).length : 0;
+                const adelantoTxt = p.mesAdelantado ? `<span class="badge badge-warning">📦 ${p.mesAdelantado}</span>` : '-';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><code>${p.cip}</code></td>
+                        <td><strong>${p.nombre}</strong></td>
+                        <td>${p.telefono}</td>
+                        <td>Semana ${p.semana}</td>
+                        <td>${adelantoTxt}</td>
+                        <td><span class="badge ${numAvisos > 0 ? 'badge-warning' : 'badge-neutral'}">${numAvisos} activos</span></td>
+                        <td><button class="btn-primary" style="padding:4px 8px; font-size:11px;" onclick="abrirFichaPaciente(${p.id})">Abrir</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderizarChat() {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML = "";
+
+            chatMensajes.forEach(m => {
+                const esPropio = usuarioSesionActual && m.autor.toLowerCase() === usuarioSesionActual.nombre.toLowerCase();
+                chatBox.innerHTML += `
+                    <div class="msg-bubble ${esPropio ? 'propio' : 'companera'}">
+                        <div class="msg-meta"><span>${m.autor}</span><span>${m.fecha}</span></div>
+                        <div><strong>[${m.tipo}]</strong> - Paciente: <u>${m.paciente}</u></div>
+                        <div style="margin-top:3px;">${m.texto}</div>
+                    </div>
+                `;
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function actualizarBadges() {
+            document.getElementById('badge-lab-count').innerText = pacientes.filter(p => !p.preparado).length;
+            document.getElementById('badge-recogidas-count').innerText = pacientes.filter(p => p.preparado && !p.avisadoRecogida).length;
+            document.getElementById('badge-cupones-count').innerText = pacientes.reduce((acc, p) => acc + (p.adelantos ? p.adelantos.filter(a => !a.cobrado).length : 0), 0);
+            document.getElementById('badge-chat-count').innerText = chatMensajes.length;
+        }
+
+        function actualizarSelectPacientesChat() {
+            const sel = document.getElementById('chat-paciente-relacionado');
+            sel.innerHTML = `<option value="General">-- Mensaje General --</option>`;
+            pacientes.forEach(p => sel.innerHTML += `<option value="${p.nombre}">${p.nombre}</option>`);
+        }
+
+        function conmutarPreparacion(id) {
+            const p = pacientes.find(x => x.id === id);
+            if (p) { p.preparado = !p.preparado; if(!p.preparado) p.avisadoRecogida = false; guardarDatos(); renderizarTablas(); renderizarCalendarioAnual(); }
+        }
+
+        function marcarAvisadoRecogida(id) {
+            const p = pacientes.find(x => x.id === id);
+            if (p) { p.avisadoRecogida = true; guardarDatos(); renderizarTablas(); }
+        }
+
+        function conmutarAvisoCupon(idPac, indexAdelanto, persona) {
+            const p = pacientes.find(x => x.id === idPac);
+            if (p && p.adelantos && p.adelantos[indexAdelanto]) {
+                if (persona === 'patricia') p.adelantos[indexAdelanto].avisadoPatricia = !p.adelantos[indexAdelanto].avisadoPatricia;
+                else if (persona === 'andrea') p.adelantos[indexAdelanto].avisadoAndrea = !p.adelantos[indexAdelanto].avisadoAndrea;
+                guardarDatos();
+            }
+        }
+
+        function conmutarCobroAdelanto(idPac, indexAdelanto) {
+            const p = pacientes.find(x => x.id === idPac);
+            if (p && p.adelantos && p.adelantos[indexAdelanto]) {
+                p.adelantos[indexAdelanto].cobrado = !p.adelantos[indexAdelanto].cobrado;
+                guardarDatos();
+                renderizarTablas();
+            }
+        }
+
+        function enviarMensajeChat() {
+            const input = document.getElementById('chat-input-texto');
+            const texto = input.value.trim();
+            if (!texto) return;
+
+            const autor = usuarioSesionActual ? usuarioSesionActual.nombre : "Farmacia";
+            const tipo = document.getElementById('chat-tipo-aviso').value;
+            const pac = document.getElementById('chat-paciente-relacionado').value;
+            const fecha = new Date().toLocaleDateString('es-ES') + " " + new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+
+            chatMensajes.push({ id: Date.now(), autor, tipo, paciente: pac, texto, fecha });
+            if (pac !== "General") {
+                const pacienteObj = pacientes.find(p => p.nombre === pac);
+                if (pacienteObj) {
+                    if (!pacienteObj.avisos) pacienteObj.avisos = [];
+                    pacienteObj.avisos.push({ id: Date.now(), autor, tipo, mensaje: texto, fecha: new Date().toISOString().split('T')[0], resuelto: false });
+                }
+            }
+
+            input.value = "";
+            guardarDatos();
+            renderizarTablas();
+        }
+
+        function agregarFilaAdelantoAlta() {
+            const cont = document.getElementById('contenedor-adelantos-alta');
+            const div = document.createElement('div');
+            div.style.display = 'flex';
+            div.style.gap = '8px';
+            div.innerHTML = `
+                <input type="text" class="form-control input-alta-med" placeholder="Medicamento" style="flex-grow:1;" required>
+                <input type="date" class="form-control input-alta-limite" required>
+                <button type="button" class="btn-primary" style="background:var(--danger); padding:4px 8px;" onclick="this.parentElement.remove()">✕</button>
+            `;
+            cont.appendChild(div);
+        }
+
+        function guardarNuevoPaciente(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('alta-nombre').value.trim();
+            const cip = document.getElementById('alta-cip').value.trim();
+            const telefono = document.getElementById('alta-telefono').value.trim();
+            const semana = document.getElementById('alta-semana').value;
+            const caducidad = document.getElementById('alta-caducidad').value;
+            const mesAdelantado = document.getElementById('alta-mes-adelanto').value;
+            const motivoAdelanto = document.getElementById('alta-motivo-adelanto').value.trim();
+            const notas = document.getElementById('alta-notas').value.trim();
+
+            let adelantos = [];
+            document.querySelectorAll('#contenedor-adelantos-alta > div').forEach(fila => {
+                const med = fila.querySelector('.input-alta-med').value.trim();
+                const limite = fila.querySelector('.input-alta-limite').value;
+                if (med) adelantos.push({ id: Date.now(), med, limite, cobrado: false, avisadoPatricia: false, avisadoAndrea: false, motivo: "Salto RE" });
+            });
+
+            pacientes.push({
+                id: Date.now(), nombre, cip, telefono, semana, caducidadPlan: caducidad,
+                preparado: false, avisadoRecogida: false, mesAdelantado, motivoAdelanto,
+                adelantos, avisos: [], notas
+            });
+
+            guardarDatos();
+            alert("✅ Paciente registrado con éxito.");
+            document.getElementById('form-nuevo-paciente').reset();
+            document.getElementById('contenedor-adelantos-alta').innerHTML = "";
+            renderizarTablas();
+            renderizarCalendarioAnual();
+            cambiarPestana('tab-directorio', document.querySelectorAll('.nav-item')[5]);
+        }
+
+        function abrirFichaPaciente(id) {
+            const p = pacientes.find(x => x.id === id);
+            if (!p) return;
+
+            const pendientes = p.avisos ? p.avisos.filter(a => !a.resuelto) : [];
+            if (pendientes.length > 0) {
+                let msg = `⚠️ AVISOS PENDIENTES:\n\n`;
+                pendientes.forEach(a => msg += `• [${a.tipo}] (${a.autor}): ${a.mensaje}\n`);
+                alert(msg);
+            }
+
+            document.getElementById('modal-paciente-nombre').innerText = `Expediente: ${p.nombre} (CIP: ${p.cip})`;
+            
+            let avisosHtml = "";
+            if (p.avisos && p.avisos.length > 0) {
+                p.avisos.forEach(a => {
+                    avisosHtml += `
+                        <div style="background:${a.resuelto ? '#f1f5f9':'#fef3c7'}; padding:10px; border-radius:8px; margin-bottom:6px; border-left:4px solid ${a.resuelto ? '#94a3b8':'#f59e0b'};">
+                            <div style="font-size:12px; font-weight:700;">${a.tipo} - Por: ${a.autor} (${a.fecha})</div>
+                            <div style="font-size:13px; margin:3px 0;">${a.mensaje}</div>
+                            ${!a.resuelto ? `<button class="btn-success" style="font-size:11px; padding:3px 7px;" onclick="resolverAvisoModal(${p.id}, ${a.id})">✓ Marcar Resuelto</button>` : '<small>✓ Resuelto</small>'}
+                        </div>
+                    `;
+                });
+            }
+
+            let bannerAdelanto = "";
+            if(p.mesAdelantado) {
+                bannerAdelanto = `
+                    <div style="background:#fff7ed; border-left:4px solid #f97316; padding:10px 14px; border-radius:6px; font-size:12.5px; color:#9a3412; font-weight:600;">
+                        📦 <strong>Pastillero Adelantado en ${p.mesAdelantado}:</strong> ${p.motivoAdelanto || 'Petición del paciente'}
+                    </div>
+                `;
+            }
+
+            let adelantosHtml = "";
+            if (p.adelantos && p.adelantos.length > 0) {
+                p.adelantos.forEach((ad, idx) => {
+                    adelantosHtml += `
+                        <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:6px; border:1px solid #e2e8f0; font-size:12.5px;">
+                            <div>
+                                <strong>${ad.med}</strong> - Límite: ${ad.limite}
+                                <span class="badge ${ad.cobrado ? 'badge-success' : 'badge-warning'}" style="margin-left:6px;">${ad.cobrado ? 'Regularizado' : 'Pendiente Receta'}</span>
+                            </div>
+                            <button class="btn-danger" onclick="eliminarAdelantoFicha(${p.id}, ${idx})">✕ Eliminar</button>
+                        </div>
+                    `;
+                });
+            } else {
+                adelantosHtml = '<p style="color:#94a3b8; font-size:12px;">No tiene medicamentos adelantados.</p>';
+            }
+
+            document.getElementById('modal-paciente-contenido').innerHTML = `
+                ${bannerAdelanto}
+                <div style="font-size:13px; line-height:1.6; background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+                    <strong>Teléfono:</strong> <a href="tel:${p.telefono}" style="color:var(--accent); font-weight:bold;">${p.telefono}</a><br>
+                    <strong>Semana Fija:</strong> Semana ${p.semana} | <strong>Caducidad Plan:</strong> ${p.caducidadPlan}<br>
+                    <strong>Estado Rollo:</strong> ${p.preparado ? '✓ Rollo Preparado' : '⏳ Pendiente de Fabricar'}
+                </div>
+
+                <!-- OBSERVACIONES 100% EDITABLES POR CUALQUIER USUARIO -->
+                <div style="background:white; padding:14px; border-radius:8px; border:1.5px solid #cbd5e1;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <label style="font-size:13px; font-weight:800; color:var(--primary);">📝 Observaciones del Paciente:</label>
+                        <button class="btn-primary" style="font-size:11.5px; padding:4px 10px;" onclick="guardarObservacionesFicha(${p.id})">💾 Guardar Observaciones</button>
+                    </div>
+                    <textarea id="modal-observaciones-texto" class="form-control" rows="3" placeholder="Escribe aquí las observaciones o notas de este paciente...">${p.notas || ''}</textarea>
+                </div>
+
+                <!-- MEDICAMENTOS ADELANTADOS -->
+                <div style="background:#f1f5f9; padding:14px; border-radius:8px; border:1.5px solid #cbd5e1;">
+                    <h4 style="font-weight:800; font-size:13.5px; margin-bottom:8px; color:var(--primary);">💊 Añadir Medicamento Adelantado a este Expediente</h4>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <input type="text" id="input-modal-med" class="form-control" placeholder="Nombre del Medicamento" style="flex:2; min-width:180px;">
+                        <input type="date" id="input-modal-limite" class="form-control" style="flex:1; min-width:130px;">
+                        <button class="btn-primary" onclick="agregarAdelantoDesdeFicha(${p.id})">+ Guardar Adelanto</button>
+                    </div>
+                    <div style="margin-top:10px; display:flex; flex-direction:column; gap:6px;">
+                        <label style="font-size:12px; font-weight:700;">Historial de Medicación Adelantada:</label>
+                        ${adelantosHtml}
+                    </div>
+                </div>
+
+                <h4 style="font-weight:800; font-size:13.5px; margin-top:2px;">Avisos Médicos & Notas</h4>
+                ${avisosHtml || '<p style="color:#94a3b8; font-size:12.5px;">No hay notas registradas.</p>'}
+            `;
+
+            document.getElementById('modal-ficha-paciente').style.display = 'flex';
+        }
+
+        // GUARDAR OBSERVACIONES EDITADAS
+        function guardarObservacionesFicha(idPac) {
+            const p = pacientes.find(x => x.id === idPac);
+            if (p) {
+                const nuevoTexto = document.getElementById('modal-observaciones-texto').value;
+                p.notas = nuevoTexto;
+                guardarDatos();
+                alert("✅ Observaciones guardadas correctamente.");
+                renderizarTablas();
+            }
+        }
+
+        function agregarAdelantoDesdeFicha(idPac) {
+            const medInput = document.getElementById('input-modal-med');
+            const limiteInput = document.getElementById('input-modal-limite');
+
+            const med = medInput.value.trim();
+            const limite = limiteInput.value;
+
+            if (!med || !limite) {
+                alert("Por favor indica el nombre del medicamento y la fecha límite.");
+                return;
+            }
+
+            const p = pacientes.find(x => x.id === idPac);
+            if (p) {
+                if (!p.adelantos) p.adelantos = [];
+                p.adelantos.push({
+                    id: Date.now(),
+                    med: med,
+                    limite: limite,
+                    cobrado: false,
+                    avisadoPatricia: false,
+                    avisadoAndrea: false,
+                    motivo: "Salto RE"
+                });
+                guardarDatos();
+                abrirFichaPaciente(idPac);
+                renderizarTablas();
+            }
+        }
+
+        function eliminarAdelantoFicha(idPac, indexAdelanto) {
+            const p = pacientes.find(x => x.id === idPac);
+            if (p && p.adelantos) {
+                p.adelantos.splice(indexAdelanto, 1);
+                guardarDatos();
+                abrirFichaPaciente(idPac);
+                renderizarTablas();
+            }
+        }
+
+        function resolverAvisoModal(idPac, idAviso) {
+            const p = pacientes.find(x => x.id === idPac);
+            if (p && p.avisos) {
+                const av = p.avisos.find(a => a.id === idAviso);
+                if (av) av.resuelto = true;
+                guardarDatos();
+                abrirFichaPaciente(idPac);
+                renderizarTablas();
+            }
+        }
+
+        function cerrarModalFicha() {
+            document.getElementById('modal-ficha-paciente').style.display = 'none';
+        }
+
+        document.getElementById('filtro-semana-preparacion').addEventListener('change', function() {
+            this.dataset.modificadoManual = "true";
+        });
+
+        comprobarSesion();
+        inicializarSelectorAnos();
+        renderizarTablas();
+        renderizarCalendarioAnual();
+    </script>
+</body>
+</html>
