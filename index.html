@@ -3,32 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistema SPD Pro Cloud - Farmacia</title>
+    <title>FarmaSPD - Gestión y Trazabilidad SPD</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- SDK FIREBASE CLOUD -->
+    <!-- SDK FIREBASE CLOUD & AUTH -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
-    <!-- MANIFEST INTEGRADO PARA PWA -->
-    <link rel="manifest" href="data:application/manifest+json;utf-8,%7B%22name%22%3A%22SPD%20Farmacia%20Pro%22%2C%22short_name%22%3A%22SPD%20Pro%22%2C%22start_url%22%3A%22.%2Findex.html%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%230284c7%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F883%2F883407.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            const swBlob = new Blob([`
-                self.addEventListener('install', e => self.skipWaiting());
-                self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
-            `], { type: 'application/javascript' });
-            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
-        }
-    </script>
 
     <style>
         :root {
-            --primary: #0f172a;
-            --primary-light: #1e293b;
+            --primary: #092c4c;
+            --primary-light: #134e7c;
             --accent: #0284c7;
             --accent-light: #e0f2fe;
+            --brand-teal: #0d9488;
+            --brand-teal-light: #ccfbf1;
             --success: #10b981;
             --success-light: #d1fae5;
             --warning: #f59e0b;
@@ -38,43 +28,46 @@
             --purple: #8b5cf6;
             --purple-light: #ede9fe;
             --bg: #f8fafc;
+            --card-bg: #ffffff;
             --border: #e2e8f0;
-            --text-main: #1e293b;
+            --text-main: #0f172a;
             --text-muted: #64748b;
-            --sidebar-w: 260px;
+            --sidebar-w: 270px;
             --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 16px;
-            --shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; position: relative; }
 
         /* PANTALLA LOGIN */
-        #pantalla-login { position: fixed; inset: 0; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); z-index: 99999; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .login-card { background: white; width: 100%; max-width: 420px; padding: 32px 28px; border-radius: var(--radius-lg); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); text-align: center; }
-        .login-brand-icon { width: 50px; height: 50px; background: var(--accent); color: white; font-size: 26px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; box-shadow: 0 4px 10px rgba(2,132,199,0.35); }
-        .login-card h2 { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
-        .login-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+        #pantalla-login { position: fixed; inset: 0; background: radial-gradient(circle at 20% 20%, #1e293b 0%, #092c4c 100%); z-index: 99999; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .login-card { background: white; width: 100%; max-width: 440px; padding: 36px 30px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); text-align: center; }
+        .login-logo { width: 54px; height: 54px; background: linear-gradient(135deg, var(--brand-teal) 0%, var(--accent) 100%); color: white; font-size: 28px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: 0 6px 15px rgba(13, 148, 136, 0.35); }
+        .login-card h2 { font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+        .login-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 22px; }
         
-        .auth-tabs { display: flex; border-bottom: 1.5px solid var(--border); margin-bottom: 18px; }
-        .auth-tab { flex: 1; padding: 10px; font-size: 13px; font-weight: 700; color: var(--text-muted); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; }
+        .auth-tabs { display: flex; border-bottom: 1.5px solid var(--border); margin-bottom: 20px; }
+        .auth-tab { flex: 1; padding: 10px; font-size: 13.5px; font-weight: 700; color: var(--text-muted); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
         .auth-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-        .login-form { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+        .login-form { display: flex; flex-direction: column; gap: 13px; text-align: left; }
         .login-form label { font-size: 12px; font-weight: 700; color: var(--primary); }
 
-        /* MENÚ LATERAL / SIDEBAR RETRÁCTIL */
+        /* SIDEBAR */
         .sidebar { 
             width: var(--sidebar-w); 
-            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); 
+            background: linear-gradient(180deg, #092c4c 0%, #0f172a 100%); 
             color: white; 
             display: flex; 
             flex-direction: column; 
             flex-shrink: 0; 
-            box-shadow: 4px 0 15px rgba(0,0,0,0.1); 
-            transition: transform 0.28s ease, width 0.28s ease; 
+            box-shadow: 4px 0 20px rgba(0,0,0,0.12); 
+            transition: transform 0.28s ease; 
             z-index: 1000;
         }
 
@@ -84,16 +77,35 @@
             height: 100%;
         }
 
-        .sidebar-brand { padding: 18px 20px; font-size: 15px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; }
-        .nav-list { list-style: none; padding: 15px 10px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
-        .nav-item { padding: 12px 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); color: #94a3b8; transition: all 0.2s; }
+        .sidebar-brand { 
+            padding: 20px; 
+            border-bottom: 1px solid rgba(255,255,255,0.08); 
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+        }
+        .sidebar-brand-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--brand-teal);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            flex-shrink: 0;
+        }
+        .sidebar-brand-text h3 { font-size: 14px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 145px; }
+        .sidebar-brand-text span { font-size: 11px; color: #94a3b8; font-weight: 600; }
+
+        .nav-list { list-style: none; padding: 14px 10px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+        .nav-item { padding: 11px 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); color: #94a3b8; transition: all 0.2s; }
         .nav-item:hover { background: rgba(255,255,255,0.06); color: white; }
-        .nav-item.active { background: var(--accent); color: white; }
+        .nav-item.active { background: linear-gradient(90deg, var(--accent) 0%, #0274b3 100%); color: white; font-weight: 700; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25); }
         .nav-badge { background: var(--danger); color: white; padding: 2px 7px; border-radius: 10px; font-size: 11px; font-weight: 700; }
         .nav-badge.warning { background: var(--warning); color: #78350f; }
         .nav-badge.purple { background: var(--purple); color: white; }
 
-        /* OVERLAY MÓVIL CUANDO EL MENÚ ESTÁ ABIERTO */
         .sidebar-backdrop { 
             display: none; 
             position: fixed; 
@@ -107,13 +119,14 @@
         
         .topbar { 
             background: white; 
-            padding: 12px 18px; 
+            padding: 12px 20px; 
             border-bottom: 1px solid var(--border); 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             flex-wrap: wrap; 
-            gap: 10px; 
+            gap: 12px; 
+            box-shadow: var(--shadow-sm);
         }
 
         .topbar-left { display: flex; align-items: center; gap: 12px; }
@@ -122,58 +135,73 @@
             background: #f1f5f9;
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 17px;
             cursor: pointer;
             color: var(--primary);
             transition: all 0.2s;
         }
         .btn-menu-toggle:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
 
-        .banner-semana-activa { display: flex; align-items: center; gap: 8px; background: linear-gradient(90deg, #e0f2fe 0%, #f0fdf4 100%); border: 1.5px solid #bae6fd; padding: 6px 12px; border-radius: 30px; }
+        .banner-semana-activa { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            background: linear-gradient(90deg, #e0f2fe 0%, #f0fdf4 100%); 
+            border: 1.5px solid #bae6fd; 
+            padding: 6px 14px; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            transition: transform 0.15s;
+        }
+        .banner-semana-activa:hover { transform: scale(1.02); }
         .punto-parpadeo { width: 9px; height: 9px; border-radius: 50%; background-color: var(--success); box-shadow: 0 0 8px var(--success); animation: pulse 1.8s infinite; }
 
         @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
 
-        .tab-content { flex-grow: 1; padding: 18px; overflow-y: auto; display: none; }
+        .tab-content { flex-grow: 1; padding: 20px; overflow-y: auto; display: none; }
         .tab-content.active { display: block; }
 
-        .panel-card { background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px; margin-bottom: 18px; }
-        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 8px; }
-        .panel-title { font-size: 15px; font-weight: 800; color: var(--primary); }
+        .panel-card { background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 18px; margin-bottom: 20px; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 10px; }
+        .panel-title { font-size: 15.5px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 6px; }
 
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-group label { font-size: 12px; font-weight: 700; color: var(--primary); }
-        .form-control { padding: 9px 12px; font-size: 13px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); outline: none; background: white; }
+        .form-control { padding: 9px 12px; font-size: 13px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); outline: none; background: white; transition: border-color 0.2s; }
         .form-control:focus { border-color: var(--accent); }
 
-        .btn-primary { background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-success { background: var(--success); color: white; border: none; padding: 7px 11px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 11.5px; }
+        .btn-primary { background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
+        .btn-primary:hover { opacity: 0.92; }
+        .btn-success { background: var(--brand-teal); color: white; border: none; padding: 7px 12px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 11.5px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s; }
+        .btn-success:hover { background: #0f766e; }
+        .btn-whatsapp { background: #25d366; color: white; border: none; padding: 7px 11px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; }
+        .btn-whatsapp:hover { background: #128c7e; }
         .btn-danger { background: var(--danger); color: white; border: none; padding: 6px 10px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 11px; }
 
-        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; min-width: 550px; }
-        th { background: #f8fafc; font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 11px; padding: 10px 12px; border-bottom: 1.5px solid var(--border); }
-        td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; min-width: 650px; }
+        th { background: #f8fafc; font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 11px; padding: 11px 12px; border-bottom: 1.5px solid var(--border); letter-spacing: 0.3px; }
+        td { padding: 12px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
         tr:hover td { background: #f8fafc; }
 
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 16px; font-size: 11px; font-weight: 700; }
         .badge-info { background: var(--accent-light); color: var(--accent); }
         .badge-warning { background: var(--warning-light); color: #b45309; }
         .badge-danger { background: var(--danger-light); color: var(--danger); }
-        .badge-success { background: var(--success-light); color: var(--success); }
+        .badge-success { background: var(--success-light); color: var(--brand-teal); }
         .badge-neutral { background: #f1f5f9; color: #475569; }
+        .badge-purple { background: var(--purple-light); color: var(--purple); }
 
-        /* CALENDARIO */
         .grid-meses { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 12px; }
-        .mes-card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; }
-        .mes-card.actual { border-color: var(--accent); }
+        .mes-card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 14px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 10px; }
+        .mes-card.actual { border-color: var(--accent); box-shadow: var(--shadow); }
         .mes-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
         .mes-title { font-weight: 800; font-size: 14px; color: var(--primary); }
 
@@ -184,38 +212,34 @@
 
         .chip-paciente { background: white; border: 1px solid var(--border); border-radius: 6px; padding: 4px 7px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; }
         .chip-paciente.adelantado { background: #fff7ed; border-color: #ffedd5; color: #c2410c; }
-        .chip-paciente.listo { border-left: 3px solid var(--success); }
+        .chip-paciente.listo { border-left: 3px solid var(--brand-teal); }
         .chip-paciente.pendiente { border-left: 3px solid var(--warning); }
 
-        /* CHAT */
         .chat-container { display: flex; flex-direction: column; height: calc(100vh - 170px); background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; }
         .chat-messages { flex-grow: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8fafc; }
-        .msg-bubble { max-width: 85%; padding: 10px 12px; border-radius: var(--radius-md); font-size: 12.5px; box-shadow: var(--shadow); }
+        .msg-bubble { max-width: 85%; padding: 10px 14px; border-radius: var(--radius-md); font-size: 12.5px; box-shadow: var(--shadow-sm); }
         .msg-bubble.propio { align-self: flex-end; background: var(--accent); color: white; }
-        .msg-bubble.companera { align-self: flex-start; background: var(--purple); color: white; }
+        .msg-bubble.companera { align-self: flex-start; background: #334155; color: white; }
         .msg-meta { font-size: 10px; margin-bottom: 3px; opacity: 0.85; font-weight: 700; display: flex; justify-content: space-between; gap: 8px; }
         .chat-input-bar { padding: 10px; background: white; border-top: 1px solid var(--border); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 
-        /* MODAL */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(3px); z-index: 10000; justify-content: center; align-items: center; }
-        .modal-box { background: white; width: 780px; max-width: 95%; max-height: 90vh; border-radius: var(--radius-lg); display: flex; flex-direction: column; overflow: hidden; }
-        .modal-header { padding: 14px 18px; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+        .modal-box { background: white; width: 850px; max-width: 95%; max-height: 90vh; border-radius: var(--radius-lg); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-lg); }
+        .modal-header { padding: 14px 20px; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #area-impresion-laboratorio, #area-impresion-laboratorio * { visibility: visible; }
+            #area-impresion-laboratorio { position: absolute; left: 0; top: 0; width: 100%; }
+        }
 
         @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                bottom: 0;
-                transform: translateX(-100%);
-            }
-            .sidebar.abierto-movil {
-                transform: translateX(0);
-            }
+            .sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); }
+            .sidebar.abierto-movil { transform: translateX(0); }
             .topbar { padding: 10px 14px; }
             .tab-content { padding: 12px; }
-            .panel-card { padding: 12px; }
+            .panel-card { padding: 14px; }
         }
     </style>
 </head>
@@ -224,65 +248,72 @@
     <!-- PANTALLA LOGIN -->
     <div id="pantalla-login">
         <div class="login-card">
-            <div class="login-brand-icon">💊</div>
-            <h2>Acceso SPD Farmacia</h2>
-            <p>Identifícate para sincronizar la preparación de pastilleros.</p>
+            <div class="login-logo">💊</div>
+            <h2>FarmaSPD Cloud</h2>
+            <p>Plataforma de gestión y dispensación de SPD.</p>
             
             <div class="auth-tabs">
                 <button class="auth-tab active" onclick="cambiarModoAuth('login')">Iniciar Sesión</button>
-                <button class="auth-tab" onclick="cambiarModoAuth('registro')">Crear Cuenta</button>
+                <button class="auth-tab" onclick="cambiarModoAuth('registro')">Nueva Farmacia</button>
             </div>
 
             <form id="form-login" class="login-form" onsubmit="procesarLogin(event)">
                 <div class="form-group">
+                    <label>Nombre o Código de la Farmacia:</label>
+                    <input type="text" id="login-farmacia-codigo" class="form-control" placeholder="Ej: Farmacia Central" required>
+                </div>
+                <div class="form-group">
                     <label>Usuario:</label>
-                    <input type="text" id="login-user" class="form-control" placeholder="Ej: patricia" required>
+                    <input type="text" id="login-user" class="form-control" placeholder="Ej: usuario" required>
                 </div>
                 <div class="form-group">
                     <label>Contraseña:</label>
                     <input type="password" id="login-pass" class="form-control" placeholder="••••••••" required>
                 </div>
-                <button type="submit" class="btn-primary" style="margin-top: 6px;">Entrar al Sistema</button>
+                <button type="submit" class="btn-primary" style="margin-top: 6px; padding: 10px;">Acceder al Sistema</button>
             </form>
 
             <form id="form-registro" class="login-form" style="display:none;" onsubmit="procesarRegistro(event)">
                 <div class="form-group">
-                    <label>Nombre de la Farmacia:</label>
-                    <input type="text" id="reg-farmacia" class="form-control" placeholder="Ej: Farmacia Central" required>
+                    <label>Nombre Oficial de la Farmacia:</label>
+                    <input type="text" id="reg-farmacia" class="form-control" placeholder="Ej: Farmacia Santa María" required>
                 </div>
                 <div class="form-group">
-                    <label>Tu Nombre:</label>
-                    <input type="text" id="reg-nombre" class="form-control" placeholder="Ej: Patricia" required>
+                    <label>Nombre del Responsable:</label>
+                    <input type="text" id="reg-nombre" class="form-control" placeholder="Ej: Nombre Apellido" required>
                 </div>
                 <div class="form-group">
                     <label>Crear Usuario:</label>
-                    <input type="text" id="reg-user" class="form-control" placeholder="Ej: patricia_spd" required>
+                    <input type="text" id="reg-user" class="form-control" placeholder="Ej: usuario" required>
                 </div>
                 <div class="form-group">
                     <label>Crear Contraseña:</label>
                     <input type="password" id="reg-pass" class="form-control" placeholder="Mínimo 4 caracteres" required>
                 </div>
-                <button type="submit" class="btn-primary" style="margin-top: 6px; background: var(--success);">Crear Cuenta y Entrar</button>
+                <button type="submit" class="btn-success" style="margin-top: 6px; padding: 10px; justify-content:center;">Registrar Farmacia y Acceder</button>
             </form>
         </div>
     </div>
 
-    <!-- OVERLAY MÓVIL -->
     <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="cerrarMenuLateral()"></div>
 
-    <!-- SIDEBAR RETRÁCTIL -->
+    <!-- SIDEBAR -->
     <aside id="sidebar-menu" class="sidebar">
         <div class="sidebar-brand">
-            <span id="label-nombre-farmacia">🏥 Farmacia SPD Pro</span>
-            <button style="background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer;" onclick="cerrarMenuLateral()">✕</button>
+            <div class="sidebar-brand-icon" id="brand-logo-container">💊</div>
+            <div class="sidebar-brand-text">
+                <h3 id="label-nombre-farmacia">Mi Farmacia</h3>
+                <span>Gestión de SPD</span>
+            </div>
+            <button style="background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer; margin-left:auto;" onclick="cerrarMenuLateral()">✕</button>
         </div>
         <ul class="nav-list">
             <li class="nav-item active" onclick="cambiarPestana('tab-preparacion', this)">
-                <span>📦 1. Preparación de Rollos</span>
+                <span>📦 1. Preparación de SPD</span>
                 <span id="badge-lab-count" class="nav-badge">0</span>
             </li>
             <li class="nav-item" onclick="cambiarPestana('tab-recogidas', this)">
-                <span>📞 2. Avisos de Recogida</span>
+                <span>📞 2. Avisos & Recogidas</span>
                 <span id="badge-recogidas-count" class="nav-badge warning">0</span>
             </li>
             <li class="nav-item" onclick="cambiarPestana('tab-cupones', this)">
@@ -296,15 +327,21 @@
                 <span>➕ 5. Alta de Paciente</span>
             </li>
             <li class="nav-item" onclick="cambiarPestana('tab-directorio', this)">
-                <span>👥 6. Directorio General</span>
+                <span>👥 6. Lista de Pacientes</span>
             </li>
             <li class="nav-item" onclick="cambiarPestana('tab-mensajeria', this)">
-                <span>💬 7. Muro de Mensajería</span>
+                <span>💬 7. Mensajes del Equipo</span>
                 <span id="badge-chat-count" class="nav-badge purple">0</span>
             </li>
+            <li class="nav-item" onclick="cambiarPestana('tab-auditoria', this)">
+                <span>📋 8. Historial de Entregas</span>
+            </li>
+            <li class="nav-item" onclick="cambiarPestana('tab-ajustes', this)">
+                <span>⚙️ 9. Ajustes y Equipo</span>
+            </li>
         </ul>
-        <div class="sidebar-footer" style="padding: 12px 10px;">
-            <button class="btn-primary" style="width: 100%; background: #334155; font-size: 11.5px;" onclick="cerrarSesion()">🔒 Cerrar Sesión</button>
+        <div class="sidebar-footer" style="padding: 14px 10px;">
+            <button class="btn-primary" style="width: 100%; background: #334155; font-size: 11.5px;" onclick="cerrarSesion()">🔒 Salir</button>
         </div>
     </aside>
 
@@ -312,18 +349,18 @@
         <header class="topbar">
             <div class="topbar-left">
                 <button class="btn-menu-toggle" onclick="toggleMenuLateral()" title="Ocultar/Mostrar Menú">☰</button>
-                <h1 id="tab-title" style="font-size: 16px; font-weight: 800;">1. Preparación de Rollos</h1>
+                <h1 id="tab-title" style="font-size: 16px; font-weight: 800; color:var(--primary);">1. Preparación de SPD</h1>
             </div>
             
-            <div class="banner-semana-activa">
+            <div class="banner-semana-activa" onclick="cambiarPestana('tab-ajustes', document.querySelectorAll('.nav-item')[8])" title="Configurar ciclo de producción">
                 <div class="punto-parpadeo"></div>
                 <div style="font-size: 12px; font-weight: 700; color: var(--primary);">
-                    FABRICANDO EN FARMACIA: <span id="label-semana-activa-header" style="color: var(--accent); font-size: 13px;">SEMANA 4</span>
+                    EN FABRICACIÓN: <span id="label-semana-activa-header" style="color: var(--brand-teal); font-size: 13px; font-weight:800;">SEMANA 4</span>
                 </div>
             </div>
 
             <div class="active-user-badge" style="font-size: 12px;">
-                <span>👤 <strong id="nombre-usuario-sesion" style="color:var(--accent);">Patricia</strong></span>
+                <span>👤 Sesión: <strong id="nombre-usuario-sesion" style="color:var(--brand-teal);">Usuario</strong></span>
             </div>
         </header>
 
@@ -331,9 +368,10 @@
         <section id="tab-preparacion" class="tab-content active">
             <div class="panel-card">
                 <div class="panel-header">
-                    <span class="panel-title">Tanda de Trabajo Actual</span>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <label style="font-size: 12px; font-weight: 700;">Semana Visualizada:</label>
+                    <span class="panel-title">📦 Lotes y preparación semanal</span>
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <button class="btn-primary" style="background:#475569; font-size:11.5px;" onclick="imprimirHojaLaboratorio()">🖨️ Imprimir Hoja de Trabajo</button>
+                        <label style="font-size: 12px; font-weight: 700; margin-left:8px;">Semana:</label>
                         <select id="filtro-semana-preparacion" class="form-control" style="padding: 5px 10px; font-weight: 700;" onchange="renderizarTablas()">
                             <option value="1">Semana 1</option>
                             <option value="2">Semana 2</option>
@@ -349,8 +387,9 @@
                                 <th>Paciente</th>
                                 <th>Semana Fija</th>
                                 <th>Avisos Médicos / RE</th>
-                                <th>Caducidad Plan</th>
-                                <th>Estado Rollo</th>
+                                <th>Caducidad Tratamiento</th>
+                                <th>Medicación Fuera Blíster</th>
+                                <th>Estado Producción</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -360,11 +399,11 @@
             </div>
         </section>
 
-        <!-- 2. RECOGIDAS -->
+        <!-- 2. RECOGIDAS Y AVISOS -->
         <section id="tab-recogidas" class="tab-content">
             <div class="panel-card">
                 <div class="panel-header">
-                    <span class="panel-title">📞 Pastilleros Listos Pendientes de Llamada</span>
+                    <span class="panel-title">📞 Avisos y dispensación en mostrador</span>
                 </div>
                 <div class="table-responsive">
                     <table>
@@ -373,8 +412,9 @@
                                 <th>Paciente</th>
                                 <th>Teléfono</th>
                                 <th>Semana</th>
-                                <th>Estado Llamada</th>
-                                <th>Acción</th>
+                                <th>Medicación Externa</th>
+                                <th>Avisar Paciente</th>
+                                <th>Dispensación Mostrador</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-recogidas-body"></tbody>
@@ -387,7 +427,7 @@
         <section id="tab-cupones" class="tab-content">
             <div class="panel-card">
                 <div class="panel-header">
-                    <span class="panel-title">📋 Medicación Adelantada & Cupones</span>
+                    <span class="panel-title">📋 Medicación adelantada & Gestión de cupones RE</span>
                 </div>
                 <div class="table-responsive">
                     <table>
@@ -396,8 +436,8 @@
                                 <th>Paciente</th>
                                 <th>Teléfono</th>
                                 <th>Medicamento Adelantado</th>
-                                <th>¿Avisó Patricia?</th>
-                                <th>¿Avisó Andrea?</th>
+                                <th>Fecha Límite RE</th>
+                                <th>Revisión Equipo</th>
                                 <th>Estado Receta</th>
                             </tr>
                         </thead>
@@ -411,7 +451,7 @@
         <section id="tab-calendario" class="tab-content">
             <div class="panel-card">
                 <div class="panel-header">
-                    <span class="panel-title">📅 Control Anual por Semanas</span>
+                    <span class="panel-title">📅 Planificación anual por semanas</span>
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <label style="font-size: 12px; font-weight: 700;">Año:</label>
                         <select id="select-ano-calendario" class="form-control" style="font-weight: 800;" onchange="renderizarCalendarioAnual()"></select>
@@ -425,7 +465,7 @@
         <section id="tab-alta" class="tab-content">
             <div class="panel-card" style="max-width: 800px; margin: 0 auto;">
                 <div class="panel-header">
-                    <span class="panel-title">➕ Registro de Paciente SPD</span>
+                    <span class="panel-title">➕ Registro de paciente en SPD</span>
                 </div>
                 <form id="form-nuevo-paciente" onsubmit="guardarNuevoPaciente(event)">
                     <div class="form-grid">
@@ -434,15 +474,15 @@
                             <input type="text" id="alta-nombre" class="form-control" placeholder="Nombre y Apellidos" required>
                         </div>
                         <div class="form-group">
-                            <label>CIP / Tarjeta Sanitaria:</label>
+                            <label>CIP / Identificador Sanitario:</label>
                             <input type="text" id="alta-cip" class="form-control" placeholder="Código CIP" required>
                         </div>
                         <div class="form-group">
                             <label>Teléfono de Contacto:</label>
-                            <input type="text" id="alta-telefono" class="form-control" placeholder="Teléfono" required>
+                            <input type="tel" id="alta-telefono" class="form-control" placeholder="Ej: 600112233" required>
                         </div>
                         <div class="form-group">
-                            <label>Semana Fija:</label>
+                            <label>Semana Asignada:</label>
                             <select id="alta-semana" class="form-control">
                                 <option value="1">Semana 1</option>
                                 <option value="2">Semana 2</option>
@@ -455,7 +495,11 @@
                             <input type="date" id="alta-caducidad" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label>Pastillero Adelantado:</label>
+                            <label>Medicación Fuera de Blíster (Nevera/Gotas):</label>
+                            <input type="text" id="alta-med-externa" class="form-control" placeholder="Ej: Insulina Lantus, Colirio">
+                        </div>
+                        <div class="form-group">
+                            <label>Pastillero Adelantado (Viaje / Ausencia):</label>
                             <select id="alta-mes-adelanto" class="form-control">
                                 <option value="">Ninguno</option>
                                 <option value="Enero">Enero</option>
@@ -474,22 +518,22 @@
                         </div>
                         <div class="form-group">
                             <label>Motivo del Adelanto:</label>
-                            <input type="text" id="alta-motivo-adelanto" class="form-control" placeholder="Motivo del adelanto">
+                            <input type="text" id="alta-motivo-adelanto" class="form-control" placeholder="Ej: Periodo vacacional">
                         </div>
                     </div>
 
                     <div style="margin-top: 15px; padding: 12px; background: #f8fafc; border-radius: var(--radius-sm); border: 1.5px dashed var(--border);">
-                        <label style="font-size: 12.5px; font-weight: 700; color: var(--primary);">💊 Adelanto por Salto de Receta Electrónica</label>
+                        <label style="font-size: 12.5px; font-weight: 700; color: var(--primary);">💊 Medicamento Adelantado (Salto de Receta Electrónica)</label>
                         <div id="contenedor-adelantos-alta" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;"></div>
                         <button type="button" class="btn-primary" style="font-size: 11.5px; padding: 5px 10px; margin-top: 8px;" onclick="agregarFilaAdelantoAlta()">+ Añadir Medicamento</button>
                     </div>
 
                     <div class="form-group" style="margin-top: 14px;">
-                        <label>Observaciones Iniciales:</label>
-                        <textarea id="alta-notas" class="form-control" rows="2" placeholder="Escribe aquí las observaciones..."></textarea>
+                        <label>Observaciones de Inicio:</label>
+                        <textarea id="alta-notas" class="form-control" rows="2" placeholder="Pautas, horarios especiales u observaciones..."></textarea>
                     </div>
 
-                    <button type="submit" class="btn-primary" style="margin-top: 16px; width: 100%; justify-content: center; padding: 10px;">Guardar Paciente</button>
+                    <button type="submit" class="btn-success" style="margin-top: 16px; width: 100%; justify-content: center; padding: 11px;">Guardar Paciente</button>
                 </form>
             </div>
         </section>
@@ -498,8 +542,11 @@
         <section id="tab-directorio" class="tab-content">
             <div class="panel-card">
                 <div class="panel-header">
-                    <span class="panel-title">Directorio General de Pacientes</span>
-                    <input type="text" id="buscador-directorio" class="form-control" placeholder="🔍 Buscar por nombre..." style="width: 220px;" oninput="renderizarTablas()">
+                    <span class="panel-title">👥 Directorio general de pacientes</span>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn-success" style="font-size:11.5px;" onclick="exportarPacientesCSV()">📥 Exportar a Excel (CSV)</button>
+                        <input type="text" id="buscador-directorio" class="form-control" placeholder="🔍 Buscar paciente..." style="width: 220px;" oninput="renderizarTablas()">
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table>
@@ -508,10 +555,10 @@
                                 <th>CIP</th>
                                 <th>Paciente</th>
                                 <th>Teléfono</th>
-                                <th>Semana Fija</th>
-                                <th>Mes Adelantado</th>
+                                <th>Semana</th>
+                                <th>Caducidad Tratamiento</th>
                                 <th>Avisos Activos</th>
-                                <th>Acción</th>
+                                <th>Ficha</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-directorio-body"></tbody>
@@ -523,6 +570,10 @@
         <!-- 7. MENSAJERÍA -->
         <section id="tab-mensajeria" class="tab-content">
             <div class="chat-container">
+                <div style="padding:10px 14px; background:#f1f5f9; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:13px; font-weight:700; color:var(--primary);">💬 Muro de incidencias y notas de guardia</span>
+                    <button class="btn-primary" style="background:#475569; font-size:11.5px;" onclick="enviarResumenPorEmail()">📧 Enviar Resumen al Personal en Libranza</button>
+                </div>
                 <div id="chat-box" class="chat-messages"></div>
                 <div class="chat-input-bar">
                     <select id="chat-tipo-aviso" class="form-control" style="width: 140px;">
@@ -532,9 +583,81 @@
                         <option value="General">💬 General</option>
                     </select>
                     <select id="chat-paciente-relacionado" class="form-control" style="width: 160px;"></select>
-                    <input type="text" id="chat-input-texto" class="form-control" placeholder="Mensaje para el equipo..." style="flex-grow:1;" onkeypress="if(event.key==='Enter') enviarMensajeChat()">
+                    <input type="text" id="chat-input-texto" class="form-control" placeholder="Escribe una anotación para el equipo..." style="flex-grow:1;" onkeypress="if(event.key==='Enter') enviarMensajeChat()">
                     <button class="btn-primary" onclick="enviarMensajeChat()">Enviar</button>
                 </div>
+            </div>
+        </section>
+
+        <!-- 8. HISTORIAL DE ENTREGAS -->
+        <section id="tab-auditoria" class="tab-content">
+            <div class="panel-card">
+                <div class="panel-header">
+                    <span class="panel-title">📋 Historial de entregas</span>
+                    <span class="badge badge-success">Trazabilidad Sanitaria</span>
+                </div>
+                <p style="font-size:12.5px; color:#64748b; margin-bottom:12px;">Registro inmutable de dispensaciones y retiradas de pastilleros en mostrador.</p>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha y Hora</th>
+                                <th>Paciente</th>
+                                <th>Semana</th>
+                                <th>Retirado Por</th>
+                                <th>Dispensado Por</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-auditoria-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. AJUSTES Y EQUIPO -->
+        <section id="tab-ajustes" class="tab-content">
+            <div class="panel-card" style="max-width: 800px; margin: 0 auto;">
+                <div class="panel-header">
+                    <span class="panel-title">⚙️ Ajustes de la Farmacia y Rotación de Semanas</span>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nombre Comercial de la Farmacia:</label>
+                        <input type="text" id="ajuste-nombre-farmacia" class="form-control" placeholder="Ej: Farmacia Santa María">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Referencia (Día de inicio de tomas):</label>
+                        <input type="date" id="ajuste-fecha-ancla" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>¿Qué semana es esa fecha en tu farmacia?:</label>
+                        <select id="ajuste-semana-ancla" class="form-control" style="font-weight: 700;">
+                            <option value="1">Semana 1</option>
+                            <option value="2">Semana 2</option>
+                            <option value="3">Semana 3</option>
+                            <option value="4">Semana 4</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Email para Notificaciones y Resúmenes:</label>
+                        <input type="email" id="ajuste-email-guardia" class="form-control" placeholder="equipo@farmacia.com">
+                    </div>
+                </div>
+
+                <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);">
+                    <label style="font-size: 13px; font-weight: 800; color: var(--primary);">👥 Equipo Técnico y Farmacéutico:</label>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Personal autorizado para la preparación, revisión y entrega de SPD.</p>
+                    <div id="contenedor-lista-equipo" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    
+                    <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <input type="text" id="input-nuevo-miembro-equipo" class="form-control" placeholder="Nombre (ej: Carlos)" style="max-width: 300px;">
+                        <button class="btn-primary" onclick="agregarMiembroEquipo()">+ Añadir Personal</button>
+                    </div>
+                </div>
+
+                <button class="btn-success" style="margin-top: 20px; width: 100%; justify-content: center; padding: 10px;" onclick="guardarAjustesFarmacia()">💾 Guardar Ajustes</button>
             </div>
         </section>
     </main>
@@ -543,12 +666,51 @@
     <div id="modal-ficha-paciente" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-header">
-                <h3 id="modal-paciente-nombre">Expediente SPD</h3>
+                <h3 id="modal-paciente-nombre">Expediente de SPD</h3>
                 <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="cerrarModalFicha()">&times;</button>
             </div>
             <div class="modal-body" id="modal-paciente-contenido"></div>
         </div>
     </div>
+
+    <!-- MODAL REGISTRO DE ENTREGA -->
+    <div id="modal-entrega" class="modal-overlay">
+        <div class="modal-box" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3>📦 Registrar entrega en mostrador</h3>
+                <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="cerrarModalEntrega()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="entrega-paciente-id">
+                <div class="form-group">
+                    <label>Paciente:</label>
+                    <input type="text" id="entrega-paciente-nombre" class="form-control" readonly style="background:#f1f5f9; font-weight:700;">
+                </div>
+                <div class="form-group" id="entrega-alerta-externa" style="display:none; background:#fef3c7; border:1px solid #f59e0b; padding:8px; border-radius:6px; font-size:12px; color:#92400e; font-weight:700;"></div>
+                <div class="form-group">
+                    <label>¿Quién retira la medicación?:</label>
+                    <select id="entrega-receptor" class="form-control" onchange="toggleReceptorOtro(this.value)">
+                        <option value="El propio paciente">El propio paciente</option>
+                        <option value="Familiar">Familiar</option>
+                        <option value="Cuidador / Auxiliar">Cuidador / Auxiliar</option>
+                        <option value="Otro">Otro (anotar nombre)</option>
+                    </select>
+                </div>
+                <div class="form-group" id="div-receptor-otro" style="display:none;">
+                    <label>Nombre de quien retira:</label>
+                    <input type="text" id="entrega-receptor-nombre" class="form-control" placeholder="Ej: Hija María">
+                </div>
+                <div class="form-group">
+                    <label>Notas de la dispensación (opcional):</label>
+                    <input type="text" id="entrega-notas" class="form-control" placeholder="Ej: Retira 2 semanas / Cobra copago">
+                </div>
+                <button class="btn-success" style="padding:10px; justify-content:center; width:100%; font-size:13px; margin-top:8px;" onclick="confirmarEntregaMostrador()">✓ Registrar Entrega</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÁREA OCULTA PARA IMPRESIÓN -->
+    <div id="area-impresion-laboratorio" style="display:none;"></div>
 
     <script>
         const firebaseConfig = {
@@ -568,10 +730,20 @@
                 dbCloud = firebase.firestore();
             }
         } catch(e) {
-            console.log("Modo híbrido activo.");
+            console.log("Modo activo.");
         }
 
-        // CONTROL DEL MENÚ LATERAL
+        let usuarioSesionActual = JSON.parse(localStorage.getItem('spd_sesion_activa_v20')) || null;
+        let pacientes = [];
+        let chatMensajes = [];
+        let configuracionFarmacia = {
+            nombreComercial: "",
+            fechaAnclaTomas: "2026-09-02",
+            semanaAnclaTomas: "4",
+            emailNotificaciones: "",
+            equipo: []
+        };
+
         function toggleMenuLateral() {
             const sidebar = document.getElementById('sidebar-menu');
             const backdrop = document.getElementById('sidebar-backdrop');
@@ -595,11 +767,13 @@
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
 
-            const fechaAnclaTomas = new Date(2026, 8, 2);
-            fechaAnclaTomas.setHours(0, 0, 0, 0);
+            const [a, m, d] = (configuracionFarmacia.fechaAnclaTomas || "2026-09-02").split('-');
+            const fechaAncla = new Date(parseInt(a), parseInt(m)-1, parseInt(d));
+            fechaAncla.setHours(0, 0, 0, 0);
+
+            const semanaBase = parseInt(configuracionFarmacia.semanaAnclaTomas || "4");
 
             const diaSemana = hoy.getDay();
-            
             let diasHastaTomas;
             if (diaSemana <= 3 && diaSemana >= 1) {
                 diasHastaTomas = (3 - diaSemana) + 7;
@@ -611,17 +785,13 @@
             const miercolesTomas = new Date(hoy);
             miercolesTomas.setDate(hoy.getDate() + diasHastaTomas);
 
-            const diferenciaMs = miercolesTomas.getTime() - fechaAnclaTomas.getTime();
+            const diferenciaMs = miercolesTomas.getTime() - fechaAncla.getTime();
             const semanasPasadas = Math.round(diferenciaMs / (1000 * 60 * 60 * 24 * 7));
 
-            let indiceSemana = (3 + (semanasPasadas % 4)) % 4;
+            let indiceSemana = ((semanaBase - 1) + (semanasPasadas % 4)) % 4;
             if (indiceSemana < 0) indiceSemana += 4;
 
-            const numeroSemana = indiceSemana + 1;
-
-            return {
-                semana: String(numeroSemana)
-            };
+            return { semana: String(indiceSemana + 1) };
         }
 
         function actualizarIndicadorSemanaHeader() {
@@ -634,16 +804,27 @@
             }
         }
 
-        const DB_KEY_USUARIOS = 'spd_cloud_usuarios_v19';
-        const DB_KEY_PACIENTES = 'spd_cloud_pacientes_v19';
-        const DB_KEY_CHAT = 'spd_cloud_chat_v19';
+        function getSemaforoCaducidad(fechaStr) {
+            if (!fechaStr) return { texto: 'Sin fecha', clase: 'badge-neutral' };
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const cad = new Date(fechaStr);
+            cad.setHours(0, 0, 0, 0);
+            
+            const diffDias = Math.round((cad - hoy) / (1000 * 60 * 60 * 24));
+            
+            if (diffDias < 0) {
+                return { texto: `🔴 Caducado (${fechaStr})`, clase: 'badge-danger' };
+            } else if (diffDias <= 15) {
+                return { texto: `🟡 Vence en ${diffDias}d (${fechaStr})`, clase: 'badge-warning' };
+            } else {
+                return { texto: `🟢 En vigor (${fechaStr})`, clase: 'badge-success' };
+            }
+        }
 
-        let usuariosRegistrados = JSON.parse(localStorage.getItem(DB_KEY_USUARIOS)) || [
-            { user: "patricia", pass: "1234", nombre: "Patricia", farmacia: "Farmacia Central" },
-            { user: "andrea", pass: "1234", nombre: "Andrea", farmacia: "Farmacia Central" }
-        ];
-
-        let usuarioSesionActual = JSON.parse(localStorage.getItem('spd_usuario_activo')) || null;
+        function sanitizarIdFarmacia(nombre) {
+            return nombre.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
+        }
 
         function cambiarModoAuth(modo) {
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -662,147 +843,137 @@
             if (usuarioSesionActual) {
                 document.getElementById('pantalla-login').style.display = 'none';
                 document.getElementById('nombre-usuario-sesion').innerText = usuarioSesionActual.nombre;
-                document.getElementById('label-nombre-farmacia').innerText = "🏥 " + (usuarioSesionActual.farmacia || "Farmacia SPD");
+                const nombreMostrar = configuracionFarmacia.nombreComercial || usuarioSesionActual.farmacia;
+                document.getElementById('label-nombre-farmacia').innerText = nombreMostrar;
                 iniciarEscuchaTiempoReal();
-            }
-        }
-
-        function procesarLogin(e) {
-            e.preventDefault();
-            const u = document.getElementById('login-user').value.trim().toLowerCase();
-            const p = document.getElementById('login-pass').value.trim();
-
-            const encontrado = usuariosRegistrados.find(x => x.user.toLowerCase() === u && x.pass === p);
-            if (encontrado) {
-                usuarioSesionActual = encontrado;
-                localStorage.setItem('spd_usuario_activo', JSON.stringify(encontrado));
-                comprobarSesion();
             } else {
-                alert("Usuario o contraseña no válidos.");
+                document.getElementById('pantalla-login').style.display = 'flex';
             }
         }
 
-        function procesarRegistro(e) {
+        async function procesarLogin(e) {
             e.preventDefault();
-            const farmacia = document.getElementById('reg-farmacia').value.trim();
+            const farmaciaNombre = document.getElementById('login-farmacia-codigo').value.trim();
+            const usuario = document.getElementById('login-user').value.trim().toLowerCase();
+            const password = document.getElementById('login-pass').value.trim();
+
+            const farmaciaId = sanitizarIdFarmacia(farmaciaNombre);
+
+            if (dbCloud) {
+                try {
+                    const farmaciaDoc = await dbCloud.collection("farmacias").doc(farmaciaId).get();
+                    if (!farmaciaDoc.exists) {
+                        alert("No existe ninguna farmacia con ese nombre o código.");
+                        return;
+                    }
+
+                    const data = farmaciaDoc.data();
+                    const usuariosFarmacia = data.usuarios || [];
+                    const userMatch = usuariosFarmacia.find(u => u.user.toLowerCase() === usuario && u.pass === password);
+
+                    if (userMatch) {
+                        usuarioSesionActual = {
+                            farmacia: data.nombreReal || farmaciaNombre,
+                            farmaciaId: farmaciaId,
+                            nombre: userMatch.nombre,
+                            user: userMatch.user
+                        };
+                        localStorage.setItem('spd_sesion_activa_v20', JSON.stringify(usuarioSesionActual));
+                        comprobarSesion();
+                    } else {
+                        alert("Usuario o contraseña incorrectos.");
+                    }
+                } catch(err) {
+                    alert("Error: " + err.message);
+                }
+            }
+        }
+
+        async function procesarRegistro(e) {
+            e.preventDefault();
+            const farmaciaNombre = document.getElementById('reg-farmacia').value.trim();
             const nombre = document.getElementById('reg-nombre').value.trim();
             const user = document.getElementById('reg-user').value.trim().toLowerCase();
             const pass = document.getElementById('reg-pass').value.trim();
 
-            if (usuariosRegistrados.some(x => x.user.toLowerCase() === user)) {
-                alert("Ese usuario ya existe.");
-                return;
+            const farmaciaId = sanitizarIdFarmacia(farmaciaNombre);
+
+            if (dbCloud) {
+                try {
+                    const farmaciaDoc = await dbCloud.collection("farmacias").doc(farmaciaId).get();
+                    if (farmaciaDoc.exists) {
+                        alert("Ese nombre de farmacia ya existe. Elige otro.");
+                        return;
+                    }
+
+                    const nuevaFarmaciaData = {
+                        nombreReal: farmaciaNombre,
+                        farmaciaId: farmaciaId,
+                        creadoEn: new Date().toISOString(),
+                        usuarios: [{ user, pass, nombre }],
+                        pacientes: [],
+                        chatMensajes: [],
+                        configuracion: { 
+                            nombreComercial: farmaciaNombre, 
+                            fechaAnclaTomas: "2026-09-02", 
+                            semanaAnclaTomas: "4",
+                            emailNotificaciones: "",
+                            equipo: [nombre]
+                        }
+                    };
+
+                    await dbCloud.collection("farmacias").doc(farmaciaId).set(nuevaFarmaciaData);
+
+                    usuarioSesionActual = {
+                        farmacia: farmaciaNombre,
+                        farmaciaId: farmaciaId,
+                        nombre: nombre,
+                        user: user
+                    };
+                    localStorage.setItem('spd_sesion_activa_v20', JSON.stringify(usuarioSesionActual));
+                    comprobarSesion();
+                } catch(err) {
+                    alert("Error: " + err.message);
+                }
             }
-
-            const nuevoUsuario = { user, pass, nombre, farmacia };
-            usuariosRegistrados.push(nuevoUsuario);
-            localStorage.setItem(DB_KEY_USUARIOS, JSON.stringify(usuariosRegistrados));
-
-            usuarioSesionActual = nuevoUsuario;
-            localStorage.setItem('spd_usuario_activo', JSON.stringify(nuevoUsuario));
-            comprobarSesion();
         }
 
         function cerrarSesion() {
-            localStorage.removeItem('spd_usuario_activo');
+            localStorage.removeItem('spd_sesion_activa_v20');
             usuarioSesionActual = null;
+            pacientes = [];
+            chatMensajes = [];
             document.getElementById('pantalla-login').style.display = 'flex';
         }
 
-        const datosIniciales = [
-            {
-                id: 1,
-                nombre: "Rafael Romero Scola",
-                cip: "ROMS5001",
-                telefono: "600112233",
-                semana: "4",
-                caducidadPlan: "2026-09-15",
-                preparado: false,
-                avisadoRecogida: false,
-                mesAdelantado: "Febrero",
-                motivoAdelanto: "Viaje familiar",
-                adelantos: [
-                    { id: 101, med: "Adiro 100mg", limite: "2026-09-01", cobrado: false, avisadoPatricia: true, avisadoAndrea: false, motivo: "Salto en RE" }
-                ],
-                avisos: [],
-                notas: ""
-            },
-            {
-                id: 2,
-                nombre: "Carmen López Pérez",
-                cip: "LOPP6511",
-                telefono: "611223344",
-                semana: "4",
-                caducidadPlan: "2026-12-01",
-                preparado: true,
-                avisadoRecogida: false,
-                mesAdelantado: "",
-                motivoAdelanto: "",
-                adelantos: [],
-                avisos: [],
-                notas: ""
-            },
-            {
-                id: 3,
-                nombre: "Manuel García Martín",
-                cip: "GARM7712",
-                telefono: "622334455",
-                semana: "1",
-                caducidadPlan: "2026-11-20",
-                preparado: true,
-                avisadoRecogida: true,
-                mesAdelantado: "Agosto",
-                motivoAdelanto: "Vacaciones",
-                adelantos: [],
-                avisos: [],
-                notas: ""
-            },
-            {
-                id: 4,
-                nombre: "Ana Ruiz Blanco",
-                cip: "RUIB8004",
-                telefono: "633445566",
-                semana: "2",
-                caducidadPlan: "2026-10-10",
-                preparado: false,
-                avisadoRecogida: false,
-                mesAdelantado: "",
-                motivoAdelanto: "",
-                adelantos: [],
-                avisos: [],
-                notas: ""
-            }
-        ];
-
-        let pacientes = JSON.parse(localStorage.getItem(DB_KEY_PACIENTES)) || datosIniciales;
-        let chatMensajes = JSON.parse(localStorage.getItem(DB_KEY_CHAT)) || [];
-
         function iniciarEscuchaTiempoReal() {
             if (dbCloud && usuarioSesionActual) {
-                const idFarmacia = usuarioSesionActual.farmacia.replace(/\s+/g, '_').toLowerCase();
-                dbCloud.collection("farmacias").doc(idFarmacia).onSnapshot((doc) => {
+                dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId).onSnapshot((doc) => {
                     if (doc.exists) {
                         const data = doc.data();
-                        if (data.pacientes) pacientes = data.pacientes;
-                        if (data.chatMensajes) chatMensajes = data.chatMensajes;
-                        localStorage.setItem(DB_KEY_PACIENTES, JSON.stringify(pacientes));
-                        localStorage.setItem(DB_KEY_CHAT, JSON.stringify(chatMensajes));
+                        pacientes = data.pacientes || [];
+                        chatMensajes = data.chatMensajes || [];
+                        configuracionFarmacia = data.configuracion || configuracionFarmacia;
+                        
+                        if (!configuracionFarmacia.equipo || configuracionFarmacia.equipo.length === 0) {
+                            configuracionFarmacia.equipo = [usuarioSesionActual.nombre];
+                        }
+
+                        document.getElementById('label-nombre-farmacia').innerText = configuracionFarmacia.nombreComercial || usuarioSesionActual.farmacia;
                         renderizarTablas();
                         renderizarCalendarioAnual();
+                        cargarAjustesEnFormulario();
                     }
                 });
             }
         }
 
         function guardarDatos() {
-            localStorage.setItem(DB_KEY_PACIENTES, JSON.stringify(pacientes));
-            localStorage.setItem(DB_KEY_CHAT, JSON.stringify(chatMensajes));
-
             if (dbCloud && usuarioSesionActual) {
-                const idFarmacia = usuarioSesionActual.farmacia.replace(/\s+/g, '_').toLowerCase();
-                dbCloud.collection("farmacias").doc(idFarmacia).set({
+                dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId).set({
                     pacientes: pacientes,
                     chatMensajes: chatMensajes,
+                    configuracion: configuracionFarmacia,
                     ultimaActualizacion: new Date().toISOString()
                 }, { merge: true });
             }
@@ -816,13 +987,15 @@
             elemento.classList.add('active');
 
             const titulos = {
-                'tab-preparacion': '1. Preparación de Rollos',
-                'tab-recogidas': '2. Avisos de Recogida',
-                'tab-cupones': '3. Control de Cupones y Teléfonos',
-                'tab-calendario': '4. Planificación Anual',
-                'tab-alta': '5. Registro de Pacientes',
-                'tab-directorio': '6. Directorio General',
-                'tab-mensajeria': '7. Muro de Mensajes'
+                'tab-preparacion': '1. Preparación de SPD',
+                'tab-recogidas': '2. Avisos & Recogidas',
+                'tab-cupones': '3. Cupones y Adelantos',
+                'tab-calendario': '4. Calendario Anual',
+                'tab-alta': '5. Alta de Paciente',
+                'tab-directorio': '6. Lista de Pacientes',
+                'tab-mensajeria': '7. Mensajes del Equipo',
+                'tab-auditoria': '8. Historial de Entregas',
+                'tab-ajustes': '9. Ajustes y Equipo'
             };
             document.getElementById('tab-title').innerText = titulos[idTab];
             
@@ -910,6 +1083,7 @@
             renderizarCupones();
             renderizarDirectorio();
             renderizarChat();
+            renderizarAuditoria();
             actualizarBadges();
             actualizarSelectPacientesChat();
             actualizarIndicadorSemanaHeader();
@@ -928,39 +1102,57 @@
                     avisosHTML = `<span class="badge badge-warning" style="cursor:pointer;" onclick="abrirFichaPaciente(${p.id})">⚠️ ${avisosActivos.length} aviso(s)</span>`;
                 }
 
+                const semaforo = getSemaforoCaducidad(p.caducidadPlan);
+                const medExternaHTML = p.medExterna ? `<span class="badge badge-purple" title="${p.medExterna}">❄️ ${p.medExterna}</span>` : '<span style="color:#94a3b8; font-size:11px;">-</span>';
+
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${p.nombre}</strong><br><small style="color:#64748b;">CIP: ${p.cip} | Tlf: ${p.telefono}</small></td>
                         <td><span class="badge badge-neutral">Semana ${p.semana}</span></td>
                         <td>${avisosHTML}</td>
-                        <td>${p.caducidadPlan}</td>
-                        <td><span class="badge ${p.preparado ? 'badge-success' : 'badge-danger'}">${p.preparado ? '✓ Rollo Listo' : '⏳ Pendiente'}</span></td>
+                        <td><span class="badge ${semaforo.clase}">${semaforo.texto}</span></td>
+                        <td>${medExternaHTML}</td>
+                        <td><span class="badge ${p.preparado ? 'badge-success' : 'badge-danger'}">${p.preparado ? '✓ Preparado' : '⏳ Pendiente'}</span></td>
                         <td>
-                            <button class="btn-success" onclick="conmutarPreparacion(${p.id})">${p.preparado ? 'Desmarcar' : 'Marcar Listo'}</button>
+                            <button class="btn-success" onclick="conmutarPreparacion(${p.id})">${p.preparado ? 'Desmarcar' : '✓ Marcar Preparado'}</button>
                             <button class="btn-primary" style="padding:5px 10px; font-size:11.5px;" onclick="abrirFichaPaciente(${p.id})">Ficha</button>
                         </td>
                     </tr>
                 `;
             });
+            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No hay pacientes asignados a esta semana.</td></tr>`;
         }
 
         function renderizarRecogidas() {
             const tbody = document.getElementById('tabla-recogidas-body');
             tbody.innerHTML = "";
-            const listado = pacientes.filter(p => p.preparado && !p.avisadoRecogida);
+            const listado = pacientes.filter(p => p.preparado);
 
             listado.forEach(p => {
+                const nombreFarmacia = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : "la Farmacia");
+                const textoWhatsapp = encodeURIComponent(`Hola ${p.nombre}, le informamos de que desde ${nombreFarmacia} ya tenemos preparado y revisado su pastillero SPD. Puede pasar a recogerlo cuando lo desee. ¡Un saludo!`);
+                const enlaceWhatsapp = `https://api.whatsapp.com/send?phone=34${p.telefono.replace(/[^0-9]/g, '')}&text=${textoWhatsapp}`;
+
+                const estadoAviso = p.avisadoRecogida 
+                    ? `<span class="badge badge-success">✓ Ya avisado</span>` 
+                    : `<a href="${enlaceWhatsapp}" target="_blank" class="btn-whatsapp" onclick="marcarAvisadoRecogida(${p.id})">📲 WhatsApp</a> <button class="btn-primary" style="font-size:11px; padding:5px 8px;" onclick="marcarAvisadoRecogida(${p.id})">📞 Llamado</button>`;
+
+                const medExternaAviso = p.medExterna ? `<span class="badge badge-warning" style="font-weight:800;">⚠️ Entregar: ${p.medExterna}</span>` : '<span style="color:#94a3b8; font-size:11px;">Solo blíster</span>';
+
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${p.nombre}</strong></td>
                         <td><a href="tel:${p.telefono}" style="color:var(--accent); font-weight:700; text-decoration:none;">📞 ${p.telefono}</a></td>
                         <td><span class="badge badge-neutral">Semana ${p.semana}</span></td>
-                        <td><span class="badge badge-danger">Pendiente avisar</span></td>
-                        <td><button class="btn-success" onclick="marcarAvisadoRecogida(${p.id})">✓ Ya avisado</button></td>
+                        <td>${medExternaAviso}</td>
+                        <td>${estadoAviso}</td>
+                        <td>
+                            <button class="btn-success" onclick="abrirModalEntrega(${p.id})">📦 Entregar al Paciente</button>
+                        </td>
                     </tr>
                 `;
             });
-            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No hay pastilleros pendientes de llamada.</td></tr>`;
+            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">No hay pastilleros pendientes de entregar.</td></tr>`;
         }
 
         function renderizarCupones() {
@@ -970,19 +1162,40 @@
 
             conAdelantos.forEach(p => {
                 p.adelantos.forEach((ad, idx) => {
+                    const revisadoPorTexto = ad.revisadoPor ? `✓ ${ad.revisadoPor}` : 'Sin revisar';
+                    const revisadoClase = ad.revisadoPor ? 'badge-success' : 'badge-neutral';
+
                     tbody.innerHTML += `
                         <tr>
                             <td><strong>${p.nombre}</strong></td>
                             <td><a href="tel:${p.telefono}" style="color:var(--accent); font-weight:700; text-decoration:none;">📞 ${p.telefono}</a></td>
-                            <td><span class="badge badge-info">${ad.med}</span> (Límite: ${ad.limite})</td>
-                            <td><input type="checkbox" ${ad.avisadoPatricia ? 'checked' : ''} onchange="conmutarAvisoCupon(${p.id}, ${idx}, 'patricia')"> Patricia</td>
-                            <td><input type="checkbox" ${ad.avisadoAndrea ? 'checked' : ''} onchange="conmutarAvisoCupon(${p.id}, ${idx}, 'andrea')"> Andrea</td>
+                            <td><span class="badge badge-info">${ad.med}</span></td>
+                            <td><strong>${ad.limite}</strong></td>
+                            <td>
+                                <button class="badge ${revisadoClase}" style="border:none; cursor:pointer; font-size:11px;" onclick="conmutarRevisionEquipo(${p.id}, ${idx})">
+                                    ${revisadoPorTexto}
+                                </button>
+                            </td>
                             <td><button class="btn-primary" style="font-size:11px; padding:4px 8px;" onclick="conmutarCobroAdelanto(${p.id}, ${idx})">${ad.cobrado ? '✓ Regularizado' : '⚠️ Pendiente'}</button></td>
                         </tr>
                     `;
                 });
             });
-            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">No hay cupones pendientes.</td></tr>`;
+            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">No hay medicamentos adelantados pendientes.</td></tr>`;
+        }
+
+        function conmutarRevisionEquipo(idPac, indexAdelanto) {
+            const p = pacientes.find(x => x.id === idPac);
+            if (p && p.adelantos && p.adelantos[indexAdelanto]) {
+                const usuario = usuarioSesionActual ? usuarioSesionActual.nombre : "Equipo";
+                if (p.adelantos[indexAdelanto].revisadoPor) {
+                    p.adelantos[indexAdelanto].revisadoPor = null;
+                } else {
+                    p.adelantos[indexAdelanto].revisadoPor = usuario;
+                }
+                guardarDatos();
+                renderizarTablas();
+            }
         }
 
         function renderizarDirectorio() {
@@ -992,19 +1205,21 @@
 
             pacientes.filter(p => p.nombre.toLowerCase().includes(query) || p.cip.toLowerCase().includes(query)).forEach(p => {
                 const numAvisos = p.avisos ? p.avisos.filter(a => !a.resuelto).length : 0;
-                const adelantoTxt = p.mesAdelantado ? `<span class="badge badge-warning">📦 ${p.mesAdelantado}</span>` : '-';
+                const semaforo = getSemaforoCaducidad(p.caducidadPlan);
+
                 tbody.innerHTML += `
                     <tr>
                         <td><code>${p.cip}</code></td>
                         <td><strong>${p.nombre}</strong></td>
                         <td>${p.telefono}</td>
                         <td>Semana ${p.semana}</td>
-                        <td>${adelantoTxt}</td>
-                        <td><span class="badge ${numAvisos > 0 ? 'badge-warning' : 'badge-neutral'}">${numAvisos} activos</span></td>
+                        <td><span class="badge ${semaforo.clase}">${semaforo.texto}</span></td>
+                        <td><span class="badge ${numAvisos > 0 ? 'badge-warning' : 'badge-neutral'}">${numAvisos} notas</span></td>
                         <td><button class="btn-primary" style="padding:4px 8px; font-size:11px;" onclick="abrirFichaPaciente(${p.id})">Abrir</button></td>
                     </tr>
                 `;
             });
+            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No se encontraron pacientes.</td></tr>`;
         }
 
         function renderizarChat() {
@@ -1024,6 +1239,43 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
+        function renderizarAuditoria() {
+            const tbody = document.getElementById('tabla-auditoria-body');
+            tbody.innerHTML = "";
+
+            let todasEntregas = [];
+            pacientes.forEach(p => {
+                if (p.historialEntregas && p.historialEntregas.length > 0) {
+                    p.historialEntregas.forEach(ent => {
+                        todasEntregas.push({
+                            pacienteNombre: p.nombre,
+                            pacienteSemana: p.semana,
+                            ...ent
+                        });
+                    });
+                }
+            });
+
+            todasEntregas.sort((a, b) => b.id - a.id);
+
+            todasEntregas.forEach(ent => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${ent.fecha}</strong></td>
+                        <td>${ent.pacienteNombre}</td>
+                        <td>Semana ${ent.pacienteSemana}</td>
+                        <td><span class="badge badge-info">${ent.recogidoPor}</span></td>
+                        <td>${ent.dispensadoPor}</td>
+                        <td>${ent.notas || '-'}</td>
+                    </tr>
+                `;
+            });
+
+            if (tbody.innerHTML === "") {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">No hay entregas registradas en el historial.</td></tr>`;
+            }
+        }
+
         function actualizarBadges() {
             document.getElementById('badge-lab-count').innerText = pacientes.filter(p => !p.preparado).length;
             document.getElementById('badge-recogidas-count').innerText = pacientes.filter(p => p.preparado && !p.avisadoRecogida).length;
@@ -1039,21 +1291,82 @@
 
         function conmutarPreparacion(id) {
             const p = pacientes.find(x => x.id === id);
-            if (p) { p.preparado = !p.preparado; if(!p.preparado) p.avisadoRecogida = false; guardarDatos(); renderizarTablas(); renderizarCalendarioAnual(); }
+            if (p) { 
+                p.preparado = !p.preparado; 
+                if(!p.preparado) p.avisadoRecogida = false; 
+                guardarDatos(); 
+                renderizarTablas(); 
+                renderizarCalendarioAnual(); 
+            }
         }
 
         function marcarAvisadoRecogida(id) {
             const p = pacientes.find(x => x.id === id);
-            if (p) { p.avisadoRecogida = true; guardarDatos(); renderizarTablas(); }
+            if (p) { 
+                p.avisadoRecogida = true; 
+                guardarDatos(); 
+                renderizarTablas(); 
+            }
         }
 
-        function conmutarAvisoCupon(idPac, indexAdelanto, persona) {
-            const p = pacientes.find(x => x.id === idPac);
-            if (p && p.adelantos && p.adelantos[indexAdelanto]) {
-                if (persona === 'patricia') p.adelantos[indexAdelanto].avisadoPatricia = !p.adelantos[indexAdelanto].avisadoPatricia;
-                else if (persona === 'andrea') p.adelantos[indexAdelanto].avisadoAndrea = !p.adelantos[indexAdelanto].avisadoAndrea;
-                guardarDatos();
+        function abrirModalEntrega(id) {
+            const p = pacientes.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('entrega-paciente-id').value = p.id;
+            document.getElementById('entrega-paciente-nombre').value = p.nombre;
+            document.getElementById('entrega-notas').value = '';
+            document.getElementById('entrega-receptor').value = 'El propio paciente';
+            document.getElementById('div-receptor-otro').style.display = 'none';
+
+            const divAlertaExt = document.getElementById('entrega-alerta-externa');
+            if (p.medExterna) {
+                divAlertaExt.innerText = `⚠️ RECORDATORIO: Entregar también medicación externa (${p.medExterna})`;
+                divAlertaExt.style.display = 'block';
+            } else {
+                divAlertaExt.style.display = 'none';
             }
+
+            document.getElementById('modal-entrega').style.display = 'flex';
+        }
+
+        function cerrarModalEntrega() {
+            document.getElementById('modal-entrega').style.display = 'none';
+        }
+
+        function toggleReceptorOtro(val) {
+            document.getElementById('div-receptor-otro').style.display = (val === 'Otro') ? 'block' : 'none';
+        }
+
+        function confirmarEntregaMostrador() {
+            const idPac = parseInt(document.getElementById('entrega-paciente-id').value);
+            const p = pacientes.find(x => x.id === idPac);
+            if (!p) return;
+
+            let receptor = document.getElementById('entrega-receptor').value;
+            if (receptor === 'Otro') {
+                receptor = document.getElementById('entrega-receptor-nombre').value.trim() || 'Tercero no especificado';
+            }
+            const notas = document.getElementById('entrega-notas').value.trim();
+            const fechaHora = new Date().toLocaleDateString('es-ES') + " " + new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+            const dispensadoPor = usuarioSesionActual ? usuarioSesionActual.nombre : "Equipo Farmacia";
+
+            if (!p.historialEntregas) p.historialEntregas = [];
+            p.historialEntregas.unshift({
+                id: Date.now(),
+                fecha: fechaHora,
+                dispensadoPor: dispensadoPor,
+                recogidoPor: receptor,
+                notas: notas
+            });
+
+            p.preparado = false;
+            p.avisadoRecogida = false;
+
+            guardarDatos();
+            cerrarModalEntrega();
+            alert(`✅ Entrega registrada para ${p.nombre}.`);
+            renderizarTablas();
+            renderizarCalendarioAnual();
         }
 
         function conmutarCobroAdelanto(idPac, indexAdelanto) {
@@ -1089,6 +1402,26 @@
             renderizarTablas();
         }
 
+        function enviarResumenPorEmail() {
+            if (chatMensajes.length === 0) {
+                alert("No hay mensajes recientes en el muro para enviar.");
+                return;
+            }
+
+            const destinatario = prompt("Introduce el correo donde enviar el resumen:", configuracionFarmacia.emailNotificaciones || "");
+            if (!destinatario) return;
+
+            configuracionFarmacia.emailNotificaciones = destinatario;
+            guardarDatos();
+
+            const ultimosMensajes = chatMensajes.slice(-5).map(m => `• [${m.tipo}] (${m.autor} - ${m.fecha}) [Pac: ${m.paciente}]: ${m.texto}`).join('\n\n');
+            const nombreFarm = configuracionFarmacia.nombreComercial || usuarioSesionActual.farmacia;
+            const asunto = encodeURIComponent(`Resumen de Avisos SPD - ${nombreFarm}`);
+            const cuerpo = encodeURIComponent(`Hola equipo,\n\nOs dejamos el resumen de las notas y avisos de pastilleros en la farmacia:\n\n${ultimosMensajes}\n\n¡Un saludo!`);
+
+            window.open(`mailto:${destinatario}?subject=${asunto}&body=${cuerpo}`);
+        }
+
         function agregarFilaAdelantoAlta() {
             const cont = document.getElementById('contenedor-adelantos-alta');
             const div = document.createElement('div');
@@ -1109,6 +1442,7 @@
             const telefono = document.getElementById('alta-telefono').value.trim();
             const semana = document.getElementById('alta-semana').value;
             const caducidad = document.getElementById('alta-caducidad').value;
+            const medExterna = document.getElementById('alta-med-externa').value.trim();
             const mesAdelantado = document.getElementById('alta-mes-adelanto').value;
             const motivoAdelanto = document.getElementById('alta-motivo-adelanto').value.trim();
             const notas = document.getElementById('alta-notas').value.trim();
@@ -1117,13 +1451,14 @@
             document.querySelectorAll('#contenedor-adelantos-alta > div').forEach(fila => {
                 const med = fila.querySelector('.input-alta-med').value.trim();
                 const limite = fila.querySelector('.input-alta-limite').value;
-                if (med) adelantos.push({ id: Date.now(), med, limite, cobrado: false, avisadoPatricia: false, avisadoAndrea: false, motivo: "Salto RE" });
+                if (med) adelantos.push({ id: Date.now(), med, limite, cobrado: false, revisadoPor: null, motivo: "Salto RE" });
             });
 
             pacientes.push({
                 id: Date.now(), nombre, cip, telefono, semana, caducidadPlan: caducidad,
-                preparado: false, avisadoRecogida: false, mesAdelantado, motivoAdelanto,
-                adelantos, avisos: [], notas
+                medExterna: medExterna, preparado: false, avisadoRecogida: false,
+                mesAdelantado, motivoAdelanto, adelantos, avisos: [],
+                historialEntregas: [], cambiosClinicos: [], notas
             });
 
             guardarDatos();
@@ -1161,13 +1496,34 @@
                 });
             }
 
-            let bannerAdelanto = "";
-            if(p.mesAdelantado) {
-                bannerAdelanto = `
-                    <div style="background:#fff7ed; border-left:4px solid #f97316; padding:10px 14px; border-radius:6px; font-size:12.5px; color:#9a3412; font-weight:600;">
-                        📦 <strong>Pastillero Adelantado en ${p.mesAdelantado}:</strong> ${p.motivoAdelanto || 'Petición del paciente'}
-                    </div>
-                `;
+            let entregasHtml = "";
+            if (p.historialEntregas && p.historialEntregas.length > 0) {
+                p.historialEntregas.forEach(ent => {
+                    entregasHtml += `
+                        <div style="background:white; border:1px solid #e2e8f0; border-radius:6px; padding:8px 12px; margin-bottom:5px; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <strong>📅 ${ent.fecha}</strong> - Retirado por: <u>${ent.recogidoPor}</u>
+                                <div style="color:#64748b; font-size:11px;">Dispensado por: ${ent.dispensadoPor} ${ent.notas ? ' | Nota: ' + ent.notas : ''}</div>
+                            </div>
+                            <span class="badge badge-success">✓ Entregado</span>
+                        </div>
+                    `;
+                });
+            } else {
+                entregasHtml = '<p style="color:#94a3b8; font-size:12px;">Sin entregas registradas previamente.</p>';
+            }
+
+            let cambiosClinicosHtml = "";
+            if (p.cambiosClinicos && p.cambiosClinicos.length > 0) {
+                p.cambiosClinicos.forEach(c => {
+                    cambiosClinicosHtml += `
+                        <div style="background:#f8fafc; border-left:3px solid var(--accent); padding:6px 10px; font-size:12px; margin-bottom:4px;">
+                            <strong>${c.fecha} (${c.usuario}):</strong> ${c.descripcion}
+                        </div>
+                    `;
+                });
+            } else {
+                cambiosClinicosHtml = '<p style="color:#94a3b8; font-size:12px;">Sin cambios médicos anotados.</p>';
             }
 
             let adelantosHtml = "";
@@ -1177,7 +1533,8 @@
                         <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:6px; border:1px solid #e2e8f0; font-size:12.5px;">
                             <div>
                                 <strong>${ad.med}</strong> - Límite: ${ad.limite}
-                                <span class="badge ${ad.cobrado ? 'badge-success' : 'badge-warning'}" style="margin-left:6px;">${ad.cobrado ? 'Regularizado' : 'Pendiente Receta'}</span>
+                                <span class="badge ${ad.cobrado ? 'badge-success' : 'badge-warning'}" style="margin-left:6px;">${ad.cobrado ? 'Regularizado' : 'Pendiente'}</span>
+                                ${ad.revisadoPor ? `<span class="badge badge-info" style="margin-left:4px;">Revisado: ${ad.revisadoPor}</span>` : ''}
                             </div>
                             <button class="btn-danger" onclick="eliminarAdelantoFicha(${p.id}, ${idx})">✕ Eliminar</button>
                         </div>
@@ -1187,52 +1544,96 @@
                 adelantosHtml = '<p style="color:#94a3b8; font-size:12px;">No tiene medicamentos adelantados.</p>';
             }
 
+            const semaforo = getSemaforoCaducidad(p.caducidadPlan);
+
             document.getElementById('modal-paciente-contenido').innerHTML = `
-                ${bannerAdelanto}
                 <div style="font-size:13px; line-height:1.6; background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
                     <strong>Teléfono:</strong> <a href="tel:${p.telefono}" style="color:var(--accent); font-weight:bold;">${p.telefono}</a><br>
-                    <strong>Semana Fija:</strong> Semana ${p.semana} | <strong>Caducidad Plan:</strong> ${p.caducidadPlan}<br>
-                    <strong>Estado Rollo:</strong> ${p.preparado ? '✓ Rollo Preparado' : '⏳ Pendiente de Fabricar'}
+                    <strong>Semana Asignada:</strong> Semana ${p.semana} | <strong>Caducidad Plan:</strong> <span class="badge ${semaforo.clase}">${semaforo.texto}</span><br>
+                    <strong>Medicación Fuera de Blíster:</strong> <span class="badge badge-purple">${p.medExterna || 'Ninguna'}</span><br>
+                    <strong>Estado Producción:</strong> ${p.preparado ? '✓ Preparado' : '⏳ Pendiente'}
                 </div>
 
-                <!-- OBSERVACIONES 100% EDITABLES POR CUALQUIER USUARIO -->
+                <!-- REGISTRO DE CAMBIOS MÉDICOS -->
+                <div style="background:white; padding:14px; border-radius:8px; border:1.5px solid #cbd5e1;">
+                    <h4 style="font-weight:800; font-size:13.5px; margin-bottom:8px; color:var(--primary);">🩺 Registro de cambios médicos</h4>
+                    <div style="display:flex; gap:8px; margin-bottom:8px;">
+                        <input type="text" id="input-nuevo-cambio-clinico" class="form-control" placeholder="Ej: Médico retira Omeprazol / añade Pantoprazol" style="flex-grow:1;">
+                        <button class="btn-primary" onclick="agregarCambioClinico(${p.id})">+ Anotar</button>
+                    </div>
+                    <div style="max-height:100px; overflow-y:auto;">
+                        ${cambiosClinicosHtml}
+                    </div>
+                </div>
+
+                <!-- HISTORIAL DE ENTREGAS -->
+                <div style="background:#f8fafc; padding:14px; border-radius:8px; border:1.5px solid #cbd5e1;">
+                    <h4 style="font-weight:800; font-size:13.5px; margin-bottom:8px; color:var(--primary);">📦 Historial de entregas</h4>
+                    <div style="max-height:130px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;">
+                        ${entregasHtml}
+                    </div>
+                </div>
+
+                <!-- OBSERVACIONES Y MEDICACIÓN EXTERNA -->
                 <div style="background:white; padding:14px; border-radius:8px; border:1.5px solid #cbd5e1;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                        <label style="font-size:13px; font-weight:800; color:var(--primary);">📝 Observaciones del Paciente:</label>
-                        <button class="btn-primary" style="font-size:11.5px; padding:4px 10px;" onclick="guardarObservacionesFicha(${p.id})">💾 Guardar Observaciones</button>
+                        <label style="font-size:13px; font-weight:800; color:var(--primary);">📝 Medicación Fuera de Blíster y Notas:</label>
+                        <button class="btn-primary" style="font-size:11.5px; padding:4px 10px;" onclick="guardarObservacionesFicha(${p.id})">💾 Guardar Cambios</button>
                     </div>
-                    <textarea id="modal-observaciones-texto" class="form-control" rows="3" placeholder="Escribe aquí las observaciones o notas de este paciente...">${p.notas || ''}</textarea>
+                    <input type="text" id="modal-med-externa-texto" class="form-control" value="${p.medExterna || ''}" placeholder="Medicación fuera de blíster (ej: Insulina, Colirio)" style="margin-bottom:8px;">
+                    <textarea id="modal-observaciones-texto" class="form-control" rows="2" placeholder="Observaciones generales...">${p.notas || ''}</textarea>
                 </div>
 
                 <!-- MEDICAMENTOS ADELANTADOS -->
                 <div style="background:#f1f5f9; padding:14px; border-radius:8px; border:1.5px solid #cbd5e1;">
-                    <h4 style="font-weight:800; font-size:13.5px; margin-bottom:8px; color:var(--primary);">💊 Añadir Medicamento Adelantado a este Expediente</h4>
+                    <h4 style="font-weight:800; font-size:13.5px; margin-bottom:8px; color:var(--primary);">💊 Añadir Medicamento Adelantado</h4>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
                         <input type="text" id="input-modal-med" class="form-control" placeholder="Nombre del Medicamento" style="flex:2; min-width:180px;">
                         <input type="date" id="input-modal-limite" class="form-control" style="flex:1; min-width:130px;">
                         <button class="btn-primary" onclick="agregarAdelantoDesdeFicha(${p.id})">+ Guardar Adelanto</button>
                     </div>
                     <div style="margin-top:10px; display:flex; flex-direction:column; gap:6px;">
-                        <label style="font-size:12px; font-weight:700;">Historial de Medicación Adelantada:</label>
                         ${adelantosHtml}
                     </div>
                 </div>
 
-                <h4 style="font-weight:800; font-size:13.5px; margin-top:2px;">Avisos Médicos & Notas</h4>
+                <h4 style="font-weight:800; font-size:13.5px; margin-top:2px;">Notas y Avisos</h4>
                 ${avisosHtml || '<p style="color:#94a3b8; font-size:12.5px;">No hay notas registradas.</p>'}
             `;
 
             document.getElementById('modal-ficha-paciente').style.display = 'flex';
         }
 
-        // GUARDAR OBSERVACIONES EDITADAS
+        function agregarCambioClinico(idPac) {
+            const input = document.getElementById('input-nuevo-cambio-clinico');
+            const desc = input.value.trim();
+            if (!desc) return;
+
+            const p = pacientes.find(x => x.id === idPac);
+            if (p) {
+                if (!p.cambiosClinicos) p.cambiosClinicos = [];
+                const fechaHoy = new Date().toLocaleDateString('es-ES');
+                const usuario = usuarioSesionActual ? usuarioSesionActual.nombre : "Farmacia";
+                
+                p.cambiosClinicos.unshift({
+                    id: Date.now(),
+                    fecha: fechaHoy,
+                    usuario: usuario,
+                    descripcion: desc
+                });
+
+                guardarDatos();
+                abrirFichaPaciente(idPac);
+            }
+        }
+
         function guardarObservacionesFicha(idPac) {
             const p = pacientes.find(x => x.id === idPac);
             if (p) {
-                const nuevoTexto = document.getElementById('modal-observaciones-texto').value;
-                p.notas = nuevoTexto;
+                p.notas = document.getElementById('modal-observaciones-texto').value;
+                p.medExterna = document.getElementById('modal-med-externa-texto').value.trim();
                 guardarDatos();
-                alert("✅ Observaciones guardadas correctamente.");
+                alert("✅ Guardado correctamente.");
                 renderizarTablas();
             }
         }
@@ -1245,7 +1646,7 @@
             const limite = limiteInput.value;
 
             if (!med || !limite) {
-                alert("Por favor indica el nombre del medicamento y la fecha límite.");
+                alert("Indica el nombre del medicamento y la fecha límite.");
                 return;
             }
 
@@ -1257,8 +1658,7 @@
                     med: med,
                     limite: limite,
                     cobrado: false,
-                    avisadoPatricia: false,
-                    avisadoAndrea: false,
+                    revisadoPor: null,
                     motivo: "Salto RE"
                 });
                 guardarDatos();
@@ -1290,6 +1690,148 @@
 
         function cerrarModalFicha() {
             document.getElementById('modal-ficha-paciente').style.display = 'none';
+        }
+
+        function imprimirHojaLaboratorio() {
+            const sem = document.getElementById('filtro-semana-preparacion').value;
+            const filtrados = pacientes.filter(p => p.semana === sem);
+            const farmacia = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : "Farmacia");
+            const fechaHoy = new Date().toLocaleDateString('es-ES');
+
+            let filasHTML = "";
+            filtrados.forEach((p) => {
+                filasHTML += `
+                    <tr style="border-bottom: 1px solid #333;">
+                        <td style="padding: 8px; text-align:center;">[ &nbsp; ]</td>
+                        <td style="padding: 8px;"><strong>${p.nombre}</strong><br><small>CIP: ${p.cip}</small></td>
+                        <td style="padding: 8px;">${p.caducidadPlan || '-'}</td>
+                        <td style="padding: 8px;">${p.medExterna || 'No'}</td>
+                        <td style="padding: 8px;">${p.notas || '-'}</td>
+                        <td style="padding: 8px; text-align:center;">[ &nbsp; ]</td>
+                    </tr>
+                `;
+            });
+
+            const printDiv = document.getElementById('area-impresion-laboratorio');
+            printDiv.innerHTML = `
+                <div style="font-family: Arial, sans-serif; padding: 20px; color: black;">
+                    <h2 style="margin-bottom: 4px;">HOJA DE TRABAJO SPD - ${farmacia.toUpperCase()}</h2>
+                    <p style="margin-bottom: 14px; font-size: 13px;"><strong>Semana:</strong> Semana ${sem} | <strong>Fecha:</strong> ${fechaHoy}</p>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;" border="1">
+                        <thead>
+                            <tr style="background: #e2e8f0;">
+                                <th style="padding: 6px; width: 45px;">Hecho</th>
+                                <th style="padding: 6px;">Paciente / CIP</th>
+                                <th style="padding: 6px; width: 95px;">Caducidad</th>
+                                <th style="padding: 6px;">Medicación Externa</th>
+                                <th style="padding: 6px;">Observaciones</th>
+                                <th style="padding: 6px; width: 45px;">Revisado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filasHTML}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            printDiv.style.display = 'block';
+            window.print();
+            printDiv.style.display = 'none';
+        }
+
+        function exportarPacientesCSV() {
+            if (pacientes.length === 0) {
+                alert("No hay pacientes para exportar.");
+                return;
+            }
+
+            let csv = "\uFEFF";
+            csv += "Nombre,CIP,Telefono,Semana,CaducidadPlan,MedExterna,EstadoRollo,Observaciones\n";
+
+            pacientes.forEach(p => {
+                const fila = [
+                    `"${p.nombre.replace(/"/g, '""')}"`,
+                    `"${p.cip}"`,
+                    `"${p.telefono}"`,
+                    `"Semana ${p.semana}"`,
+                    `"${p.caducidadPlan || ''}"`,
+                    `"${(p.medExterna || '').replace(/"/g, '""')}"`,
+                    `"${p.preparado ? 'Listo' : 'Pendiente'}"`,
+                    `"${(p.notas || '').replace(/"/g, '""')}"`
+                ];
+                csv += fila.join(",") + "\n";
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `Pacientes_SPD_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function cargarAjustesEnFormulario() {
+            document.getElementById('ajuste-nombre-farmacia').value = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : '');
+            document.getElementById('ajuste-fecha-ancla').value = configuracionFarmacia.fechaAnclaTomas || "2026-09-02";
+            document.getElementById('ajuste-semana-ancla').value = configuracionFarmacia.semanaAnclaTomas || "4";
+            document.getElementById('ajuste-email-guardia').value = configuracionFarmacia.emailNotificaciones || "";
+            renderizarListaEquipo();
+        }
+
+        function renderizarListaEquipo() {
+            const cont = document.getElementById('contenedor-lista-equipo');
+            cont.innerHTML = "";
+            const equipo = configuracionFarmacia.equipo || [];
+
+            equipo.forEach((miembro, idx) => {
+                cont.innerHTML += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border); padding: 8px 12px; border-radius: var(--radius-sm); max-width: 400px;">
+                        <span style="font-size: 13px; font-weight: 700;">👤 ${miembro}</span>
+                        <button class="btn-danger" onclick="eliminarMiembroEquipo(${idx})">✕</button>
+                    </div>
+                `;
+            });
+
+            if (equipo.length === 0) {
+                cont.innerHTML = '<span style="font-size:12px; color:#94a3b8;">No hay personas añadidas.</span>';
+            }
+        }
+
+        function agregarMiembroEquipo() {
+            const input = document.getElementById('input-nuevo-miembro-equipo');
+            const nuevo = input.value.trim();
+            if (!nuevo) return;
+
+            if (!configuracionFarmacia.equipo) configuracionFarmacia.equipo = [];
+            configuracionFarmacia.equipo.push(nuevo);
+            input.value = "";
+            renderizarListaEquipo();
+        }
+
+        function eliminarMiembroEquipo(idx) {
+            if (configuracionFarmacia.equipo) {
+                configuracionFarmacia.equipo.splice(idx, 1);
+                renderizarListaEquipo();
+            }
+        }
+
+        function guardarAjustesFarmacia() {
+            const nom = document.getElementById('ajuste-nombre-farmacia').value.trim();
+            const fecha = document.getElementById('ajuste-fecha-ancla').value;
+            const semana = document.getElementById('ajuste-semana-ancla').value;
+            const email = document.getElementById('ajuste-email-guardia').value.trim();
+
+            configuracionFarmacia.nombreComercial = nom;
+            configuracionFarmacia.fechaAnclaTomas = fecha;
+            configuracionFarmacia.semanaAnclaTomas = semana;
+            configuracionFarmacia.emailNotificaciones = email;
+
+            guardarDatos();
+            document.getElementById('label-nombre-farmacia').innerText = nom || usuarioSesionActual.farmacia;
+            actualizarIndicadorSemanaHeader();
+            renderizarCalendarioAnual();
+            alert("✅ Ajustes guardados correctamente.");
         }
 
         document.getElementById('filtro-semana-preparacion').addEventListener('change', function() {
