@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FarmaSPD - Gestión y Trazabilidad SPD</title>
+    <title>FarmaSPD Pro - Sistema de Gestión y Trazabilidad SPD</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- SDK FIREBASE CLOUD & AUTH -->
@@ -178,15 +178,15 @@
         .form-control { padding: 9px 12px; font-size: 13px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); outline: none; background: white; transition: border-color 0.2s; }
         .form-control:focus { border-color: var(--accent); }
 
-        .btn-primary { background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
+        .btn-primary { background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
         .btn-primary:hover { opacity: 0.92; }
-        .btn-success { background: var(--brand-teal); color: white; border: none; padding: 7px 12px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 11.5px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s; }
-        .btn-success:hover { background: #0f766e; }
+        .btn-teal { background: var(--brand-teal); color: white; border: none; padding: 7px 11px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 11.5px; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-teal:hover { background: #0f766e; }
+        .btn-success { background: var(--success); color: white; border: none; padding: 7px 11px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 11.5px; display: inline-flex; align-items: center; gap: 4px; }
         .btn-whatsapp { background: #25d366; color: white; border: none; padding: 7px 11px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; }
-        .btn-whatsapp:hover { background: #128c7e; }
         .btn-danger { background: var(--danger); color: white; border: none; padding: 6px 10px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 11px; }
 
-        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; min-width: 650px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; min-width: 820px; }
         th { background: #f8fafc; font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 11px; padding: 11px 12px; border-bottom: 1.5px solid var(--border); letter-spacing: 0.3px; }
         td { padding: 12px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
         tr:hover td { background: #f8fafc; }
@@ -213,6 +213,7 @@
         .chip-paciente { background: white; border: 1px solid var(--border); border-radius: 6px; padding: 4px 7px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; }
         .chip-paciente.adelantado { background: #fff7ed; border-color: #ffedd5; color: #c2410c; }
         .chip-paciente.listo { border-left: 3px solid var(--brand-teal); }
+        .chip-paciente.en-proceso { border-left: 3px solid var(--accent); }
         .chip-paciente.pendiente { border-left: 3px solid var(--warning); }
 
         .chat-container { display: flex; flex-direction: column; height: calc(100vh - 170px); background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; }
@@ -227,6 +228,40 @@
         .modal-box { background: white; width: 850px; max-width: 95%; max-height: 90vh; border-radius: var(--radius-lg); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-lg); }
         .modal-header { padding: 14px 20px; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+
+        .signature-pad-container {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            background: #ffffff;
+            position: relative;
+            touch-action: none;
+            cursor: crosshair;
+        }
+        canvas#lienzo-firma {
+            display: block;
+            width: 100%;
+            height: 140px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .box-cambio-medico-alerta {
+            background: #fffbeb;
+            border: 1.5px solid #fde68a;
+            border-left: 4px solid #f59e0b;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            color: #92400e;
+            margin-top: 5px;
+        }
+
+        .box-cambio-medico-alerta.urgente {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            border-left-color: var(--danger);
+            color: #991b1b;
+        }
 
         @media print {
             body * { visibility: hidden; }
@@ -290,7 +325,7 @@
                     <label>Crear Contraseña:</label>
                     <input type="password" id="reg-pass" class="form-control" placeholder="Mínimo 4 caracteres" required>
                 </div>
-                <button type="submit" class="btn-success" style="margin-top: 6px; padding: 10px; justify-content:center;">Registrar Farmacia y Acceder</button>
+                <button type="submit" class="btn-teal" style="margin-top: 6px; padding: 10px; justify-content:center;">Registrar Farmacia y Acceder</button>
             </form>
         </div>
     </div>
@@ -368,15 +403,17 @@
         <section id="tab-preparacion" class="tab-content active">
             <div class="panel-card">
                 <div class="panel-header">
-                    <span class="panel-title">📦 Lotes y preparación semanal</span>
+                    <span class="panel-title">📦 Lotes y preparación semanal (Fase 1, 2 y 3)</span>
                     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                        <button class="btn-primary" style="background:#475569; font-size:11.5px;" onclick="imprimirHojaLaboratorio()">🖨️ Imprimir Hoja de Trabajo</button>
-                        <label style="font-size: 12px; font-weight: 700; margin-left:8px;">Semana:</label>
+                        <input type="text" id="buscador-preparacion-rapido" class="form-control" placeholder="🔍 Buscar por nombre/CIP..." style="width: 200px; padding: 6px 10px; font-size: 12px;" oninput="renderizarPreparacion()">
+                        <button class="btn-primary" style="background:#475569; font-size:11.5px;" onclick="imprimirHojaLaboratorio()">🖨️ Imprimir Hoja</button>
+                        <label style="font-size: 12px; font-weight: 700; margin-left:4px;">Semana:</label>
                         <select id="filtro-semana-preparacion" class="form-control" style="padding: 5px 10px; font-weight: 700;" onchange="renderizarTablas()">
                             <option value="1">Semana 1</option>
                             <option value="2">Semana 2</option>
                             <option value="3">Semana 3</option>
                             <option value="4">Semana 4</option>
+                            <option value="todas">⭐ Ver todas las semanas</option>
                         </select>
                     </div>
                 </div>
@@ -384,12 +421,13 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Paciente</th>
-                                <th>Semana Fija</th>
-                                <th>Avisos Médicos / RE</th>
-                                <th>Caducidad Tratamiento</th>
-                                <th>Medicación Fuera Blíster</th>
-                                <th>Estado Producción</th>
+                                <th>Paciente & Cambios Médicos</th>
+                                <th>Semana</th>
+                                <th>1. Preparación Medicación</th>
+                                <th>2. Fabricación Rollo</th>
+                                <th>3. Revisión Final</th>
+                                <th>Notas / Alertas</th>
+                                <th>Caducidad</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -412,7 +450,8 @@
                                 <th>Paciente</th>
                                 <th>Teléfono</th>
                                 <th>Semana</th>
-                                <th>Medicación Externa</th>
+                                <th>Trazabilidad Laboratorio</th>
+                                <th>Medicación Externa / Nota Mostrador</th>
                                 <th>Avisar Paciente</th>
                                 <th>Dispensación Mostrador</th>
                             </tr>
@@ -533,7 +572,7 @@
                         <textarea id="alta-notas" class="form-control" rows="2" placeholder="Pautas, horarios especiales u observaciones..."></textarea>
                     </div>
 
-                    <button type="submit" class="btn-success" style="margin-top: 16px; width: 100%; justify-content: center; padding: 11px;">Guardar Paciente</button>
+                    <button type="submit" class="btn-teal" style="margin-top: 16px; width: 100%; justify-content: center; padding: 11px;">Guardar Paciente</button>
                 </form>
             </div>
         </section>
@@ -544,7 +583,7 @@
                 <div class="panel-header">
                     <span class="panel-title">👥 Directorio general de pacientes</span>
                     <div style="display:flex; gap:8px;">
-                        <button class="btn-success" style="font-size:11.5px;" onclick="exportarPacientesCSV()">📥 Exportar a Excel (CSV)</button>
+                        <button class="btn-teal" style="font-size:11.5px;" onclick="exportarPacientesCSV()">📥 Exportar a Excel (CSV)</button>
                         <input type="text" id="buscador-directorio" class="form-control" placeholder="🔍 Buscar paciente..." style="width: 220px;" oninput="renderizarTablas()">
                     </div>
                 </div>
@@ -558,7 +597,7 @@
                                 <th>Semana</th>
                                 <th>Caducidad Tratamiento</th>
                                 <th>Avisos Activos</th>
-                                <th>Ficha</th>
+                                <th>Ficha / Editar</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-directorio-body"></tbody>
@@ -572,7 +611,7 @@
             <div class="chat-container">
                 <div style="padding:10px 14px; background:#f1f5f9; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-size:13px; font-weight:700; color:var(--primary);">💬 Muro de incidencias y notas de guardia</span>
-                    <button class="btn-primary" style="background:#475569; font-size:11.5px;" onclick="enviarResumenPorEmail()">📧 Enviar Resumen al Personal en Libranza</button>
+                    <button class="btn-primary" style="background:#ea4335; font-size:11.5px;" onclick="abrirRedactorGmail()">✉️ Enviar Resumen por Gmail</button>
                 </div>
                 <div id="chat-box" class="chat-messages"></div>
                 <div class="chat-input-bar">
@@ -593,10 +632,10 @@
         <section id="tab-auditoria" class="tab-content">
             <div class="panel-card">
                 <div class="panel-header">
-                    <span class="panel-title">📋 Historial de entregas</span>
-                    <span class="badge badge-success">Trazabilidad Sanitaria</span>
+                    <span class="panel-title">📋 Historial de entregas y firmas digitales</span>
+                    <span class="badge badge-success">Conforme RGPD / AEPD</span>
                 </div>
-                <p style="font-size:12.5px; color:#64748b; margin-bottom:12px;">Registro inmutable de dispensaciones y retiradas de pastilleros en mostrador.</p>
+                <p style="font-size:12.5px; color:#64748b; margin-bottom:12px;">Registro inmutable con firmas, responsables de preparación/fabricación/revisión y dispensación.</p>
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -605,8 +644,11 @@
                                 <th>Paciente</th>
                                 <th>Semana</th>
                                 <th>Retirado Por</th>
+                                <th>Firma Receptor</th>
                                 <th>Dispensado Por</th>
+                                <th>Trazabilidad Lab</th>
                                 <th>Observaciones</th>
+                                <th>Acción</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-auditoria-body"></tbody>
@@ -615,11 +657,23 @@
             </div>
         </section>
 
-        <!-- 9. AJUSTES Y EQUIPO -->
+        <!-- 9. AJUSTES, EQUIPO Y LICENCIA COMERCIAL -->
         <section id="tab-ajustes" class="tab-content">
-            <div class="panel-card" style="max-width: 800px; margin: 0 auto;">
+            <div class="panel-card" style="max-width: 850px; margin: 0 auto;">
                 <div class="panel-header">
-                    <span class="panel-title">⚙️ Ajustes de la Farmacia y Rotación de Semanas</span>
+                    <span class="panel-title">⚙️ Ajustes de la Farmacia y Configuración Comercial</span>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #092c4c 0%, #134e7c 100%); color: white; padding: 16px; border-radius: var(--radius-md); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.85;">Plan de Licencia de la Farmacia</div>
+                        <h3 style="margin-top: 2px;" id="etiqueta-plan-licencia">Plan Pro Farmacia (Acceso Vitalicio)</h3>
+                        <small style="opacity: 0.8;">Arquitectura Distribuida Activa · Concurrencia Protegida</small>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn-success" onclick="abrirSuscripcionStripe()">💳 Gestionar Suscripción</button>
+                        <button class="btn-primary" style="background: rgba(255,255,255,0.15);" onclick="exportarBackupCompletoJSON()">💾 Backup Total (RGPD)</button>
+                    </div>
                 </div>
                 
                 <div class="form-grid">
@@ -641,28 +695,28 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Email para Notificaciones y Resúmenes:</label>
-                        <input type="email" id="ajuste-email-guardia" class="form-control" placeholder="equipo@farmacia.com">
+                        <label>Email de la Farmacia (Gmail para resúmenes):</label>
+                        <input type="email" id="ajuste-email-guardia" class="form-control" placeholder="farmacia@gmail.com">
                     </div>
                 </div>
 
                 <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);">
                     <label style="font-size: 13px; font-weight: 800; color: var(--primary);">👥 Equipo Técnico y Farmacéutico:</label>
-                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Personal autorizado para la preparación, revisión y entrega de SPD.</p>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Personal para asignación de preparación, fabricación y validación farmacéutica.</p>
                     <div id="contenedor-lista-equipo" style="display: flex; flex-direction: column; gap: 8px;"></div>
                     
                     <div style="display: flex; gap: 8px; margin-top: 10px;">
-                        <input type="text" id="input-nuevo-miembro-equipo" class="form-control" placeholder="Nombre (ej: Carlos)" style="max-width: 300px;">
+                        <input type="text" id="input-nuevo-miembro-equipo" class="form-control" placeholder="Nombre (ej: Patricia)" style="max-width: 300px;">
                         <button class="btn-primary" onclick="agregarMiembroEquipo()">+ Añadir Personal</button>
                     </div>
                 </div>
 
-                <button class="btn-success" style="margin-top: 20px; width: 100%; justify-content: center; padding: 10px;" onclick="guardarAjustesFarmacia()">💾 Guardar Ajustes</button>
+                <button class="btn-teal" style="margin-top: 20px; width: 100%; justify-content: center; padding: 10px;" onclick="guardarAjustesFarmacia()">💾 Guardar Ajustes</button>
             </div>
         </section>
     </main>
 
-    <!-- MODAL EXPEDIENTE -->
+    <!-- MODAL EXPEDIENTE & EDICIÓN -->
     <div id="modal-ficha-paciente" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-header">
@@ -673,11 +727,85 @@
         </div>
     </div>
 
-    <!-- MODAL REGISTRO DE ENTREGA -->
-    <div id="modal-entrega" class="modal-overlay">
+    <!-- MODAL FASE 1: PREPARACIÓN DE MEDICACIÓN -->
+    <div id="modal-fase-med" class="modal-overlay">
         <div class="modal-box" style="max-width: 480px;">
             <div class="modal-header">
-                <h3>📦 Registrar entrega en mostrador</h3>
+                <h3>💊 Fase 1: Preparación de Medicación</h3>
+                <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="cerrarModalFaseMed()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="fase-med-id">
+                
+                <div id="fase-med-alerta-cambio" style="display:none;" class="box-cambio-medico-alerta"></div>
+
+                <p style="font-size: 13px; color: var(--text-muted); margin-top:4px;">Confirma que se han recogido los blísteres, revisado dosis y desblistado.</p>
+                <div class="form-group">
+                    <label>¿Quién prepara la medicación?:</label>
+                    <select id="fase-med-responsable" class="form-control" style="font-weight:700;"></select>
+                </div>
+                <div class="form-group">
+                    <label>Nota para la persona que fabricará el rollo (opcional):</label>
+                    <textarea id="fase-med-nota" class="form-control" rows="3" placeholder="Ej: Falta 1 comp de Sintrom / Aplicado el cambio médico"></textarea>
+                </div>
+                <button class="btn-primary" style="padding: 10px; width: 100%; justify-content: center;" onclick="confirmarFaseMedicacion()">✓ Guardar Preparación de Medicación</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FASE 2: FABRICACIÓN DEL ROLLO -->
+    <div id="modal-fase-rollo" class="modal-overlay">
+        <div class="modal-box" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3>⚙️ Fase 2: Fabricación del Rollo / Pastillero</h3>
+                <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="cerrarModalFaseRollo()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="fase-rollo-id">
+                
+                <div id="alerta-nota-fase1" style="display:none; background:#e0f2fe; border:1.5px solid #0284c7; padding:10px; border-radius:8px; font-size:12.5px; color:#0369a1;"></div>
+                <div id="fase-rollo-alerta-cambio" style="display:none;" class="box-cambio-medico-alerta"></div>
+
+                <div class="form-group" style="margin-top:6px;">
+                    <label>¿Quién fabrica el rollo?:</label>
+                    <select id="fase-rollo-responsable" class="form-control" style="font-weight:700;"></select>
+                </div>
+                <div class="form-group">
+                    <label>Nota especial para el Mostrador (Dispensación):</label>
+                    <textarea id="fase-rollo-nota-mostrador" class="form-control" rows="2" placeholder="Ej: Cobrar 3.20€ / Ojo: entregar también insulina de nevera"></textarea>
+                </div>
+                <button class="btn-teal" style="padding: 10px; width: 100%; justify-content: center;" onclick="confirmarFaseFabricacion()">✓ Finalizar Fabricación</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FASE 3: REVISIÓN FARMACÉUTICA Y DISPARO WHATSAPP -->
+    <div id="modal-fase-revision" class="modal-overlay">
+        <div class="modal-box" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3>🔍 Fase 3: Validación y Revisión Final de SPD</h3>
+                <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="cerrarModalFaseRevision()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="fase-revision-id">
+                <p style="font-size: 13px; color: var(--text-muted);">Comprueba que todas las cavidades y tomas concuerdan con la pauta médica vigente.</p>
+                <div class="form-group">
+                    <label>¿Quién revisa y valida el rollo?:</label>
+                    <select id="fase-revision-responsable" class="form-control" style="font-weight:700;"></select>
+                </div>
+                <div style="background:#f0fdf4; border:1.5px solid #bbf7d0; padding:10px; border-radius:8px; font-size:12.5px; color:#166534;">
+                    📲 <strong>Aviso automático por WhatsApp:</strong> Al pulsar el botón, el rollo quedará validado y se abrirá automáticamente la conversación con el paciente para notificarle que ya puede pasar a recogerlo.
+                </div>
+                <button class="btn-success" style="padding: 11px; width: 100%; justify-content: center; font-size: 13px;" onclick="confirmarRevisionYDispararWhatsapp()">✓ Validar Rollo y Enviar WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL REGISTRO DE ENTREGA CON FIRMA DIGITAL -->
+    <div id="modal-entrega" class="modal-overlay">
+        <div class="modal-box" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>📦 Registrar Entrega en Mostrador</h3>
                 <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="cerrarModalEntrega()">&times;</button>
             </div>
             <div class="modal-body">
@@ -686,7 +814,11 @@
                     <label>Paciente:</label>
                     <input type="text" id="entrega-paciente-nombre" class="form-control" readonly style="background:#f1f5f9; font-weight:700;">
                 </div>
-                <div class="form-group" id="entrega-alerta-externa" style="display:none; background:#fef3c7; border:1px solid #f59e0b; padding:8px; border-radius:6px; font-size:12px; color:#92400e; font-weight:700;"></div>
+                
+                <div id="entrega-trazabilidad-lab" style="background:#f8fafc; border:1px solid #e2e8f0; padding:8px 12px; border-radius:6px; font-size:11.5px; color:#475569;"></div>
+                <div id="entrega-alerta-laboratorio" style="display:none; background:#fef3c7; border:1.5px solid #f59e0b; padding:10px; border-radius:8px; font-size:12.5px; color:#92400e; font-weight:700;"></div>
+                <div id="entrega-alerta-externa" style="display:none; background:#ede9fe; border:1.5px solid #8b5cf6; padding:10px; border-radius:8px; font-size:12.5px; color:#5b21b6; font-weight:700;"></div>
+
                 <div class="form-group">
                     <label>¿Quién retira la medicación?:</label>
                     <select id="entrega-receptor" class="form-control" onchange="toggleReceptorOtro(this.value)">
@@ -700,11 +832,22 @@
                     <label>Nombre de quien retira:</label>
                     <input type="text" id="entrega-receptor-nombre" class="form-control" placeholder="Ej: Hija María">
                 </div>
+
                 <div class="form-group">
-                    <label>Notas de la dispensación (opcional):</label>
-                    <input type="text" id="entrega-notas" class="form-control" placeholder="Ej: Retira 2 semanas / Cobra copago">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label>✍️ Firma del Receptor (Firma en el recuadro):</label>
+                        <button type="button" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:700; cursor:pointer;" onclick="limpiarLienzoFirma()">Borrar firma</button>
+                    </div>
+                    <div class="signature-pad-container">
+                        <canvas id="lienzo-firma"></canvas>
+                    </div>
                 </div>
-                <button class="btn-success" style="padding:10px; justify-content:center; width:100%; font-size:13px; margin-top:8px;" onclick="confirmarEntregaMostrador()">✓ Registrar Entrega</button>
+
+                <div class="form-group">
+                    <label>Notas adicionales de la entrega (opcional):</label>
+                    <input type="text" id="entrega-notas" class="form-control" placeholder="Ej: Retira 2 semanas">
+                </div>
+                <button class="btn-teal" style="padding:11px; justify-content:center; width:100%; font-size:13.5px;" onclick="confirmarEntregaMostrador()">✓ Confirmar Entrega y Archivar</button>
             </div>
         </div>
     </div>
@@ -743,6 +886,82 @@
             emailNotificaciones: "",
             equipo: []
         };
+
+        // FUNCIÓN CRIPTOGRÁFICA PARA HASH DE CONTRASEÑAS (RGPD)
+        async function calcularHashContrasena(pass, farmaciaId) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(pass + "_" + farmaciaId + "_farmaspd_salt");
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        let canvasFirma, ctxFirma, dibujando = false, haFirmado = false;
+
+        function inicializarCanvasFirma() {
+            canvasFirma = document.getElementById('lienzo-firma');
+            if (!canvasFirma) return;
+            ctxFirma = canvasFirma.getContext('2d');
+            haFirmado = false;
+
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvasFirma.getBoundingClientRect();
+            canvasFirma.width = rect.width * dpr;
+            canvasFirma.height = rect.height * dpr;
+            ctxFirma.scale(dpr, dpr);
+
+            ctxFirma.strokeStyle = "#092c4c";
+            ctxFirma.lineWidth = 2.5;
+            ctxFirma.lineCap = "round";
+            ctxFirma.lineJoin = "round";
+
+            function getPos(e) {
+                const r = canvasFirma.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: clientX - r.left, y: clientY - r.top };
+            }
+
+            function startDraw(e) {
+                e.preventDefault();
+                dibujando = true;
+                haFirmado = true;
+                const pos = getPos(e);
+                ctxFirma.beginPath();
+                ctxFirma.moveTo(pos.x, pos.y);
+            }
+
+            function moveDraw(e) {
+                if (!dibujando) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                ctxFirma.lineTo(pos.x, pos.y);
+                ctxFirma.stroke();
+            }
+
+            function endDraw(e) {
+                if (dibujando) {
+                    e.preventDefault();
+                    dibujando = false;
+                }
+            }
+
+            canvasFirma.onmousedown = startDraw;
+            canvasFirma.onmousemove = moveDraw;
+            window.onmouseup = endDraw;
+
+            canvasFirma.ontouchstart = startDraw;
+            canvasFirma.ontouchmove = moveDraw;
+            window.ontouchend = endDraw;
+        }
+
+        function limpiarLienzoFirma() {
+            if (ctxFirma && canvasFirma) {
+                const dpr = window.devicePixelRatio || 1;
+                ctxFirma.clearRect(0, 0, canvasFirma.width / dpr, canvasFirma.height / dpr);
+                haFirmado = false;
+            }
+        }
 
         function toggleMenuLateral() {
             const sidebar = document.getElementById('sidebar-menu');
@@ -822,6 +1041,20 @@
             }
         }
 
+        function esCambioReciente(fechaStr) {
+            if (!fechaStr) return false;
+            try {
+                const partes = fechaStr.split('/');
+                if (partes.length !== 3) return false;
+                const fCambio = new Date(parseInt(partes[2]), parseInt(partes[1]) - 1, parseInt(partes[0]));
+                const hoy = new Date();
+                const diffDias = Math.round((hoy - fCambio) / (1000 * 60 * 60 * 24));
+                return diffDias >= 0 && diffDias <= 15;
+            } catch(e) {
+                return false;
+            }
+        }
+
         function sanitizarIdFarmacia(nombre) {
             return nombre.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
         }
@@ -851,12 +1084,12 @@
             }
         }
 
+        // LOGIN CON HASH CRIPTOGRÁFICO Y RETROCOMPATIBILIDAD
         async function procesarLogin(e) {
             e.preventDefault();
             const farmaciaNombre = document.getElementById('login-farmacia-codigo').value.trim();
             const usuario = document.getElementById('login-user').value.trim().toLowerCase();
             const password = document.getElementById('login-pass').value.trim();
-
             const farmaciaId = sanitizarIdFarmacia(farmaciaNombre);
 
             if (dbCloud) {
@@ -869,7 +1102,11 @@
 
                     const data = farmaciaDoc.data();
                     const usuariosFarmacia = data.usuarios || [];
-                    const userMatch = usuariosFarmacia.find(u => u.user.toLowerCase() === usuario && u.pass === password);
+                    const hashIntento = await calcularHashContrasena(password, farmaciaId);
+
+                    const userMatch = usuariosFarmacia.find(u => 
+                        u.user.toLowerCase() === usuario && (u.passHash === hashIntento || u.pass === password)
+                    );
 
                     if (userMatch) {
                         usuarioSesionActual = {
@@ -889,13 +1126,13 @@
             }
         }
 
+        // REGISTRO CON CIFRADO SHA-256
         async function procesarRegistro(e) {
             e.preventDefault();
             const farmaciaNombre = document.getElementById('reg-farmacia').value.trim();
             const nombre = document.getElementById('reg-nombre').value.trim();
             const user = document.getElementById('reg-user').value.trim().toLowerCase();
             const pass = document.getElementById('reg-pass').value.trim();
-
             const farmaciaId = sanitizarIdFarmacia(farmaciaNombre);
 
             if (dbCloud) {
@@ -906,19 +1143,21 @@
                         return;
                     }
 
+                    const hashSeguro = await calcularHashContrasena(pass, farmaciaId);
+
                     const nuevaFarmaciaData = {
                         nombreReal: farmaciaNombre,
                         farmaciaId: farmaciaId,
                         creadoEn: new Date().toISOString(),
-                        usuarios: [{ user, pass, nombre }],
-                        pacientes: [],
+                        usuarios: [{ user, passHash: hashSeguro, nombre }],
                         chatMensajes: [],
                         configuracion: { 
                             nombreComercial: farmaciaNombre, 
                             fechaAnclaTomas: "2026-09-02", 
                             semanaAnclaTomas: "4",
                             emailNotificaciones: "",
-                            equipo: [nombre]
+                            equipo: [nombre],
+                            licenciaPro: true
                         }
                     };
 
@@ -946,12 +1185,15 @@
             document.getElementById('pantalla-login').style.display = 'flex';
         }
 
+        // ESCUCHA ATÓMICA DE SUBCOLECCIÓN DE PACIENTES (SIN LÍMITE DE 1MB)
         function iniciarEscuchaTiempoReal() {
             if (dbCloud && usuarioSesionActual) {
-                dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId).onSnapshot((doc) => {
+                const docFarmacia = dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId);
+
+                // 1. Escucha del documento principal (Ajustes y Chat)
+                docFarmacia.onSnapshot((doc) => {
                     if (doc.exists) {
                         const data = doc.data();
-                        pacientes = data.pacientes || [];
                         chatMensajes = data.chatMensajes || [];
                         configuracionFarmacia = data.configuracion || configuracionFarmacia;
                         
@@ -960,18 +1202,55 @@
                         }
 
                         document.getElementById('label-nombre-farmacia').innerText = configuracionFarmacia.nombreComercial || usuarioSesionActual.farmacia;
-                        renderizarTablas();
-                        renderizarCalendarioAnual();
                         cargarAjustesEnFormulario();
+                        renderizarChat();
                     }
+                });
+
+                // 2. Escucha en tiempo real de la subcolección atómica de pacientes
+                docFarmacia.collection("pacientes").onSnapshot((snapshot) => {
+                    pacientes = [];
+                    snapshot.forEach(doc => {
+                        pacientes.push({ idDocFirestore: doc.id, ...doc.data() });
+                    });
+
+                    // Migración transparente si venían de la versión antigua monolítica
+                    if (pacientes.length === 0) {
+                        docFarmacia.get().then(docSnapshot => {
+                            const dataVieja = docSnapshot.data();
+                            if (dataVieja && dataVieja.pacientes && dataVieja.pacientes.length > 0) {
+                                const batch = dbCloud.batch();
+                                dataVieja.pacientes.forEach(p => {
+                                    const ref = docFarmacia.collection("pacientes").doc(String(p.id));
+                                    batch.set(ref, p);
+                                });
+                                batch.commit().then(() => {
+                                    docFarmacia.update({ pacientes: firebase.firestore.FieldValue.delete() });
+                                });
+                            }
+                        });
+                    }
+
+                    renderizarTablas();
+                    renderizarCalendarioAnual();
                 });
             }
         }
 
-        function guardarDatos() {
+        // GUARDADO ATÓMICO: CADA PACIENTE ES UN DOCUMENTO INDEPENDIENTE
+        function guardarPacienteIndividual(pacienteObj) {
+            if (dbCloud && usuarioSesionActual) {
+                const docId = String(pacienteObj.id);
+                const copia = { ...pacienteObj };
+                delete copia.idDocFirestore;
+                dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId)
+                       .collection("pacientes").doc(docId).set(copia, { merge: true });
+            }
+        }
+
+        function guardarDatosGlobales() {
             if (dbCloud && usuarioSesionActual) {
                 dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId).set({
-                    pacientes: pacientes,
                     chatMensajes: chatMensajes,
                     configuracion: configuracionFarmacia,
                     ultimaActualizacion: new Date().toISOString()
@@ -987,7 +1266,7 @@
             elemento.classList.add('active');
 
             const titulos = {
-                'tab-preparacion': '1. Preparación de SPD',
+                'tab-preparacion': '1. Preparación de SPD (Fases 1, 2 y 3)',
                 'tab-recogidas': '2. Avisos & Recogidas',
                 'tab-cupones': '3. Cupones y Adelantos',
                 'tab-calendario': '4. Calendario Anual',
@@ -1043,7 +1322,10 @@
                     } else {
                         pacientesSemana.forEach(p => {
                             const esAdelantadoEsteMes = p.mesAdelantado === nombreMes;
-                            const claseEstado = p.preparado ? 'listo' : 'pendiente';
+                            let claseEstado = 'pendiente';
+                            if (p.rolloRevisado) claseEstado = 'listo';
+                            else if (p.rolloFabricado || p.medicacionPreparada) claseEstado = 'en-proceso';
+
                             const badgeAdelanto = esAdelantadoEsteMes ? '📦 ' : '';
                             chipsHTML += `
                                 <div class="chip-paciente ${claseEstado} ${esAdelantadoEsteMes ? 'adelantado':''}" onclick="abrirFichaPaciente(${p.id})">
@@ -1091,42 +1373,267 @@
 
         function renderizarPreparacion() {
             const sem = document.getElementById('filtro-semana-preparacion').value;
+            const query = (document.getElementById('buscador-preparacion-rapido')?.value || '').toLowerCase().trim();
             const tbody = document.getElementById('tabla-preparacion-body');
             tbody.innerHTML = "";
 
-            const filtrados = pacientes.filter(p => p.semana === sem);
+            let filtrados = pacientes;
+            if (sem !== "todas") {
+                filtrados = filtrados.filter(p => p.semana === sem);
+            }
+            if (query) {
+                filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(query) || p.cip.toLowerCase().includes(query));
+            }
+
             filtrados.forEach(p => {
-                const avisosActivos = p.avisos ? p.avisos.filter(a => !a.resuelto) : [];
-                let avisosHTML = '<span class="badge badge-neutral">Sin avisos</span>';
-                if (avisosActivos.length > 0) {
-                    avisosHTML = `<span class="badge badge-warning" style="cursor:pointer;" onclick="abrirFichaPaciente(${p.id})">⚠️ ${avisosActivos.length} aviso(s)</span>`;
+                const semaforo = getSemaforoCaducidad(p.caducidadPlan);
+
+                let ultimoCambioHTML = "";
+                if (p.cambiosClinicos && p.cambiosClinicos.length > 0) {
+                    const ult = p.cambiosClinicos[0];
+                    const urgente = esCambioReciente(ult.fecha);
+                    ultimoCambioHTML = `
+                        <div class="box-cambio-medico-alerta ${urgente ? 'urgente' : ''}">
+                            <strong>${urgente ? '🚨 CAMBIO MÉDICO RECIENTE' : '🩺 Último cambio'} (${ult.fecha} - ${ult.usuario}):</strong><br>
+                            ${ult.descripcion}
+                        </div>
+                    `;
                 }
 
-                const semaforo = getSemaforoCaducidad(p.caducidadPlan);
-                const medExternaHTML = p.medExterna ? `<span class="badge badge-purple" title="${p.medExterna}">❄️ ${p.medExterna}</span>` : '<span style="color:#94a3b8; font-size:11px;">-</span>';
+                let colFase1 = "";
+                if (p.medicacionPreparada) {
+                    colFase1 = `
+                        <span class="badge badge-info">✓ Preparada</span>
+                        <div style="font-size:11px; color:#475569; margin-top:2px;">Por: <strong>${p.responsableMedicacion}</strong></div>
+                    `;
+                } else {
+                    colFase1 = `<button class="btn-primary" style="font-size:11px; padding:5px 8px;" onclick="abrirModalFaseMed(${p.id})">1. Preparar Medicación</button>`;
+                }
+
+                let colFase2 = "";
+                if (p.rolloFabricado) {
+                    colFase2 = `
+                        <span class="badge badge-info">✓ Fabricado</span>
+                        <div style="font-size:11px; color:#475569; margin-top:2px;">Por: <strong>${p.responsableRollo}</strong></div>
+                    `;
+                } else if (p.medicacionPreparada) {
+                    colFase2 = `<button class="btn-teal" style="font-size:11px; padding:5px 8px;" onclick="abrirModalFaseRollo(${p.id})">2. Fabricar Rollo</button>`;
+                } else {
+                    colFase2 = `<span style="font-size:11px; color:#94a3b8;">Esperando fase 1...</span>`;
+                }
+
+                let colFase3 = "";
+                if (p.rolloRevisado) {
+                    colFase3 = `
+                        <span class="badge badge-success">✓ Revisado & Validado</span>
+                        <div style="font-size:11px; color:#059669; margin-top:2px;">Por: <strong>${p.responsableRevision}</strong></div>
+                    `;
+                } else if (p.rolloFabricado) {
+                    colFase3 = `<button class="btn-success" style="font-size:11px; padding:5px 8px;" onclick="abrirModalFaseRevision(${p.id})">3. Validar Revisión</button>`;
+                } else {
+                    colFase3 = `<span style="font-size:11px; color:#94a3b8;">Esperando rollo...</span>`;
+                }
+
+                let notasInternasHTML = "";
+                if (p.notaInternaFase1) {
+                    notasInternasHTML += `<div style="font-size:11px; background:#e0f2fe; padding:4px 6px; border-radius:4px; margin-bottom:3px; color:#0369a1;"><strong>Med:</strong> ${p.notaInternaFase1}</div>`;
+                }
+                if (p.notaDispensacion) {
+                    notasInternasHTML += `<div style="font-size:11px; background:#fef3c7; padding:4px 6px; border-radius:4px; color:#92400e;"><strong>Mostrador:</strong> ${p.notaDispensacion}</div>`;
+                }
+                if (!notasInternasHTML) {
+                    notasInternasHTML = '<span style="font-size:11px; color:#94a3b8;">-</span>';
+                }
 
                 tbody.innerHTML += `
                     <tr>
-                        <td><strong>${p.nombre}</strong><br><small style="color:#64748b;">CIP: ${p.cip} | Tlf: ${p.telefono}</small></td>
-                        <td><span class="badge badge-neutral">Semana ${p.semana}</span></td>
-                        <td>${avisosHTML}</td>
-                        <td><span class="badge ${semaforo.clase}">${semaforo.texto}</span></td>
-                        <td>${medExternaHTML}</td>
-                        <td><span class="badge ${p.preparado ? 'badge-success' : 'badge-danger'}">${p.preparado ? '✓ Preparado' : '⏳ Pendiente'}</span></td>
                         <td>
-                            <button class="btn-success" onclick="conmutarPreparacion(${p.id})">${p.preparado ? 'Desmarcar' : '✓ Marcar Preparado'}</button>
-                            <button class="btn-primary" style="padding:5px 10px; font-size:11.5px;" onclick="abrirFichaPaciente(${p.id})">Ficha</button>
+                            <strong>${p.nombre}</strong><br>
+                            <small style="color:#64748b;">CIP: ${p.cip} | Tlf: ${p.telefono}</small>
+                            ${ultimoCambioHTML}
+                        </td>
+                        <td><span class="badge badge-neutral">Semana ${p.semana}</span></td>
+                        <td>${colFase1}</td>
+                        <td>${colFase2}</td>
+                        <td>${colFase3}</td>
+                        <td>${notasInternasHTML}</td>
+                        <td><span class="badge ${semaforo.clase}">${semaforo.texto}</span></td>
+                        <td>
+                            ${(p.medicacionPreparada || p.rolloFabricado || p.rolloRevisado) ? `<button class="btn-danger" style="padding:4px 7px; font-size:10.5px; margin-bottom:3px;" onclick="reiniciarFasesLab(${p.id})" title="Reiniciar elaboración">Reiniciar</button><br>` : ''}
+                            <button class="btn-primary" style="padding:4px 8px; font-size:11px;" onclick="abrirFichaPaciente(${p.id})">Ficha / Cambios</button>
                         </td>
                     </tr>
                 `;
             });
-            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No hay pacientes asignados a esta semana.</td></tr>`;
+            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#94a3b8;">No hay pacientes que coincidan con la búsqueda o semana.</td></tr>`;
+        }
+
+        function abrirModalFaseMed(id) {
+            const p = pacientes.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('fase-med-id').value = p.id;
+            document.getElementById('fase-med-nota').value = p.notaInternaFase1 || '';
+
+            const alertaCambio = document.getElementById('fase-med-alerta-cambio');
+            if (p.cambiosClinicos && p.cambiosClinicos.length > 0) {
+                const ult = p.cambiosClinicos[0];
+                const urgente = esCambioReciente(ult.fecha);
+                alertaCambio.className = `box-cambio-medico-alerta ${urgente ? 'urgente' : ''}`;
+                alertaCambio.innerHTML = `<strong>${urgente ? '🚨 ALERTA: CAMBIO MÉDICO RECIENTE' : '🩺 CAMBIO MÉDICO'} (${ult.fecha} por ${ult.usuario}):</strong><br>${ult.descripcion}`;
+                alertaCambio.style.display = 'block';
+            } else {
+                alertaCambio.style.display = 'none';
+            }
+
+            const sel = document.getElementById('fase-med-responsable');
+            sel.innerHTML = "";
+            (configuracionFarmacia.equipo || [usuarioSesionActual.nombre]).forEach(m => {
+                sel.innerHTML += `<option value="${m}" ${m === usuarioSesionActual.nombre ? 'selected':''}>${m}</option>`;
+            });
+
+            document.getElementById('modal-fase-med').style.display = 'flex';
+        }
+
+        function cerrarModalFaseMed() {
+            document.getElementById('modal-fase-med').style.display = 'none';
+        }
+
+        function confirmarFaseMedicacion() {
+            const id = parseInt(document.getElementById('fase-med-id').value);
+            const p = pacientes.find(x => x.id === id);
+            if (p) {
+                p.medicacionPreparada = true;
+                p.responsableMedicacion = document.getElementById('fase-med-responsable').value;
+                p.fechaPreparacionMedicacion = new Date().toLocaleDateString('es-ES') + " " + new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
+                p.notaInternaFase1 = document.getElementById('fase-med-nota').value.trim();
+
+                guardarPacienteIndividual(p);
+                cerrarModalFaseMed();
+                renderizarTablas();
+                renderizarCalendarioAnual();
+            }
+        }
+
+        function abrirModalFaseRollo(id) {
+            const p = pacientes.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('fase-rollo-id').value = p.id;
+            document.getElementById('fase-rollo-nota-mostrador').value = p.notaDispensacion || '';
+
+            const alertaFase1 = document.getElementById('alerta-nota-fase1');
+            if (p.notaInternaFase1) {
+                alertaFase1.innerHTML = `<strong>⚠️ Nota de ${p.responsableMedicacion}:</strong> ${p.notaInternaFase1}`;
+                alertaFase1.style.display = 'block';
+            } else {
+                alertaFase1.style.display = 'none';
+            }
+
+            const alertaCambio = document.getElementById('fase-rollo-alerta-cambio');
+            if (p.cambiosClinicos && p.cambiosClinicos.length > 0) {
+                const ult = p.cambiosClinicos[0];
+                const urgente = esCambioReciente(ult.fecha);
+                alertaCambio.className = `box-cambio-medico-alerta ${urgente ? 'urgente' : ''}`;
+                alertaCambio.innerHTML = `<strong>${urgente ? '🚨 REVISAR: CAMBIO MÉDICO RECIENTE' : '🩺 Cambio Médico Activo'} (${ult.fecha}):</strong> ${ult.descripcion}`;
+                alertaCambio.style.display = 'block';
+            } else {
+                alertaCambio.style.display = 'none';
+            }
+
+            const sel = document.getElementById('fase-rollo-responsable');
+            sel.innerHTML = "";
+            (configuracionFarmacia.equipo || [usuarioSesionActual.nombre]).forEach(m => {
+                sel.innerHTML += `<option value="${m}" ${m === usuarioSesionActual.nombre ? 'selected':''}>${m}</option>`;
+            });
+
+            document.getElementById('modal-fase-rollo').style.display = 'flex';
+        }
+
+        function cerrarModalFaseRollo() {
+            document.getElementById('modal-fase-rollo').style.display = 'none';
+        }
+
+        function confirmarFaseFabricacion() {
+            const id = parseInt(document.getElementById('fase-rollo-id').value);
+            const p = pacientes.find(x => x.id === id);
+            if (p) {
+                p.rolloFabricado = true;
+                p.responsableRollo = document.getElementById('fase-rollo-responsable').value;
+                p.fechaFabricacionRollo = new Date().toLocaleDateString('es-ES') + " " + new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
+                p.notaDispensacion = document.getElementById('fase-rollo-nota-mostrador').value.trim();
+
+                guardarPacienteIndividual(p);
+                cerrarModalFaseRollo();
+                renderizarTablas();
+                renderizarCalendarioAnual();
+            }
+        }
+
+        function abrirModalFaseRevision(id) {
+            const p = pacientes.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('fase-revision-id').value = p.id;
+
+            const sel = document.getElementById('fase-revision-responsable');
+            sel.innerHTML = "";
+            (configuracionFarmacia.equipo || [usuarioSesionActual.nombre]).forEach(m => {
+                sel.innerHTML += `<option value="${m}" ${m === usuarioSesionActual.nombre ? 'selected':''}>${m}</option>`;
+            });
+
+            document.getElementById('modal-fase-revision').style.display = 'flex';
+        }
+
+        function cerrarModalFaseRevision() {
+            document.getElementById('modal-fase-revision').style.display = 'none';
+        }
+
+        function confirmarRevisionYDispararWhatsapp() {
+            const id = parseInt(document.getElementById('fase-revision-id').value);
+            const p = pacientes.find(x => x.id === id);
+            if (!p) return;
+
+            p.rolloRevisado = true;
+            p.preparado = true;
+            p.responsableRevision = document.getElementById('fase-revision-responsable').value;
+            p.fechaRevision = new Date().toLocaleDateString('es-ES') + " " + new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
+            p.avisadoRecogida = true;
+
+            guardarPacienteIndividual(p);
+            cerrarModalFaseRevision();
+
+            const nombreFarmacia = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : "la Farmacia");
+            const tlfLimpio = p.telefono.replace(/[^0-9]/g, '');
+            const textoWhatsapp = encodeURIComponent(`Hola ${p.nombre}, le informamos de que desde ${nombreFarmacia} ya hemos revisado y validado su pastillero SPD. Puede pasar a recogerlo cuando lo desee. ¡Un saludo!`);
+            const urlWhatsapp = `https://wa.me/34${tlfLimpio}?text=${textoWhatsapp}`;
+
+            window.open(urlWhatsapp, '_blank');
+
+            renderizarTablas();
+            renderizarCalendarioAnual();
+        }
+
+        function reiniciarFasesLab(id) {
+            if (!confirm("¿Deseas reiniciar las fases de preparación, fabricación y revisión de este paciente?")) return;
+            const p = pacientes.find(x => x.id === id);
+            if (p) {
+                p.medicacionPreparada = false;
+                p.rolloFabricado = false;
+                p.rolloRevisado = false;
+                p.preparado = false;
+                p.responsableMedicacion = null;
+                p.responsableRollo = null;
+                p.responsableRevision = null;
+                p.notaInternaFase1 = "";
+                p.notaDispensacion = "";
+                guardarPacienteIndividual(p);
+                renderizarTablas();
+                renderizarCalendarioAnual();
+            }
         }
 
         function renderizarRecogidas() {
             const tbody = document.getElementById('tabla-recogidas-body');
             tbody.innerHTML = "";
-            const listado = pacientes.filter(p => p.preparado);
+            const listado = pacientes.filter(p => p.rolloRevisado);
 
             listado.forEach(p => {
                 const nombreFarmacia = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : "la Farmacia");
@@ -1134,25 +1641,39 @@
                 const enlaceWhatsapp = `https://api.whatsapp.com/send?phone=34${p.telefono.replace(/[^0-9]/g, '')}&text=${textoWhatsapp}`;
 
                 const estadoAviso = p.avisadoRecogida 
-                    ? `<span class="badge badge-success">✓ Ya avisado</span>` 
+                    ? `<span class="badge badge-success">✓ Avisado Automático</span>` 
                     : `<a href="${enlaceWhatsapp}" target="_blank" class="btn-whatsapp" onclick="marcarAvisadoRecogida(${p.id})">📲 WhatsApp</a> <button class="btn-primary" style="font-size:11px; padding:5px 8px;" onclick="marcarAvisadoRecogida(${p.id})">📞 Llamado</button>`;
 
-                const medExternaAviso = p.medExterna ? `<span class="badge badge-warning" style="font-weight:800;">⚠️ Entregar: ${p.medExterna}</span>` : '<span style="color:#94a3b8; font-size:11px;">Solo blíster</span>';
+                let alertaHTML = "";
+                if (p.notaDispensacion) {
+                    alertaHTML += `<span class="badge badge-warning" style="display:block; margin-bottom:2px;">⚠️ ${p.notaDispensacion}</span>`;
+                }
+                if (p.medExterna) {
+                    alertaHTML += `<span class="badge badge-purple" style="display:block;">❄️ Entregar: ${p.medExterna}</span>`;
+                }
+                if (!alertaHTML) alertaHTML = '<span style="color:#94a3b8; font-size:11px;">Solo rollo</span>';
 
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${p.nombre}</strong></td>
                         <td><a href="tel:${p.telefono}" style="color:var(--accent); font-weight:700; text-decoration:none;">📞 ${p.telefono}</a></td>
                         <td><span class="badge badge-neutral">Semana ${p.semana}</span></td>
-                        <td>${medExternaAviso}</td>
+                        <td>
+                            <small style="color:#475569;">
+                                💊 Med: <strong>${p.responsableMedicacion || '-'}</strong><br>
+                                ⚙️ Rollo: <strong>${p.responsableRollo || '-'}</strong><br>
+                                🔍 Rev: <strong>${p.responsableRevision || '-'}</strong>
+                            </small>
+                        </td>
+                        <td>${alertaHTML}</td>
                         <td>${estadoAviso}</td>
                         <td>
-                            <button class="btn-success" onclick="abrirModalEntrega(${p.id})">📦 Entregar al Paciente</button>
+                            <button class="btn-teal" onclick="abrirModalEntrega(${p.id})">📦 Entregar al Paciente</button>
                         </td>
                     </tr>
                 `;
             });
-            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">No hay pastilleros pendientes de entregar.</td></tr>`;
+            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No hay pastilleros validados pendientes de entregar en mostrador.</td></tr>`;
         }
 
         function renderizarCupones() {
@@ -1193,7 +1714,7 @@
                 } else {
                     p.adelantos[indexAdelanto].revisadoPor = usuario;
                 }
-                guardarDatos();
+                guardarPacienteIndividual(p);
                 renderizarTablas();
             }
         }
@@ -1215,7 +1736,7 @@
                         <td>Semana ${p.semana}</td>
                         <td><span class="badge ${semaforo.clase}">${semaforo.texto}</span></td>
                         <td><span class="badge ${numAvisos > 0 ? 'badge-warning' : 'badge-neutral'}">${numAvisos} notas</span></td>
-                        <td><button class="btn-primary" style="padding:4px 8px; font-size:11px;" onclick="abrirFichaPaciente(${p.id})">Abrir</button></td>
+                        <td><button class="btn-primary" style="padding:4px 8px; font-size:11px;" onclick="abrirFichaPaciente(${p.id})">Ficha / Editar</button></td>
                     </tr>
                 `;
             });
@@ -1248,7 +1769,9 @@
                 if (p.historialEntregas && p.historialEntregas.length > 0) {
                     p.historialEntregas.forEach(ent => {
                         todasEntregas.push({
+                            pacienteId: p.id,
                             pacienteNombre: p.nombre,
+                            pacienteCip: p.cip,
                             pacienteSemana: p.semana,
                             ...ent
                         });
@@ -1259,26 +1782,93 @@
             todasEntregas.sort((a, b) => b.id - a.id);
 
             todasEntregas.forEach(ent => {
+                const firmaHTML = ent.firma 
+                    ? `<img src="${ent.firma}" style="max-height:35px; border:1px solid #cbd5e1; border-radius:4px; background:white;" alt="Firma">` 
+                    : '<span style="color:#94a3b8; font-size:11px;">Sin firma</span>';
+
+                const labInfo = `
+                    <small style="color:#475569;">
+                        Med: <strong>${ent.preparadoMedPor || '-'}</strong><br>
+                        Rollo: <strong>${ent.fabricadoRolloPor || '-'}</strong><br>
+                        Rev: <strong>${ent.revisadoPor || '-'}</strong>
+                    </small>
+                `;
+
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${ent.fecha}</strong></td>
                         <td>${ent.pacienteNombre}</td>
                         <td>Semana ${ent.pacienteSemana}</td>
                         <td><span class="badge badge-info">${ent.recogidoPor}</span></td>
+                        <td>${firmaHTML}</td>
                         <td>${ent.dispensadoPor}</td>
+                        <td>${labInfo}</td>
                         <td>${ent.notas || '-'}</td>
+                        <td>
+                            <button class="btn-primary" style="padding:3px 7px; font-size:10.5px;" onclick="imprimirRecibiEntrega(${ent.id})">🖨️ Recibí</button>
+                        </td>
                     </tr>
                 `;
             });
 
             if (tbody.innerHTML === "") {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">No hay entregas registradas en el historial.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#94a3b8;">No hay entregas registradas en el historial.</td></tr>`;
             }
         }
 
+        function imprimirRecibiEntrega(idEntrega) {
+            let entregaObj = null;
+            let pacObj = null;
+            pacientes.forEach(p => {
+                const e = p.historialEntregas?.find(x => x.id === idEntrega);
+                if (e) {
+                    entregaObj = e;
+                    pacObj = p;
+                }
+            });
+
+            if (!entregaObj || !pacObj) return;
+
+            const farmacia = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : "Farmacia");
+            const printDiv = document.getElementById('area-impresion-laboratorio');
+            printDiv.innerHTML = `
+                <div style="font-family: Arial, sans-serif; padding: 24px; border: 2px solid #0f172a; max-width: 600px; margin: 0 auto; color: black;">
+                    <div style="text-align: center; margin-bottom: 16px; border-bottom: 2px solid #0f172a; padding-bottom: 10px;">
+                        <h2 style="margin: 0;">JUSTIFICANTE DE DISPENSACIÓN SPD</h2>
+                        <h4 style="margin: 4px 0 0 0; color: #475569;">${farmacia.toUpperCase()}</h4>
+                    </div>
+                    <div style="font-size: 13px; line-height: 1.7; margin-bottom: 18px;">
+                        <strong>Paciente:</strong> ${pacObj.nombre} (CIP: ${pacObj.cip})<br>
+                        <strong>Fecha y Hora:</strong> ${entregaObj.fecha}<br>
+                        <strong>Semana de toma:</strong> Semana ${pacObj.semana}<br>
+                        <strong>1. Medicación acondicionada por:</strong> ${entregaObj.preparadoMedPor || '-'}<br>
+                        <strong>2. Rollo/Pastillero sellado por:</strong> ${entregaObj.fabricadoRolloPor || '-'}<br>
+                        <strong>3. Revisión farmacéutica validada por:</strong> ${entregaObj.revisadoPor || '-'}<br>
+                        <strong>Dispensado en mostrador por:</strong> ${entregaObj.dispensadoPor}<br>
+                        <strong>Persona que retira:</strong> ${entregaObj.recogidoPor}<br>
+                        ${entregaObj.notas ? `<strong>Observaciones:</strong> ${entregaObj.notas}<br>` : ''}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 24px;">
+                        <div style="text-align: center; width: 45%;">
+                            <p style="font-size: 12px; margin-bottom: 30px;">Firma / Sello Farmacia:</p>
+                            <div style="border-top: 1px solid black; padding-top: 4px; font-size: 11px;">${entregaObj.dispensadoPor}</div>
+                        </div>
+                        <div style="text-align: center; width: 45%;">
+                            <p style="font-size: 12px; margin-bottom: 4px;">Firma de Conformidad Receptor:</p>
+                            ${entregaObj.firma ? `<img src="${entregaObj.firma}" style="max-height: 50px; margin-bottom: 4px;">` : '<div style="height: 50px;"></div>'}
+                            <div style="border-top: 1px solid black; padding-top: 4px; font-size: 11px;">${entregaObj.recogidoPor}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            printDiv.style.display = 'block';
+            window.print();
+            printDiv.style.display = 'none';
+        }
+
         function actualizarBadges() {
-            document.getElementById('badge-lab-count').innerText = pacientes.filter(p => !p.preparado).length;
-            document.getElementById('badge-recogidas-count').innerText = pacientes.filter(p => p.preparado && !p.avisadoRecogida).length;
+            document.getElementById('badge-lab-count').innerText = pacientes.filter(p => !p.rolloRevisado).length;
+            document.getElementById('badge-recogidas-count').innerText = pacientes.filter(p => p.rolloRevisado && !p.avisadoRecogida).length;
             document.getElementById('badge-cupones-count').innerText = pacientes.reduce((acc, p) => acc + (p.adelantos ? p.adelantos.filter(a => !a.cobrado).length : 0), 0);
             document.getElementById('badge-chat-count').innerText = chatMensajes.length;
         }
@@ -1289,22 +1879,11 @@
             pacientes.forEach(p => sel.innerHTML += `<option value="${p.nombre}">${p.nombre}</option>`);
         }
 
-        function conmutarPreparacion(id) {
-            const p = pacientes.find(x => x.id === id);
-            if (p) { 
-                p.preparado = !p.preparado; 
-                if(!p.preparado) p.avisadoRecogida = false; 
-                guardarDatos(); 
-                renderizarTablas(); 
-                renderizarCalendarioAnual(); 
-            }
-        }
-
         function marcarAvisadoRecogida(id) {
             const p = pacientes.find(x => x.id === id);
             if (p) { 
                 p.avisadoRecogida = true; 
-                guardarDatos(); 
+                guardarPacienteIndividual(p); 
                 renderizarTablas(); 
             }
         }
@@ -1318,15 +1897,28 @@
             document.getElementById('entrega-receptor').value = 'El propio paciente';
             document.getElementById('div-receptor-otro').style.display = 'none';
 
+            document.getElementById('entrega-trazabilidad-lab').innerHTML = `
+                🔬 <strong>Trazabilidad:</strong> Med (${p.responsableMedicacion || '-'}) | Rollo (${p.responsableRollo || '-'}) | Rev (${p.responsableRevision || '-'})
+            `;
+
+            const divAlertaLab = document.getElementById('entrega-alerta-laboratorio');
+            if (p.notaDispensacion) {
+                divAlertaLab.innerText = `⚠️ AVISO DEL LABORATORIO: ${p.notaDispensacion}`;
+                divAlertaLab.style.display = 'block';
+            } else {
+                divAlertaLab.style.display = 'none';
+            }
+
             const divAlertaExt = document.getElementById('entrega-alerta-externa');
             if (p.medExterna) {
-                divAlertaExt.innerText = `⚠️ RECORDATORIO: Entregar también medicación externa (${p.medExterna})`;
+                divAlertaExt.innerText = `❄️ MEDICACIÓN FUERA DE BLÍSTER: Entregar también ${p.medExterna}`;
                 divAlertaExt.style.display = 'block';
             } else {
                 divAlertaExt.style.display = 'none';
             }
 
             document.getElementById('modal-entrega').style.display = 'flex';
+            setTimeout(inicializarCanvasFirma, 100);
         }
 
         function cerrarModalEntrega() {
@@ -1350,21 +1942,39 @@
             const fechaHora = new Date().toLocaleDateString('es-ES') + " " + new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
             const dispensadoPor = usuarioSesionActual ? usuarioSesionActual.nombre : "Equipo Farmacia";
 
+            let firmaDataUrl = null;
+            if (haFirmado && canvasFirma) {
+                firmaDataUrl = canvasFirma.toDataURL('image/png');
+            }
+
             if (!p.historialEntregas) p.historialEntregas = [];
             p.historialEntregas.unshift({
                 id: Date.now(),
                 fecha: fechaHora,
                 dispensadoPor: dispensadoPor,
                 recogidoPor: receptor,
-                notas: notas
+                notas: notas,
+                firma: firmaDataUrl,
+                preparadoMedPor: p.responsableMedicacion || '-',
+                fabricadoRolloPor: p.responsableRollo || '-',
+                revisadoPor: p.responsableRevision || '-'
             });
 
+            // Reiniciar para el siguiente ciclo
             p.preparado = false;
+            p.medicacionPreparada = false;
+            p.rolloFabricado = false;
+            p.rolloRevisado = false;
             p.avisadoRecogida = false;
+            p.notaInternaFase1 = "";
+            p.notaDispensacion = "";
+            p.responsableMedicacion = null;
+            p.responsableRollo = null;
+            p.responsableRevision = null;
 
-            guardarDatos();
+            guardarPacienteIndividual(p);
             cerrarModalEntrega();
-            alert(`✅ Entrega registrada para ${p.nombre}.`);
+            alert(`✅ Entrega registrada con éxito para ${p.nombre}.`);
             renderizarTablas();
             renderizarCalendarioAnual();
         }
@@ -1373,7 +1983,7 @@
             const p = pacientes.find(x => x.id === idPac);
             if (p && p.adelantos && p.adelantos[indexAdelanto]) {
                 p.adelantos[indexAdelanto].cobrado = !p.adelantos[indexAdelanto].cobrado;
-                guardarDatos();
+                guardarPacienteIndividual(p);
                 renderizarTablas();
             }
         }
@@ -1394,32 +2004,29 @@
                 if (pacienteObj) {
                     if (!pacienteObj.avisos) pacienteObj.avisos = [];
                     pacienteObj.avisos.push({ id: Date.now(), autor, tipo, mensaje: texto, fecha: new Date().toISOString().split('T')[0], resuelto: false });
+                    guardarPacienteIndividual(pacienteObj);
                 }
             }
 
             input.value = "";
-            guardarDatos();
+            guardarDatosGlobales();
             renderizarTablas();
         }
 
-        function enviarResumenPorEmail() {
+        function abrirRedactorGmail() {
             if (chatMensajes.length === 0) {
-                alert("No hay mensajes recientes en el muro para enviar.");
+                alert("No hay mensajes recientes para enviar.");
                 return;
             }
 
-            const destinatario = prompt("Introduce el correo donde enviar el resumen:", configuracionFarmacia.emailNotificaciones || "");
-            if (!destinatario) return;
-
-            configuracionFarmacia.emailNotificaciones = destinatario;
-            guardarDatos();
-
+            const destino = configuracionFarmacia.emailNotificaciones || "";
             const ultimosMensajes = chatMensajes.slice(-5).map(m => `• [${m.tipo}] (${m.autor} - ${m.fecha}) [Pac: ${m.paciente}]: ${m.texto}`).join('\n\n');
-            const nombreFarm = configuracionFarmacia.nombreComercial || usuarioSesionActual.farmacia;
-            const asunto = encodeURIComponent(`Resumen de Avisos SPD - ${nombreFarm}`);
-            const cuerpo = encodeURIComponent(`Hola equipo,\n\nOs dejamos el resumen de las notas y avisos de pastilleros en la farmacia:\n\n${ultimosMensajes}\n\n¡Un saludo!`);
+            const nombreFarm = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : "Farmacia");
+            const asunto = encodeURIComponent(`Resumen Guardia SPD - ${nombreFarm}`);
+            const cuerpo = encodeURIComponent(`Hola equipo,\n\nOs dejamos el resumen de las notas y avisos recientes del SPD:\n\n${ultimosMensajes}\n\n¡Un saludo!`);
 
-            window.open(`mailto:${destinatario}?subject=${asunto}&body=${cuerpo}`);
+            const urlGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${destino}&su=${asunto}&body=${cuerpo}`;
+            window.open(urlGmail, '_blank');
         }
 
         function agregarFilaAdelantoAlta() {
@@ -1454,14 +2061,17 @@
                 if (med) adelantos.push({ id: Date.now(), med, limite, cobrado: false, revisadoPor: null, motivo: "Salto RE" });
             });
 
-            pacientes.push({
+            const nuevo = {
                 id: Date.now(), nombre, cip, telefono, semana, caducidadPlan: caducidad,
                 medExterna: medExterna, preparado: false, avisadoRecogida: false,
+                medicacionPreparada: false, rolloFabricado: false, rolloRevisado: false,
+                responsableMedicacion: null, responsableRollo: null, responsableRevision: null,
+                notaInternaFase1: "", notaDispensacion: "",
                 mesAdelantado, motivoAdelanto, adelantos, avisos: [],
                 historialEntregas: [], cambiosClinicos: [], notas
-            });
+            };
 
-            guardarDatos();
+            guardarPacienteIndividual(nuevo);
             alert("✅ Paciente registrado con éxito.");
             document.getElementById('form-nuevo-paciente').reset();
             document.getElementById('contenedor-adelantos-alta').innerHTML = "";
@@ -1474,13 +2084,6 @@
             const p = pacientes.find(x => x.id === id);
             if (!p) return;
 
-            const pendientes = p.avisos ? p.avisos.filter(a => !a.resuelto) : [];
-            if (pendientes.length > 0) {
-                let msg = `⚠️ AVISOS PENDIENTES:\n\n`;
-                pendientes.forEach(a => msg += `• [${a.tipo}] (${a.autor}): ${a.mensaje}\n`);
-                alert(msg);
-            }
-
             document.getElementById('modal-paciente-nombre').innerText = `Expediente: ${p.nombre} (CIP: ${p.cip})`;
             
             let avisosHtml = "";
@@ -1490,7 +2093,7 @@
                         <div style="background:${a.resuelto ? '#f1f5f9':'#fef3c7'}; padding:10px; border-radius:8px; margin-bottom:6px; border-left:4px solid ${a.resuelto ? '#94a3b8':'#f59e0b'};">
                             <div style="font-size:12px; font-weight:700;">${a.tipo} - Por: ${a.autor} (${a.fecha})</div>
                             <div style="font-size:13px; margin:3px 0;">${a.mensaje}</div>
-                            ${!a.resuelto ? `<button class="btn-success" style="font-size:11px; padding:3px 7px;" onclick="resolverAvisoModal(${p.id}, ${a.id})">✓ Marcar Resuelto</button>` : '<small>✓ Resuelto</small>'}
+                            ${!a.resuelto ? `<button class="btn-teal" style="font-size:11px; padding:3px 7px;" onclick="resolverAvisoModal(${p.id}, ${a.id})">✓ Marcar Resuelto</button>` : '<small>✓ Resuelto</small>'}
                         </div>
                     `;
                 });
@@ -1499,13 +2102,19 @@
             let entregasHtml = "";
             if (p.historialEntregas && p.historialEntregas.length > 0) {
                 p.historialEntregas.forEach(ent => {
+                    const imgFirma = ent.firma ? `<img src="${ent.firma}" style="max-height:30px; border:1px solid #cbd5e1; border-radius:4px; margin-left:8px;" alt="Firma">` : '';
                     entregasHtml += `
                         <div style="background:white; border:1px solid #e2e8f0; border-radius:6px; padding:8px 12px; margin-bottom:5px; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
                             <div>
                                 <strong>📅 ${ent.fecha}</strong> - Retirado por: <u>${ent.recogidoPor}</u>
-                                <div style="color:#64748b; font-size:11px;">Dispensado por: ${ent.dispensadoPor} ${ent.notas ? ' | Nota: ' + ent.notas : ''}</div>
+                                <div style="color:#64748b; font-size:11px;">
+                                    Dispensado: ${ent.dispensadoPor} | Med: ${ent.preparadoMedPor} | Rollo: ${ent.fabricadoRolloPor} | Rev: ${ent.revisadoPor || '-'} ${ent.notas ? ' | ' + ent.notas : ''}
+                                </div>
                             </div>
-                            <span class="badge badge-success">✓ Entregado</span>
+                            <div style="display:flex; align-items:center;">
+                                <span class="badge badge-success">✓ Entregado</span>
+                                ${imgFirma}
+                            </div>
                         </div>
                     `;
                 });
@@ -1515,10 +2124,15 @@
 
             let cambiosClinicosHtml = "";
             if (p.cambiosClinicos && p.cambiosClinicos.length > 0) {
-                p.cambiosClinicos.forEach(c => {
+                p.cambiosClinicos.forEach((c, idx) => {
+                    const urgente = esCambioReciente(c.fecha);
                     cambiosClinicosHtml += `
-                        <div style="background:#f8fafc; border-left:3px solid var(--accent); padding:6px 10px; font-size:12px; margin-bottom:4px;">
-                            <strong>${c.fecha} (${c.usuario}):</strong> ${c.descripcion}
+                        <div style="background:${urgente ? '#fef2f2' : '#f8fafc'}; border-left:3px solid ${urgente ? 'var(--danger)' : 'var(--accent)'}; padding:8px 10px; font-size:12px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <strong>📅 ${c.fecha}</strong> (Anotado por: <u>${c.usuario}</u>) ${urgente ? '<span class="badge badge-danger">Reciente</span>' : ''}<br>
+                                <span style="font-size:12.5px; color:#1e293b;">${c.descripcion}</span>
+                            </div>
+                            <button class="btn-danger" style="padding:2px 6px; font-size:10px;" onclick="eliminarCambioClinico(${p.id}, ${idx})">✕</button>
                         </div>
                     `;
                 });
@@ -1544,47 +2158,71 @@
                 adelantosHtml = '<p style="color:#94a3b8; font-size:12px;">No tiene medicamentos adelantados.</p>';
             }
 
-            const semaforo = getSemaforoCaducidad(p.caducidadPlan);
+            const hoyStr = new Date().toISOString().split('T')[0];
 
             document.getElementById('modal-paciente-contenido').innerHTML = `
-                <div style="font-size:13px; line-height:1.6; background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
-                    <strong>Teléfono:</strong> <a href="tel:${p.telefono}" style="color:var(--accent); font-weight:bold;">${p.telefono}</a><br>
-                    <strong>Semana Asignada:</strong> Semana ${p.semana} | <strong>Caducidad Plan:</strong> <span class="badge ${semaforo.clase}">${semaforo.texto}</span><br>
-                    <strong>Medicación Fuera de Blíster:</strong> <span class="badge badge-purple">${p.medExterna || 'Ninguna'}</span><br>
-                    <strong>Estado Producción:</strong> ${p.preparado ? '✓ Preparado' : '⏳ Pendiente'}
+                <div style="background:#f8fafc; padding:14px; border-radius:8px; border:1px solid #cbd5e1;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h4 style="font-weight:800; font-size:13.5px; color:var(--primary);">✏️ Datos del Paciente</h4>
+                        <button class="btn-danger" style="font-size:11px; padding:3px 8px;" onclick="darDeBajaPaciente(${p.id})">🗑️ Dar de Baja Paciente</button>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nombre Completo:</label>
+                            <input type="text" id="edit-pac-nombre" class="form-control" value="${p.nombre || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>CIP / Tarjeta Sanitaria:</label>
+                            <input type="text" id="edit-pac-cip" class="form-control" value="${p.cip || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono:</label>
+                            <input type="tel" id="edit-pac-telefono" class="form-control" value="${p.telefono || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Semana Asignada:</label>
+                            <select id="edit-pac-semana" class="form-control">
+                                <option value="1" ${p.semana === '1' ? 'selected':''}>Semana 1</option>
+                                <option value="2" ${p.semana === '2' ? 'selected':''}>Semana 2</option>
+                                <option value="3" ${p.semana === '3' ? 'selected':''}>Semana 3</option>
+                                <option value="4" ${p.semana === '4' ? 'selected':''}>Semana 4</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Caducidad Plan / Receta:</label>
+                            <input type="date" id="edit-pac-caducidad" class="form-control" value="${p.caducidadPlan || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Medicación Fuera de Blíster:</label>
+                            <input type="text" id="edit-pac-externa" class="form-control" value="${p.medExterna || ''}" placeholder="Ej: Insulina, Gotas">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:8px;">
+                        <label>Observaciones Generales:</label>
+                        <textarea id="edit-pac-notas" class="form-control" rows="2">${p.notas || ''}</textarea>
+                    </div>
+                    <button class="btn-teal" style="margin-top:8px; padding:6px 12px;" onclick="guardarEdicionFicha(${p.id})">💾 Guardar Todos los Cambios</button>
                 </div>
 
-                <!-- REGISTRO DE CAMBIOS MÉDICOS -->
                 <div style="background:white; padding:14px; border-radius:8px; border:1.5px solid #cbd5e1;">
                     <h4 style="font-weight:800; font-size:13.5px; margin-bottom:8px; color:var(--primary);">🩺 Registro de cambios médicos</h4>
-                    <div style="display:flex; gap:8px; margin-bottom:8px;">
-                        <input type="text" id="input-nuevo-cambio-clinico" class="form-control" placeholder="Ej: Médico retira Omeprazol / añade Pantoprazol" style="flex-grow:1;">
-                        <button class="btn-primary" onclick="agregarCambioClinico(${p.id})">+ Anotar</button>
+                    <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+                        <input type="date" id="input-cambio-fecha" class="form-control" value="${hoyStr}" style="width:140px;">
+                        <input type="text" id="input-nuevo-cambio-clinico" class="form-control" placeholder="Ej: Médico retira Omeprazol / añade Pantoprazol" style="flex-grow:1; min-width:200px;">
+                        <button class="btn-primary" onclick="agregarCambioClinico(${p.id})">+ Anotar Cambio</button>
                     </div>
-                    <div style="max-height:100px; overflow-y:auto;">
+                    <div style="max-height:120px; overflow-y:auto;">
                         ${cambiosClinicosHtml}
                     </div>
                 </div>
 
-                <!-- HISTORIAL DE ENTREGAS -->
                 <div style="background:#f8fafc; padding:14px; border-radius:8px; border:1.5px solid #cbd5e1;">
-                    <h4 style="font-weight:800; font-size:13.5px; margin-bottom:8px; color:var(--primary);">📦 Historial de entregas</h4>
+                    <h4 style="font-weight:800; font-size:13.5px; margin-bottom:8px; color:var(--primary);">📦 Historial de entregas (Trazabilidad y Firmas)</h4>
                     <div style="max-height:130px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;">
                         ${entregasHtml}
                     </div>
                 </div>
 
-                <!-- OBSERVACIONES Y MEDICACIÓN EXTERNA -->
-                <div style="background:white; padding:14px; border-radius:8px; border:1.5px solid #cbd5e1;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                        <label style="font-size:13px; font-weight:800; color:var(--primary);">📝 Medicación Fuera de Blíster y Notas:</label>
-                        <button class="btn-primary" style="font-size:11.5px; padding:4px 10px;" onclick="guardarObservacionesFicha(${p.id})">💾 Guardar Cambios</button>
-                    </div>
-                    <input type="text" id="modal-med-externa-texto" class="form-control" value="${p.medExterna || ''}" placeholder="Medicación fuera de blíster (ej: Insulina, Colirio)" style="margin-bottom:8px;">
-                    <textarea id="modal-observaciones-texto" class="form-control" rows="2" placeholder="Observaciones generales...">${p.notas || ''}</textarea>
-                </div>
-
-                <!-- MEDICAMENTOS ADELANTADOS -->
                 <div style="background:#f1f5f9; padding:14px; border-radius:8px; border:1.5px solid #cbd5e1;">
                     <h4 style="font-weight:800; font-size:13.5px; margin-bottom:8px; color:var(--primary);">💊 Añadir Medicamento Adelantado</h4>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -1604,36 +2242,77 @@
             document.getElementById('modal-ficha-paciente').style.display = 'flex';
         }
 
+        function guardarEdicionFicha(idPac) {
+            const p = pacientes.find(x => x.id === idPac);
+            if (!p) return;
+
+            const nom = document.getElementById('edit-pac-nombre').value.trim();
+            const cip = document.getElementById('edit-pac-cip').value.trim();
+            if (!nom || !cip) {
+                alert("El nombre y el CIP no pueden estar vacíos.");
+                return;
+            }
+
+            p.nombre = nom;
+            p.cip = cip;
+            p.telefono = document.getElementById('edit-pac-telefono').value.trim();
+            p.semana = document.getElementById('edit-pac-semana').value;
+            p.caducidadPlan = document.getElementById('edit-pac-caducidad').value;
+            p.medExterna = document.getElementById('edit-pac-externa').value.trim();
+            p.notas = document.getElementById('edit-pac-notas').value.trim();
+
+            guardarPacienteIndividual(p);
+            alert("✅ Datos del paciente actualizados con éxito.");
+            renderizarTablas();
+            renderizarCalendarioAnual();
+            cerrarModalFicha();
+        }
+
+        function darDeBajaPaciente(idPac) {
+            const p = pacientes.find(x => x.id === idPac);
+            if (!p) return;
+            if (confirm(`¿Seguro que deseas dar de baja y eliminar a ${p.nombre}? Esta acción no se puede deshacer.`)) {
+                if (dbCloud && usuarioSesionActual) {
+                    dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId)
+                           .collection("pacientes").doc(String(p.id)).delete().then(() => {
+                                cerrarModalFicha();
+                                alert("Paciente eliminado correctamente.");
+                           });
+                }
+            }
+        }
+
         function agregarCambioClinico(idPac) {
             const input = document.getElementById('input-nuevo-cambio-clinico');
+            const fechaInput = document.getElementById('input-cambio-fecha');
             const desc = input.value.trim();
             if (!desc) return;
 
             const p = pacientes.find(x => x.id === idPac);
             if (p) {
                 if (!p.cambiosClinicos) p.cambiosClinicos = [];
-                const fechaHoy = new Date().toLocaleDateString('es-ES');
+                const fechaSeleccionada = fechaInput.value ? fechaInput.value.split('-').reverse().join('/') : new Date().toLocaleDateString('es-ES');
                 const usuario = usuarioSesionActual ? usuarioSesionActual.nombre : "Farmacia";
                 
                 p.cambiosClinicos.unshift({
                     id: Date.now(),
-                    fecha: fechaHoy,
+                    fecha: fechaSeleccionada,
                     usuario: usuario,
                     descripcion: desc
                 });
 
-                guardarDatos();
+                guardarPacienteIndividual(p);
                 abrirFichaPaciente(idPac);
+                renderizarTablas();
             }
         }
 
-        function guardarObservacionesFicha(idPac) {
+        function eliminarCambioClinico(idPac, idx) {
             const p = pacientes.find(x => x.id === idPac);
-            if (p) {
-                p.notas = document.getElementById('modal-observaciones-texto').value;
-                p.medExterna = document.getElementById('modal-med-externa-texto').value.trim();
-                guardarDatos();
-                alert("✅ Guardado correctamente.");
+            if (p && p.cambiosClinicos) {
+                p.cambiosClinicos.splice(idx, 1);
+                guardarPacienteIndividual(p);
+                abrirFichaPaciente(idPac);
                 renderizarTablas();
             }
         }
@@ -1661,7 +2340,7 @@
                     revisadoPor: null,
                     motivo: "Salto RE"
                 });
-                guardarDatos();
+                guardarPacienteIndividual(p);
                 abrirFichaPaciente(idPac);
                 renderizarTablas();
             }
@@ -1671,7 +2350,7 @@
             const p = pacientes.find(x => x.id === idPac);
             if (p && p.adelantos) {
                 p.adelantos.splice(indexAdelanto, 1);
-                guardarDatos();
+                guardarPacienteIndividual(p);
                 abrirFichaPaciente(idPac);
                 renderizarTablas();
             }
@@ -1682,7 +2361,7 @@
             if (p && p.avisos) {
                 const av = p.avisos.find(a => a.id === idAviso);
                 if (av) av.resuelto = true;
-                guardarDatos();
+                guardarPacienteIndividual(p);
                 abrirFichaPaciente(idPac);
                 renderizarTablas();
             }
@@ -1694,20 +2373,30 @@
 
         function imprimirHojaLaboratorio() {
             const sem = document.getElementById('filtro-semana-preparacion').value;
-            const filtrados = pacientes.filter(p => p.semana === sem);
+            let filtrados = pacientes;
+            if (sem !== "todas") {
+                filtrados = filtrados.filter(p => p.semana === sem);
+            }
             const farmacia = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : "Farmacia");
             const fechaHoy = new Date().toLocaleDateString('es-ES');
 
             let filasHTML = "";
             filtrados.forEach((p) => {
+                const estadoMed = p.medicacionPreparada ? `✓ (${p.responsableMedicacion})` : '[ &nbsp; ]';
+                const estadoRollo = p.rolloFabricado ? `✓ (${p.responsableRollo})` : '[ &nbsp; ]';
+                const estadoRev = p.rolloRevisado ? `✓ (${p.responsableRevision})` : '[ &nbsp; ]';
+                const cambioMed = (p.cambiosClinicos && p.cambiosClinicos.length > 0) ? `CAMBIO (${p.cambiosClinicos[0].fecha}): ${p.cambiosClinicos[0].descripcion} | ` : '';
+                const notasLab = p.notaInternaFase1 ? `Nota Med: ${p.notaInternaFase1} | ` : '';
+
                 filasHTML += `
                     <tr style="border-bottom: 1px solid #333;">
-                        <td style="padding: 8px; text-align:center;">[ &nbsp; ]</td>
                         <td style="padding: 8px;"><strong>${p.nombre}</strong><br><small>CIP: ${p.cip}</small></td>
+                        <td style="padding: 8px; text-align:center;">${estadoMed}</td>
+                        <td style="padding: 8px; text-align:center;">${estadoRollo}</td>
+                        <td style="padding: 8px; text-align:center;">${estadoRev}</td>
                         <td style="padding: 8px;">${p.caducidadPlan || '-'}</td>
                         <td style="padding: 8px;">${p.medExterna || 'No'}</td>
-                        <td style="padding: 8px;">${p.notas || '-'}</td>
-                        <td style="padding: 8px; text-align:center;">[ &nbsp; ]</td>
+                        <td style="padding: 8px;"><small style="color:#b91c1c; font-weight:bold;">${cambioMed}</small><small>${notasLab}${p.notas || '-'}</small></td>
                     </tr>
                 `;
             });
@@ -1715,17 +2404,18 @@
             const printDiv = document.getElementById('area-impresion-laboratorio');
             printDiv.innerHTML = `
                 <div style="font-family: Arial, sans-serif; padding: 20px; color: black;">
-                    <h2 style="margin-bottom: 4px;">HOJA DE TRABAJO SPD - ${farmacia.toUpperCase()}</h2>
-                    <p style="margin-bottom: 14px; font-size: 13px;"><strong>Semana:</strong> Semana ${sem} | <strong>Fecha:</strong> ${fechaHoy}</p>
-                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;" border="1">
+                    <h2 style="margin-bottom: 4px;">HOJA DE TRABAJO Y TRAZABILIDAD SPD - ${farmacia.toUpperCase()}</h2>
+                    <p style="margin-bottom: 14px; font-size: 13px;"><strong>Lote:</strong> ${sem === 'todas' ? 'Todas las semanas' : 'Semana ' + sem} | <strong>Fecha:</strong> ${fechaHoy}</p>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 11.5px;" border="1">
                         <thead>
                             <tr style="background: #e2e8f0;">
-                                <th style="padding: 6px; width: 45px;">Hecho</th>
                                 <th style="padding: 6px;">Paciente / CIP</th>
-                                <th style="padding: 6px; width: 95px;">Caducidad</th>
+                                <th style="padding: 6px; width: 95px;">1. Prep. Med</th>
+                                <th style="padding: 6px; width: 95px;">2. Fab. Rollo</th>
+                                <th style="padding: 6px; width: 95px;">3. Rev. Valid.</th>
+                                <th style="padding: 6px; width: 80px;">Caducidad</th>
                                 <th style="padding: 6px;">Medicación Externa</th>
-                                <th style="padding: 6px;">Observaciones</th>
-                                <th style="padding: 6px; width: 45px;">Revisado</th>
+                                <th style="padding: 6px;">Cambios Médicos / Notas</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1746,9 +2436,13 @@
             }
 
             let csv = "\uFEFF";
-            csv += "Nombre,CIP,Telefono,Semana,CaducidadPlan,MedExterna,EstadoRollo,Observaciones\n";
+            csv += "Nombre,CIP,Telefono,Semana,CaducidadPlan,MedExterna,PrepMed,FabRollo,RevRollo,UltimoCambioMedico,Observaciones\n";
 
             pacientes.forEach(p => {
+                const ultCambio = (p.cambiosClinicos && p.cambiosClinicos.length > 0) 
+                    ? `${p.cambiosClinicos[0].fecha} - ${p.cambiosClinicos[0].descripcion}` 
+                    : 'Sin cambios';
+
                 const fila = [
                     `"${p.nombre.replace(/"/g, '""')}"`,
                     `"${p.cip}"`,
@@ -1756,7 +2450,10 @@
                     `"Semana ${p.semana}"`,
                     `"${p.caducidadPlan || ''}"`,
                     `"${(p.medExterna || '').replace(/"/g, '""')}"`,
-                    `"${p.preparado ? 'Listo' : 'Pendiente'}"`,
+                    `"${p.medicacionPreparada ? (p.responsableMedicacion || 'Sí') : 'No'}"`,
+                    `"${p.rolloFabricado ? (p.responsableRollo || 'Sí') : 'No'}"`,
+                    `"${p.rolloRevisado ? (p.responsableRevision || 'Sí') : 'No'}"`,
+                    `"${ultCambio.replace(/"/g, '""')}"`,
                     `"${(p.notas || '').replace(/"/g, '""')}"`
                 ];
                 csv += fila.join(",") + "\n";
@@ -1769,6 +2466,26 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        function exportarBackupCompletoJSON() {
+            const dataBackup = {
+                farmacia: configuracionFarmacia,
+                pacientes: pacientes,
+                chat: chatMensajes,
+                fechaExportacion: new Date().toISOString()
+            };
+            const jsonStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataBackup, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", jsonStr);
+            dlAnchor.setAttribute("download", `FarmaSPD_Backup_${configuracionFarmacia.nombreComercial || 'Farmacia'}_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+
+        function abrirSuscripcionStripe() {
+            alert("🌟 Licencia Vitalicia Propietaria Activa.\n\nPara clientes externos, este botón conectará con tu pasarela de cobro mensual (Stripe Checkout). Tu cuenta siempre mantendrá acceso gratuito e ilimitado.");
         }
 
         function cargarAjustesEnFormulario() {
@@ -1827,7 +2544,7 @@
             configuracionFarmacia.semanaAnclaTomas = semana;
             configuracionFarmacia.emailNotificaciones = email;
 
-            guardarDatos();
+            guardarDatosGlobales();
             document.getElementById('label-nombre-farmacia').innerText = nom || usuarioSesionActual.farmacia;
             actualizarIndicadorSemanaHeader();
             renderizarCalendarioAnual();
@@ -1845,3 +2562,4 @@
     </script>
 </body>
 </html>
+
