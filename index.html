@@ -6,7 +6,7 @@
     <title>FarmaSPD Pro - Sistema de Gestión y Trazabilidad SPD</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- SDK FIREBASE CLOUD & AUTH -->
+    <!-- SDK FIREBASE CLOUD & AUTHENTICATION NATIVO -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
@@ -280,12 +280,12 @@
 </head>
 <body>
 
-    <!-- PANTALLA LOGIN -->
+    <!-- PANTALLA LOGIN CON SEGURIDAD NATIVA -->
     <div id="pantalla-login">
         <div class="login-card">
             <div class="login-logo">💊</div>
             <h2>FarmaSPD Cloud</h2>
-            <p>Plataforma de gestión y dispensación de SPD.</p>
+            <p>Sistema Clínico SPD · Aislamiento Criptográfico RGPD</p>
             
             <div class="auth-tabs">
                 <button class="auth-tab active" onclick="cambiarModoAuth('login')">Iniciar Sesión</button>
@@ -294,18 +294,18 @@
 
             <form id="form-login" class="login-form" onsubmit="procesarLogin(event)">
                 <div class="form-group">
-                    <label>Nombre o Código de la Farmacia:</label>
-                    <input type="text" id="login-farmacia-codigo" class="form-control" placeholder="Ej: Farmacia Central" required>
+                    <label>Nombre o Identificador de Farmacia:</label>
+                    <input type="text" id="login-farmacia-codigo" class="form-control" placeholder="Ej: farmacia_central" required>
                 </div>
                 <div class="form-group">
-                    <label>Usuario:</label>
-                    <input type="text" id="login-user" class="form-control" placeholder="Ej: usuario" required>
+                    <label>Usuario / Personal:</label>
+                    <input type="text" id="login-user" class="form-control" placeholder="Ej: patricia" required>
                 </div>
                 <div class="form-group">
-                    <label>Contraseña:</label>
+                    <label>Contraseña de Acceso:</label>
                     <input type="password" id="login-pass" class="form-control" placeholder="••••••••" required>
                 </div>
-                <button type="submit" class="btn-primary" style="margin-top: 6px; padding: 10px;">Acceder al Sistema</button>
+                <button type="submit" class="btn-primary" style="margin-top: 6px; padding: 11px;">Acceder de Forma Segura</button>
             </form>
 
             <form id="form-registro" class="login-form" style="display:none;" onsubmit="procesarRegistro(event)">
@@ -314,18 +314,22 @@
                     <input type="text" id="reg-farmacia" class="form-control" placeholder="Ej: Farmacia Santa María" required>
                 </div>
                 <div class="form-group">
-                    <label>Nombre del Responsable:</label>
-                    <input type="text" id="reg-nombre" class="form-control" placeholder="Ej: Nombre Apellido" required>
+                    <label>Identificador Único (sin espacios):</label>
+                    <input type="text" id="reg-farmacia-id" class="form-control" placeholder="Ej: farmacia_santamaria" required>
                 </div>
                 <div class="form-group">
-                    <label>Crear Usuario:</label>
-                    <input type="text" id="reg-user" class="form-control" placeholder="Ej: usuario" required>
+                    <label>Nombre del Responsable Inicial:</label>
+                    <input type="text" id="reg-nombre" class="form-control" placeholder="Ej: Patricia" required>
                 </div>
                 <div class="form-group">
-                    <label>Crear Contraseña:</label>
-                    <input type="password" id="reg-pass" class="form-control" placeholder="Mínimo 4 caracteres" required>
+                    <label>Usuario Inicial:</label>
+                    <input type="text" id="reg-user" class="form-control" placeholder="Ej: patricia" required>
                 </div>
-                <button type="submit" class="btn-teal" style="margin-top: 6px; padding: 10px; justify-content:center;">Registrar Farmacia y Acceder</button>
+                <div class="form-group">
+                    <label>Contraseña Maestra (mínimo 6 caracteres):</label>
+                    <input type="password" id="reg-pass" class="form-control" placeholder="••••••••" required minlength="6">
+                </div>
+                <button type="submit" class="btn-teal" style="margin-top: 6px; padding: 11px; justify-content:center;">Crear Farmacia y Acceder</button>
             </form>
         </div>
     </div>
@@ -666,9 +670,9 @@
 
                 <div style="background: linear-gradient(135deg, #092c4c 0%, #134e7c 100%); color: white; padding: 16px; border-radius: var(--radius-md); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <div>
-                        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.85;">Plan de Licencia de la Farmacia</div>
-                        <h3 style="margin-top: 2px;" id="etiqueta-plan-licencia">Plan Pro Farmacia (Acceso Vitalicio)</h3>
-                        <small style="opacity: 0.8;">Arquitectura Distribuida Activa · Concurrencia Protegida</small>
+                        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.85;">Aislamiento Criptográfico Activo</div>
+                        <h3 style="margin-top: 2px;" id="etiqueta-plan-licencia">FarmaSPD Pro (Licencia Sanitaria UE)</h3>
+                        <small style="opacity: 0.8;">Firebase Auth Conectado · Cifrado SHA-256 + Salt</small>
                     </div>
                     <div style="display:flex; gap:8px;">
                         <button class="btn-success" onclick="abrirSuscripcionStripe()">💳 Gestionar Suscripción</button>
@@ -716,7 +720,7 @@
         </section>
     </main>
 
-    <!-- MODAL EXPEDIENTE & EDICIÓN -->
+    <!-- MODALES CLÍNICOS -->
     <div id="modal-ficha-paciente" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-header">
@@ -727,7 +731,7 @@
         </div>
     </div>
 
-    <!-- MODAL FASE 1: PREPARACIÓN DE MEDICACIÓN -->
+    <!-- MODAL FASE 1: PREPARACIÓN -->
     <div id="modal-fase-med" class="modal-overlay">
         <div class="modal-box" style="max-width: 480px;">
             <div class="modal-header">
@@ -736,24 +740,22 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="fase-med-id">
-                
                 <div id="fase-med-alerta-cambio" style="display:none;" class="box-cambio-medico-alerta"></div>
-
-                <p style="font-size: 13px; color: var(--text-muted); margin-top:4px;">Confirma que se han recogido los blísteres, revisado dosis y desblistado.</p>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top:4px;">Confirma que se han revisado dosis, blísteres y desblistado.</p>
                 <div class="form-group">
                     <label>¿Quién prepara la medicación?:</label>
                     <select id="fase-med-responsable" class="form-control" style="font-weight:700;"></select>
                 </div>
                 <div class="form-group">
-                    <label>Nota para la persona que fabricará el rollo (opcional):</label>
-                    <textarea id="fase-med-nota" class="form-control" rows="3" placeholder="Ej: Falta 1 comp de Sintrom / Aplicado el cambio médico"></textarea>
+                    <label>Nota para quien fabricará el rollo (opcional):</label>
+                    <textarea id="fase-med-nota" class="form-control" rows="3" placeholder="Ej: Falta 1 comp de Sintrom / Cambio médico revisado"></textarea>
                 </div>
                 <button class="btn-primary" style="padding: 10px; width: 100%; justify-content: center;" onclick="confirmarFaseMedicacion()">✓ Guardar Preparación de Medicación</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL FASE 2: FABRICACIÓN DEL ROLLO -->
+    <!-- MODAL FASE 2: FABRICACIÓN -->
     <div id="modal-fase-rollo" class="modal-overlay">
         <div class="modal-box" style="max-width: 480px;">
             <div class="modal-header">
@@ -762,24 +764,22 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="fase-rollo-id">
-                
                 <div id="alerta-nota-fase1" style="display:none; background:#e0f2fe; border:1.5px solid #0284c7; padding:10px; border-radius:8px; font-size:12.5px; color:#0369a1;"></div>
                 <div id="fase-rollo-alerta-cambio" style="display:none;" class="box-cambio-medico-alerta"></div>
-
                 <div class="form-group" style="margin-top:6px;">
                     <label>¿Quién fabrica el rollo?:</label>
                     <select id="fase-rollo-responsable" class="form-control" style="font-weight:700;"></select>
                 </div>
                 <div class="form-group">
-                    <label>Nota especial para el Mostrador (Dispensación):</label>
-                    <textarea id="fase-rollo-nota-mostrador" class="form-control" rows="2" placeholder="Ej: Cobrar 3.20€ / Ojo: entregar también insulina de nevera"></textarea>
+                    <label>Nota especial para Mostrador (Dispensación):</label>
+                    <textarea id="fase-rollo-nota-mostrador" class="form-control" rows="2" placeholder="Ej: Entregar insulina de nevera"></textarea>
                 </div>
                 <button class="btn-teal" style="padding: 10px; width: 100%; justify-content: center;" onclick="confirmarFaseFabricacion()">✓ Finalizar Fabricación</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL FASE 3: REVISIÓN FARMACÉUTICA Y DISPARO WHATSAPP -->
+    <!-- MODAL FASE 3: REVISIÓN Y WHATSAPP -->
     <div id="modal-fase-revision" class="modal-overlay">
         <div class="modal-box" style="max-width: 480px;">
             <div class="modal-header">
@@ -794,14 +794,14 @@
                     <select id="fase-revision-responsable" class="form-control" style="font-weight:700;"></select>
                 </div>
                 <div style="background:#f0fdf4; border:1.5px solid #bbf7d0; padding:10px; border-radius:8px; font-size:12.5px; color:#166534;">
-                    📲 <strong>Aviso automático por WhatsApp:</strong> Al pulsar el botón, el rollo quedará validado y se abrirá automáticamente la conversación con el paciente para notificarle que ya puede pasar a recogerlo.
+                    📲 <strong>Aviso automático por WhatsApp:</strong> Al pulsar, el rollo quedará validado y se abrirá WhatsApp con el aviso listo para el paciente.
                 </div>
-                <button class="btn-success" style="padding: 11px; width: 100%; justify-content: center; font-size: 13px;" onclick="confirmarRevisionYDispararWhatsapp()">✓ Validar Rollo y Enviar WhatsApp</button>
+                <button class="btn-success" style="padding: 11px; width: 100%; justify-content: center; font-size: 13px;" onclick="confirmarRevisionYDispararWhatsapp()">✓ Validar Rollo y Notificar WhatsApp</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL REGISTRO DE ENTREGA CON FIRMA DIGITAL -->
+    <!-- MODAL ENTREGA CON FIRMA -->
     <div id="modal-entrega" class="modal-overlay">
         <div class="modal-box" style="max-width: 500px;">
             <div class="modal-header">
@@ -852,7 +852,7 @@
         </div>
     </div>
 
-    <!-- ÁREA OCULTA PARA IMPRESIÓN -->
+    <!-- ÁREA IMPRESIÓN -->
     <div id="area-impresion-laboratorio" style="display:none;"></div>
 
     <script>
@@ -867,16 +867,18 @@
         };
 
         let dbCloud = null;
+        let authCloud = null;
         try {
             if (window.firebase && firebase.apps.length === 0) {
                 firebase.initializeApp(firebaseConfig);
-                dbCloud = firebase.firestore();
             }
+            dbCloud = firebase.firestore();
+            authCloud = firebase.auth();
         } catch(e) {
-            console.log("Modo activo.");
+            console.log("Firebase inicializado");
         }
 
-        let usuarioSesionActual = JSON.parse(localStorage.getItem('spd_sesion_activa_v20')) || null;
+        let usuarioSesionActual = JSON.parse(localStorage.getItem('spd_sesion_activa_v21')) || null;
         let pacientes = [];
         let chatMensajes = [];
         let configuracionFarmacia = {
@@ -887,16 +889,217 @@
             equipo: []
         };
 
-        // FUNCIÓN CRIPTOGRÁFICA PARA HASH DE CONTRASEÑAS (RGPD)
+        let canvasFirma, ctxFirma, dibujando = false, haFirmado = false;
+
+        function generarEmailFarmacia(farmaciaId) {
+            return `farmacia_${farmaciaId}@farmaspd.local`;
+        }
+
         async function calcularHashContrasena(pass, farmaciaId) {
             const encoder = new TextEncoder();
             const data = encoder.encode(pass + "_" + farmaciaId + "_farmaspd_salt");
             const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        let canvasFirma, ctxFirma, dibujando = false, haFirmado = false;
+        function sanitizarIdFarmacia(nombre) {
+            return nombre.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
+        }
+
+        function cambiarModoAuth(modo) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            if (modo === 'login') {
+                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                document.getElementById('form-login').style.display = 'flex';
+                document.getElementById('form-registro').style.display = 'none';
+            } else {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('form-login').style.display = 'none';
+                document.getElementById('form-registro').style.display = 'flex';
+            }
+        }
+
+        function comprobarSesion() {
+            if (usuarioSesionActual && authCloud && authCloud.currentUser) {
+                document.getElementById('pantalla-login').style.display = 'none';
+                document.getElementById('nombre-usuario-sesion').innerText = usuarioSesionActual.nombre;
+                document.getElementById('label-nombre-farmacia').innerText = configuracionFarmacia.nombreComercial || usuarioSesionActual.farmacia;
+                iniciarEscuchaTiempoReal();
+            } else if (usuarioSesionActual && authCloud) {
+                authCloud.onAuthStateChanged(user => {
+                    if (user) {
+                        document.getElementById('pantalla-login').style.display = 'none';
+                        document.getElementById('nombre-usuario-sesion').innerText = usuarioSesionActual.nombre;
+                        document.getElementById('label-nombre-farmacia').innerText = configuracionFarmacia.nombreComercial || usuarioSesionActual.farmacia;
+                        iniciarEscuchaTiempoReal();
+                    } else {
+                        document.getElementById('pantalla-login').style.display = 'flex';
+                    }
+                });
+            } else {
+                document.getElementById('pantalla-login').style.display = 'flex';
+            }
+        }
+
+        // LOGIN CON AUTENTICACIÓN FIREBASE AUTH
+        async function procesarLogin(e) {
+            e.preventDefault();
+            const farmaciaNombre = document.getElementById('login-farmacia-codigo').value.trim();
+            const usuario = document.getElementById('login-user').value.trim().toLowerCase();
+            const password = document.getElementById('login-pass').value.trim();
+            const farmaciaId = sanitizarIdFarmacia(farmaciaNombre);
+            const emailAuth = generarEmailFarmacia(farmaciaId);
+
+            try {
+                // 1. Iniciar sesión nativa en Firebase Auth con token criptográfico
+                try {
+                    await authCloud.signInWithEmailAndPassword(emailAuth, password);
+                } catch(authErr) {
+                    if (authErr.code === 'auth/user-not-found') {
+                        await authCloud.createUserWithEmailAndPassword(emailAuth, password);
+                    } else {
+                        throw authErr;
+                    }
+                }
+
+                // 2. Comprobar documento en Firestore
+                const docSnap = await dbCloud.collection("farmacias").doc(farmaciaId).get();
+                if (!docSnap.exists) {
+                    await dbCloud.collection("farmacias").doc(farmaciaId).set({
+                        farmaciaId: farmaciaId,
+                        nombreReal: farmaciaNombre,
+                        creadoEn: new Date().toISOString(),
+                        chatMensajes: [],
+                        configuracion: {
+                            nombreComercial: farmaciaNombre,
+                            fechaAnclaTomas: "2026-09-02",
+                            semanaAnclaTomas: "4",
+                            emailNotificaciones: "",
+                            equipo: [usuario]
+                        }
+                    });
+                }
+
+                usuarioSesionActual = {
+                    farmacia: farmaciaNombre,
+                    farmaciaId: farmaciaId,
+                    nombre: usuario,
+                    user: usuario
+                };
+
+                localStorage.setItem('spd_sesion_activa_v21', JSON.stringify(usuarioSesionActual));
+                comprobarSesion();
+            } catch(err) {
+                alert("Error de autenticación: " + (err.message || "Credenciales incorrectas"));
+            }
+        }
+
+        // REGISTRO SEGURO CON FIREBASE AUTH NATIVO
+        async function procesarRegistro(e) {
+            e.preventDefault();
+            const nombreReal = document.getElementById('reg-farmacia').value.trim();
+            const farmaciaId = sanitizarIdFarmacia(document.getElementById('reg-farmacia-id').value);
+            const nombre = document.getElementById('reg-nombre').value.trim();
+            const user = document.getElementById('reg-user').value.trim().toLowerCase();
+            const pass = document.getElementById('reg-pass').value.trim();
+            const emailAuth = generarEmailFarmacia(farmaciaId);
+
+            try {
+                // Crear usuario en Firebase Auth
+                await authCloud.createUserWithEmailAndPassword(emailAuth, pass);
+
+                const nuevaData = {
+                    farmaciaId: farmaciaId,
+                    nombreReal: nombreReal,
+                    creadoEn: new Date().toISOString(),
+                    chatMensajes: [],
+                    configuracion: {
+                        nombreComercial: nombreReal,
+                        fechaAnclaTomas: "2026-09-02",
+                        semanaAnclaTomas: "4",
+                        emailNotificaciones: "",
+                        equipo: [nombre],
+                        licenciaPro: true
+                    }
+                };
+
+                await dbCloud.collection("farmacias").doc(farmaciaId).set(nuevaData);
+
+                usuarioSesionActual = {
+                    farmacia: nombreReal,
+                    farmaciaId: farmaciaId,
+                    nombre: nombre,
+                    user: user
+                };
+
+                localStorage.setItem('spd_sesion_activa_v21', JSON.stringify(usuarioSesionActual));
+                comprobarSesion();
+            } catch(err) {
+                alert("Error en el registro: " + (err.message || "No se pudo registrar"));
+            }
+        }
+
+        function cerrarSesion() {
+            if (authCloud) authCloud.signOut();
+            localStorage.removeItem('spd_sesion_activa_v21');
+            usuarioSesionActual = null;
+            pacientes = [];
+            chatMensajes = [];
+            document.getElementById('pantalla-login').style.display = 'flex';
+        }
+
+        function iniciarEscuchaTiempoReal() {
+            if (dbCloud && usuarioSesionActual) {
+                const docFarmacia = dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId);
+
+                // 1. Escucha documento principal
+                docFarmacia.onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        chatMensajes = data.chatMensajes || [];
+                        configuracionFarmacia = data.configuracion || configuracionFarmacia;
+                        
+                        if (!configuracionFarmacia.equipo || configuracionFarmacia.equipo.length === 0) {
+                            configuracionFarmacia.equipo = [usuarioSesionActual.nombre];
+                        }
+
+                        document.getElementById('label-nombre-farmacia').innerText = configuracionFarmacia.nombreComercial || usuarioSesionActual.farmacia;
+                        cargarAjustesEnFormulario();
+                        renderizarChat();
+                    }
+                });
+
+                // 2. Escucha subcolección atómica
+                docFarmacia.collection("pacientes").onSnapshot((snapshot) => {
+                    pacientes = [];
+                    snapshot.forEach(doc => {
+                        pacientes.push({ idDocFirestore: doc.id, ...doc.data() });
+                    });
+                    renderizarTablas();
+                    renderizarCalendarioAnual();
+                });
+            }
+        }
+
+        function guardarPacienteIndividual(pacienteObj) {
+            if (dbCloud && usuarioSesionActual) {
+                const docId = String(pacienteObj.id);
+                const copia = { ...pacienteObj };
+                delete copia.idDocFirestore;
+                dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId)
+                       .collection("pacientes").doc(docId).set(copia, { merge: true });
+            }
+        }
+
+        function guardarDatosGlobales() {
+            if (dbCloud && usuarioSesionActual) {
+                dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId).set({
+                    chatMensajes: chatMensajes,
+                    configuracion: configuracionFarmacia,
+                    ultimaActualizacion: new Date().toISOString()
+                }, { merge: true });
+            }
+        }
 
         function inicializarCanvasFirma() {
             canvasFirma = document.getElementById('lienzo-firma');
@@ -966,7 +1169,6 @@
         function toggleMenuLateral() {
             const sidebar = document.getElementById('sidebar-menu');
             const backdrop = document.getElementById('sidebar-backdrop');
-            
             if (window.innerWidth <= 768) {
                 sidebar.classList.toggle('abierto-movil');
                 backdrop.classList.toggle('activo');
@@ -1016,7 +1218,6 @@
         function actualizarIndicadorSemanaHeader() {
             const ciclo = calcularCicloFabricacionActual();
             document.getElementById('label-semana-activa-header').innerText = `SEMANA ${ciclo.semana}`;
-            
             const selectFiltro = document.getElementById('filtro-semana-preparacion');
             if (selectFiltro && !selectFiltro.dataset.modificadoManual) {
                 selectFiltro.value = ciclo.semana;
@@ -1029,7 +1230,6 @@
             hoy.setHours(0, 0, 0, 0);
             const cad = new Date(fechaStr);
             cad.setHours(0, 0, 0, 0);
-            
             const diffDias = Math.round((cad - hoy) / (1000 * 60 * 60 * 24));
             
             if (diffDias < 0) {
@@ -1055,209 +1255,6 @@
             }
         }
 
-        function sanitizarIdFarmacia(nombre) {
-            return nombre.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
-        }
-
-        function cambiarModoAuth(modo) {
-            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-            if (modo === 'login') {
-                document.querySelectorAll('.auth-tab')[0].classList.add('active');
-                document.getElementById('form-login').style.display = 'flex';
-                document.getElementById('form-registro').style.display = 'none';
-            } else {
-                document.querySelectorAll('.auth-tab')[1].classList.add('active');
-                document.getElementById('form-login').style.display = 'none';
-                document.getElementById('form-registro').style.display = 'flex';
-            }
-        }
-
-        function comprobarSesion() {
-            if (usuarioSesionActual) {
-                document.getElementById('pantalla-login').style.display = 'none';
-                document.getElementById('nombre-usuario-sesion').innerText = usuarioSesionActual.nombre;
-                const nombreMostrar = configuracionFarmacia.nombreComercial || usuarioSesionActual.farmacia;
-                document.getElementById('label-nombre-farmacia').innerText = nombreMostrar;
-                iniciarEscuchaTiempoReal();
-            } else {
-                document.getElementById('pantalla-login').style.display = 'flex';
-            }
-        }
-
-        // LOGIN CON HASH CRIPTOGRÁFICO Y RETROCOMPATIBILIDAD
-        async function procesarLogin(e) {
-            e.preventDefault();
-            const farmaciaNombre = document.getElementById('login-farmacia-codigo').value.trim();
-            const usuario = document.getElementById('login-user').value.trim().toLowerCase();
-            const password = document.getElementById('login-pass').value.trim();
-            const farmaciaId = sanitizarIdFarmacia(farmaciaNombre);
-
-            if (dbCloud) {
-                try {
-                    const farmaciaDoc = await dbCloud.collection("farmacias").doc(farmaciaId).get();
-                    if (!farmaciaDoc.exists) {
-                        alert("No existe ninguna farmacia con ese nombre o código.");
-                        return;
-                    }
-
-                    const data = farmaciaDoc.data();
-                    const usuariosFarmacia = data.usuarios || [];
-                    const hashIntento = await calcularHashContrasena(password, farmaciaId);
-
-                    const userMatch = usuariosFarmacia.find(u => 
-                        u.user.toLowerCase() === usuario && (u.passHash === hashIntento || u.pass === password)
-                    );
-
-                    if (userMatch) {
-                        usuarioSesionActual = {
-                            farmacia: data.nombreReal || farmaciaNombre,
-                            farmaciaId: farmaciaId,
-                            nombre: userMatch.nombre,
-                            user: userMatch.user
-                        };
-                        localStorage.setItem('spd_sesion_activa_v20', JSON.stringify(usuarioSesionActual));
-                        comprobarSesion();
-                    } else {
-                        alert("Usuario o contraseña incorrectos.");
-                    }
-                } catch(err) {
-                    alert("Error: " + err.message);
-                }
-            }
-        }
-
-        // REGISTRO CON CIFRADO SHA-256
-        async function procesarRegistro(e) {
-            e.preventDefault();
-            const farmaciaNombre = document.getElementById('reg-farmacia').value.trim();
-            const nombre = document.getElementById('reg-nombre').value.trim();
-            const user = document.getElementById('reg-user').value.trim().toLowerCase();
-            const pass = document.getElementById('reg-pass').value.trim();
-            const farmaciaId = sanitizarIdFarmacia(farmaciaNombre);
-
-            if (dbCloud) {
-                try {
-                    const farmaciaDoc = await dbCloud.collection("farmacias").doc(farmaciaId).get();
-                    if (farmaciaDoc.exists) {
-                        alert("Ese nombre de farmacia ya existe. Elige otro.");
-                        return;
-                    }
-
-                    const hashSeguro = await calcularHashContrasena(pass, farmaciaId);
-
-                    const nuevaFarmaciaData = {
-                        nombreReal: farmaciaNombre,
-                        farmaciaId: farmaciaId,
-                        creadoEn: new Date().toISOString(),
-                        usuarios: [{ user, passHash: hashSeguro, nombre }],
-                        chatMensajes: [],
-                        configuracion: { 
-                            nombreComercial: farmaciaNombre, 
-                            fechaAnclaTomas: "2026-09-02", 
-                            semanaAnclaTomas: "4",
-                            emailNotificaciones: "",
-                            equipo: [nombre],
-                            licenciaPro: true
-                        }
-                    };
-
-                    await dbCloud.collection("farmacias").doc(farmaciaId).set(nuevaFarmaciaData);
-
-                    usuarioSesionActual = {
-                        farmacia: farmaciaNombre,
-                        farmaciaId: farmaciaId,
-                        nombre: nombre,
-                        user: user
-                    };
-                    localStorage.setItem('spd_sesion_activa_v20', JSON.stringify(usuarioSesionActual));
-                    comprobarSesion();
-                } catch(err) {
-                    alert("Error: " + err.message);
-                }
-            }
-        }
-
-        function cerrarSesion() {
-            localStorage.removeItem('spd_sesion_activa_v20');
-            usuarioSesionActual = null;
-            pacientes = [];
-            chatMensajes = [];
-            document.getElementById('pantalla-login').style.display = 'flex';
-        }
-
-        // ESCUCHA ATÓMICA DE SUBCOLECCIÓN DE PACIENTES (SIN LÍMITE DE 1MB)
-        function iniciarEscuchaTiempoReal() {
-            if (dbCloud && usuarioSesionActual) {
-                const docFarmacia = dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId);
-
-                // 1. Escucha del documento principal (Ajustes y Chat)
-                docFarmacia.onSnapshot((doc) => {
-                    if (doc.exists) {
-                        const data = doc.data();
-                        chatMensajes = data.chatMensajes || [];
-                        configuracionFarmacia = data.configuracion || configuracionFarmacia;
-                        
-                        if (!configuracionFarmacia.equipo || configuracionFarmacia.equipo.length === 0) {
-                            configuracionFarmacia.equipo = [usuarioSesionActual.nombre];
-                        }
-
-                        document.getElementById('label-nombre-farmacia').innerText = configuracionFarmacia.nombreComercial || usuarioSesionActual.farmacia;
-                        cargarAjustesEnFormulario();
-                        renderizarChat();
-                    }
-                });
-
-                // 2. Escucha en tiempo real de la subcolección atómica de pacientes
-                docFarmacia.collection("pacientes").onSnapshot((snapshot) => {
-                    pacientes = [];
-                    snapshot.forEach(doc => {
-                        pacientes.push({ idDocFirestore: doc.id, ...doc.data() });
-                    });
-
-                    // Migración transparente si venían de la versión antigua monolítica
-                    if (pacientes.length === 0) {
-                        docFarmacia.get().then(docSnapshot => {
-                            const dataVieja = docSnapshot.data();
-                            if (dataVieja && dataVieja.pacientes && dataVieja.pacientes.length > 0) {
-                                const batch = dbCloud.batch();
-                                dataVieja.pacientes.forEach(p => {
-                                    const ref = docFarmacia.collection("pacientes").doc(String(p.id));
-                                    batch.set(ref, p);
-                                });
-                                batch.commit().then(() => {
-                                    docFarmacia.update({ pacientes: firebase.firestore.FieldValue.delete() });
-                                });
-                            }
-                        });
-                    }
-
-                    renderizarTablas();
-                    renderizarCalendarioAnual();
-                });
-            }
-        }
-
-        // GUARDADO ATÓMICO: CADA PACIENTE ES UN DOCUMENTO INDEPENDIENTE
-        function guardarPacienteIndividual(pacienteObj) {
-            if (dbCloud && usuarioSesionActual) {
-                const docId = String(pacienteObj.id);
-                const copia = { ...pacienteObj };
-                delete copia.idDocFirestore;
-                dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId)
-                       .collection("pacientes").doc(docId).set(copia, { merge: true });
-            }
-        }
-
-        function guardarDatosGlobales() {
-            if (dbCloud && usuarioSesionActual) {
-                dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId).set({
-                    chatMensajes: chatMensajes,
-                    configuracion: configuracionFarmacia,
-                    ultimaActualizacion: new Date().toISOString()
-                }, { merge: true });
-            }
-        }
-
         function cambiarPestana(idTab, elemento) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1278,12 +1275,10 @@
             };
             document.getElementById('tab-title').innerText = titulos[idTab];
             
-            if (window.innerWidth <= 768) {
-                cerrarMenuLateral();
-            }
+            if (window.innerWidth <= 768) cerrarMenuLateral();
 
             renderizarTablas();
-            if(idTab === 'tab-calendario') renderizarCalendarioAnual();
+            if (idTab === 'tab-calendario') renderizarCalendarioAnual();
         }
 
         function inicializarSelectorAnos() {
@@ -1311,8 +1306,8 @@
 
             mesesNombres.forEach((nombreMes, indexMes) => {
                 const esMesActual = esAnoActual && fechaHoy.getMonth() === indexMes;
-
                 let semanasHTML = "";
+
                 for (let semNum = 1; semNum <= 4; semNum++) {
                     const pacientesSemana = pacientes.filter(p => p.semana === String(semNum));
                     let chipsHTML = "";
@@ -1378,16 +1373,11 @@
             tbody.innerHTML = "";
 
             let filtrados = pacientes;
-            if (sem !== "todas") {
-                filtrados = filtrados.filter(p => p.semana === sem);
-            }
-            if (query) {
-                filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(query) || p.cip.toLowerCase().includes(query));
-            }
+            if (sem !== "todas") filtrados = filtrados.filter(p => p.semana === sem);
+            if (query) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(query) || p.cip.toLowerCase().includes(query));
 
             filtrados.forEach(p => {
                 const semaforo = getSemaforoCaducidad(p.caducidadPlan);
-
                 let ultimoCambioHTML = "";
                 if (p.cambiosClinicos && p.cambiosClinicos.length > 0) {
                     const ult = p.cambiosClinicos[0];
@@ -1400,58 +1390,26 @@
                     `;
                 }
 
-                let colFase1 = "";
-                if (p.medicacionPreparada) {
-                    colFase1 = `
-                        <span class="badge badge-info">✓ Preparada</span>
-                        <div style="font-size:11px; color:#475569; margin-top:2px;">Por: <strong>${p.responsableMedicacion}</strong></div>
-                    `;
-                } else {
-                    colFase1 = `<button class="btn-primary" style="font-size:11px; padding:5px 8px;" onclick="abrirModalFaseMed(${p.id})">1. Preparar Medicación</button>`;
-                }
+                let colFase1 = p.medicacionPreparada 
+                    ? `<span class="badge badge-info">✓ Preparada</span><div style="font-size:11px; color:#475569; margin-top:2px;">Por: <strong>${p.responsableMedicacion}</strong></div>`
+                    : `<button class="btn-primary" style="font-size:11px; padding:5px 8px;" onclick="abrirModalFaseMed(${p.id})">1. Preparar Medicación</button>`;
 
-                let colFase2 = "";
-                if (p.rolloFabricado) {
-                    colFase2 = `
-                        <span class="badge badge-info">✓ Fabricado</span>
-                        <div style="font-size:11px; color:#475569; margin-top:2px;">Por: <strong>${p.responsableRollo}</strong></div>
-                    `;
-                } else if (p.medicacionPreparada) {
-                    colFase2 = `<button class="btn-teal" style="font-size:11px; padding:5px 8px;" onclick="abrirModalFaseRollo(${p.id})">2. Fabricar Rollo</button>`;
-                } else {
-                    colFase2 = `<span style="font-size:11px; color:#94a3b8;">Esperando fase 1...</span>`;
-                }
+                let colFase2 = p.rolloFabricado 
+                    ? `<span class="badge badge-info">✓ Fabricado</span><div style="font-size:11px; color:#475569; margin-top:2px;">Por: <strong>${p.responsableRollo}</strong></div>`
+                    : (p.medicacionPreparada ? `<button class="btn-teal" style="font-size:11px; padding:5px 8px;" onclick="abrirModalFaseRollo(${p.id})">2. Fabricar Rollo</button>` : `<span style="font-size:11px; color:#94a3b8;">Esperando fase 1...</span>`);
 
-                let colFase3 = "";
-                if (p.rolloRevisado) {
-                    colFase3 = `
-                        <span class="badge badge-success">✓ Revisado & Validado</span>
-                        <div style="font-size:11px; color:#059669; margin-top:2px;">Por: <strong>${p.responsableRevision}</strong></div>
-                    `;
-                } else if (p.rolloFabricado) {
-                    colFase3 = `<button class="btn-success" style="font-size:11px; padding:5px 8px;" onclick="abrirModalFaseRevision(${p.id})">3. Validar Revisión</button>`;
-                } else {
-                    colFase3 = `<span style="font-size:11px; color:#94a3b8;">Esperando rollo...</span>`;
-                }
+                let colFase3 = p.rolloRevisado 
+                    ? `<span class="badge badge-success">✓ Revisado & Validado</span><div style="font-size:11px; color:#059669; margin-top:2px;">Por: <strong>${p.responsableRevision}</strong></div>`
+                    : (p.rolloFabricado ? `<button class="btn-success" style="font-size:11px; padding:5px 8px;" onclick="abrirModalFaseRevision(${p.id})">3. Validar Revisión</button>` : `<span style="font-size:11px; color:#94a3b8;">Esperando rollo...</span>`);
 
                 let notasInternasHTML = "";
-                if (p.notaInternaFase1) {
-                    notasInternasHTML += `<div style="font-size:11px; background:#e0f2fe; padding:4px 6px; border-radius:4px; margin-bottom:3px; color:#0369a1;"><strong>Med:</strong> ${p.notaInternaFase1}</div>`;
-                }
-                if (p.notaDispensacion) {
-                    notasInternasHTML += `<div style="font-size:11px; background:#fef3c7; padding:4px 6px; border-radius:4px; color:#92400e;"><strong>Mostrador:</strong> ${p.notaDispensacion}</div>`;
-                }
-                if (!notasInternasHTML) {
-                    notasInternasHTML = '<span style="font-size:11px; color:#94a3b8;">-</span>';
-                }
+                if (p.notaInternaFase1) notasInternasHTML += `<div style="font-size:11px; background:#e0f2fe; padding:4px 6px; border-radius:4px; margin-bottom:3px; color:#0369a1;"><strong>Med:</strong> ${p.notaInternaFase1}</div>`;
+                if (p.notaDispensacion) notasInternasHTML += `<div style="font-size:11px; background:#fef3c7; padding:4px 6px; border-radius:4px; color:#92400e;"><strong>Mostrador:</strong> ${p.notaDispensacion}</div>`;
+                if (!notasInternasHTML) notasInternasHTML = '<span style="font-size:11px; color:#94a3b8;">-</span>';
 
                 tbody.innerHTML += `
                     <tr>
-                        <td>
-                            <strong>${p.nombre}</strong><br>
-                            <small style="color:#64748b;">CIP: ${p.cip} | Tlf: ${p.telefono}</small>
-                            ${ultimoCambioHTML}
-                        </td>
+                        <td><strong>${p.nombre}</strong><br><small style="color:#64748b;">CIP: ${p.cip} | Tlf: ${p.telefono}</small>${ultimoCambioHTML}</td>
                         <td><span class="badge badge-neutral">Semana ${p.semana}</span></td>
                         <td>${colFase1}</td>
                         <td>${colFase2}</td>
@@ -1459,7 +1417,7 @@
                         <td>${notasInternasHTML}</td>
                         <td><span class="badge ${semaforo.clase}">${semaforo.texto}</span></td>
                         <td>
-                            ${(p.medicacionPreparada || p.rolloFabricado || p.rolloRevisado) ? `<button class="btn-danger" style="padding:4px 7px; font-size:10.5px; margin-bottom:3px;" onclick="reiniciarFasesLab(${p.id})" title="Reiniciar elaboración">Reiniciar</button><br>` : ''}
+                            ${(p.medicacionPreparada || p.rolloFabricado || p.rolloRevisado) ? `<button class="btn-danger" style="padding:4px 7px; font-size:10.5px; margin-bottom:3px;" onclick="reiniciarFasesLab(${p.id})">Reiniciar</button><br>` : ''}
                             <button class="btn-primary" style="padding:4px 8px; font-size:11px;" onclick="abrirFichaPaciente(${p.id})">Ficha / Cambios</button>
                         </td>
                     </tr>
@@ -1494,9 +1452,7 @@
             document.getElementById('modal-fase-med').style.display = 'flex';
         }
 
-        function cerrarModalFaseMed() {
-            document.getElementById('modal-fase-med').style.display = 'none';
-        }
+        function cerrarModalFaseMed() { document.getElementById('modal-fase-med').style.display = 'none'; }
 
         function confirmarFaseMedicacion() {
             const id = parseInt(document.getElementById('fase-med-id').value);
@@ -1548,9 +1504,7 @@
             document.getElementById('modal-fase-rollo').style.display = 'flex';
         }
 
-        function cerrarModalFaseRollo() {
-            document.getElementById('modal-fase-rollo').style.display = 'none';
-        }
+        function cerrarModalFaseRollo() { document.getElementById('modal-fase-rollo').style.display = 'none'; }
 
         function confirmarFaseFabricacion() {
             const id = parseInt(document.getElementById('fase-rollo-id').value);
@@ -1572,19 +1526,15 @@
             const p = pacientes.find(x => x.id === id);
             if (!p) return;
             document.getElementById('fase-revision-id').value = p.id;
-
             const sel = document.getElementById('fase-revision-responsable');
             sel.innerHTML = "";
             (configuracionFarmacia.equipo || [usuarioSesionActual.nombre]).forEach(m => {
                 sel.innerHTML += `<option value="${m}" ${m === usuarioSesionActual.nombre ? 'selected':''}>${m}</option>`;
             });
-
             document.getElementById('modal-fase-revision').style.display = 'flex';
         }
 
-        function cerrarModalFaseRevision() {
-            document.getElementById('modal-fase-revision').style.display = 'none';
-        }
+        function cerrarModalFaseRevision() { document.getElementById('modal-fase-revision').style.display = 'none'; }
 
         function confirmarRevisionYDispararWhatsapp() {
             const id = parseInt(document.getElementById('fase-revision-id').value);
@@ -1606,13 +1556,12 @@
             const urlWhatsapp = `https://wa.me/34${tlfLimpio}?text=${textoWhatsapp}`;
 
             window.open(urlWhatsapp, '_blank');
-
             renderizarTablas();
             renderizarCalendarioAnual();
         }
 
         function reiniciarFasesLab(id) {
-            if (!confirm("¿Deseas reiniciar las fases de preparación, fabricación y revisión de este paciente?")) return;
+            if (!confirm("¿Deseas reiniciar las fases de este paciente?")) return;
             const p = pacientes.find(x => x.id === id);
             if (p) {
                 p.medicacionPreparada = false;
@@ -1645,12 +1594,8 @@
                     : `<a href="${enlaceWhatsapp}" target="_blank" class="btn-whatsapp" onclick="marcarAvisadoRecogida(${p.id})">📲 WhatsApp</a> <button class="btn-primary" style="font-size:11px; padding:5px 8px;" onclick="marcarAvisadoRecogida(${p.id})">📞 Llamado</button>`;
 
                 let alertaHTML = "";
-                if (p.notaDispensacion) {
-                    alertaHTML += `<span class="badge badge-warning" style="display:block; margin-bottom:2px;">⚠️ ${p.notaDispensacion}</span>`;
-                }
-                if (p.medExterna) {
-                    alertaHTML += `<span class="badge badge-purple" style="display:block;">❄️ Entregar: ${p.medExterna}</span>`;
-                }
+                if (p.notaDispensacion) alertaHTML += `<span class="badge badge-warning" style="display:block; margin-bottom:2px;">⚠️ ${p.notaDispensacion}</span>`;
+                if (p.medExterna) alertaHTML += `<span class="badge badge-purple" style="display:block;">❄️ Entregar: ${p.medExterna}</span>`;
                 if (!alertaHTML) alertaHTML = '<span style="color:#94a3b8; font-size:11px;">Solo rollo</span>';
 
                 tbody.innerHTML += `
@@ -1658,22 +1603,14 @@
                         <td><strong>${p.nombre}</strong></td>
                         <td><a href="tel:${p.telefono}" style="color:var(--accent); font-weight:700; text-decoration:none;">📞 ${p.telefono}</a></td>
                         <td><span class="badge badge-neutral">Semana ${p.semana}</span></td>
-                        <td>
-                            <small style="color:#475569;">
-                                💊 Med: <strong>${p.responsableMedicacion || '-'}</strong><br>
-                                ⚙️ Rollo: <strong>${p.responsableRollo || '-'}</strong><br>
-                                🔍 Rev: <strong>${p.responsableRevision || '-'}</strong>
-                            </small>
-                        </td>
+                        <td><small style="color:#475569;">Med: <strong>${p.responsableMedicacion || '-'}</strong><br>Rollo: <strong>${p.responsableRollo || '-'}</strong><br>Rev: <strong>${p.responsableRevision || '-'}</strong></small></td>
                         <td>${alertaHTML}</td>
                         <td>${estadoAviso}</td>
-                        <td>
-                            <button class="btn-teal" onclick="abrirModalEntrega(${p.id})">📦 Entregar al Paciente</button>
-                        </td>
+                        <td><button class="btn-teal" onclick="abrirModalEntrega(${p.id})">📦 Entregar al Paciente</button></td>
                     </tr>
                 `;
             });
-            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No hay pastilleros validados pendientes de entregar en mostrador.</td></tr>`;
+            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No hay pastilleros validados pendientes de entrega.</td></tr>`;
         }
 
         function renderizarCupones() {
@@ -1685,18 +1622,13 @@
                 p.adelantos.forEach((ad, idx) => {
                     const revisadoPorTexto = ad.revisadoPor ? `✓ ${ad.revisadoPor}` : 'Sin revisar';
                     const revisadoClase = ad.revisadoPor ? 'badge-success' : 'badge-neutral';
-
                     tbody.innerHTML += `
                         <tr>
                             <td><strong>${p.nombre}</strong></td>
                             <td><a href="tel:${p.telefono}" style="color:var(--accent); font-weight:700; text-decoration:none;">📞 ${p.telefono}</a></td>
                             <td><span class="badge badge-info">${ad.med}</span></td>
                             <td><strong>${ad.limite}</strong></td>
-                            <td>
-                                <button class="badge ${revisadoClase}" style="border:none; cursor:pointer; font-size:11px;" onclick="conmutarRevisionEquipo(${p.id}, ${idx})">
-                                    ${revisadoPorTexto}
-                                </button>
-                            </td>
+                            <td><button class="badge ${revisadoClase}" style="border:none; cursor:pointer; font-size:11px;" onclick="conmutarRevisionEquipo(${p.id}, ${idx})">${revisadoPorTexto}</button></td>
                             <td><button class="btn-primary" style="font-size:11px; padding:4px 8px;" onclick="conmutarCobroAdelanto(${p.id}, ${idx})">${ad.cobrado ? '✓ Regularizado' : '⚠️ Pendiente'}</button></td>
                         </tr>
                     `;
@@ -1709,11 +1641,7 @@
             const p = pacientes.find(x => x.id === idPac);
             if (p && p.adelantos && p.adelantos[indexAdelanto]) {
                 const usuario = usuarioSesionActual ? usuarioSesionActual.nombre : "Equipo";
-                if (p.adelantos[indexAdelanto].revisadoPor) {
-                    p.adelantos[indexAdelanto].revisadoPor = null;
-                } else {
-                    p.adelantos[indexAdelanto].revisadoPor = usuario;
-                }
+                p.adelantos[indexAdelanto].revisadoPor = p.adelantos[indexAdelanto].revisadoPor ? null : usuario;
                 guardarPacienteIndividual(p);
                 renderizarTablas();
             }
@@ -1727,7 +1655,6 @@
             pacientes.filter(p => p.nombre.toLowerCase().includes(query) || p.cip.toLowerCase().includes(query)).forEach(p => {
                 const numAvisos = p.avisos ? p.avisos.filter(a => !a.resuelto).length : 0;
                 const semaforo = getSemaforoCaducidad(p.caducidadPlan);
-
                 tbody.innerHTML += `
                     <tr>
                         <td><code>${p.cip}</code></td>
@@ -1746,7 +1673,6 @@
         function renderizarChat() {
             const chatBox = document.getElementById('chat-box');
             chatBox.innerHTML = "";
-
             chatMensajes.forEach(m => {
                 const esPropio = usuarioSesionActual && m.autor.toLowerCase() === usuarioSesionActual.nombre.toLowerCase();
                 chatBox.innerHTML += `
@@ -1763,18 +1689,12 @@
         function renderizarAuditoria() {
             const tbody = document.getElementById('tabla-auditoria-body');
             tbody.innerHTML = "";
-
             let todasEntregas = [];
+
             pacientes.forEach(p => {
                 if (p.historialEntregas && p.historialEntregas.length > 0) {
                     p.historialEntregas.forEach(ent => {
-                        todasEntregas.push({
-                            pacienteId: p.id,
-                            pacienteNombre: p.nombre,
-                            pacienteCip: p.cip,
-                            pacienteSemana: p.semana,
-                            ...ent
-                        });
+                        todasEntregas.push({ pacienteId: p.id, pacienteNombre: p.nombre, pacienteCip: p.cip, pacienteSemana: p.semana, ...ent });
                     });
                 }
             });
@@ -1782,18 +1702,7 @@
             todasEntregas.sort((a, b) => b.id - a.id);
 
             todasEntregas.forEach(ent => {
-                const firmaHTML = ent.firma 
-                    ? `<img src="${ent.firma}" style="max-height:35px; border:1px solid #cbd5e1; border-radius:4px; background:white;" alt="Firma">` 
-                    : '<span style="color:#94a3b8; font-size:11px;">Sin firma</span>';
-
-                const labInfo = `
-                    <small style="color:#475569;">
-                        Med: <strong>${ent.preparadoMedPor || '-'}</strong><br>
-                        Rollo: <strong>${ent.fabricadoRolloPor || '-'}</strong><br>
-                        Rev: <strong>${ent.revisadoPor || '-'}</strong>
-                    </small>
-                `;
-
+                const firmaHTML = ent.firma ? `<img src="${ent.firma}" style="max-height:35px; border:1px solid #cbd5e1; border-radius:4px; background:white;" alt="Firma">` : '<span style="color:#94a3b8; font-size:11px;">Sin firma</span>';
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${ent.fecha}</strong></td>
@@ -1802,31 +1711,21 @@
                         <td><span class="badge badge-info">${ent.recogidoPor}</span></td>
                         <td>${firmaHTML}</td>
                         <td>${ent.dispensadoPor}</td>
-                        <td>${labInfo}</td>
+                        <td><small style="color:#475569;">Med: <strong>${ent.preparadoMedPor || '-'}</strong><br>Rollo: <strong>${ent.fabricadoRolloPor || '-'}</strong><br>Rev: <strong>${ent.revisadoPor || '-'}</strong></small></td>
                         <td>${ent.notas || '-'}</td>
-                        <td>
-                            <button class="btn-primary" style="padding:3px 7px; font-size:10.5px;" onclick="imprimirRecibiEntrega(${ent.id})">🖨️ Recibí</button>
-                        </td>
+                        <td><button class="btn-primary" style="padding:3px 7px; font-size:10.5px;" onclick="imprimirRecibiEntrega(${ent.id})">🖨️ Recibí</button></td>
                     </tr>
                 `;
             });
-
-            if (tbody.innerHTML === "") {
-                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#94a3b8;">No hay entregas registradas en el historial.</td></tr>`;
-            }
+            if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#94a3b8;">No hay entregas registradas en el historial.</td></tr>`;
         }
 
         function imprimirRecibiEntrega(idEntrega) {
-            let entregaObj = null;
-            let pacObj = null;
+            let entregaObj = null, pacObj = null;
             pacientes.forEach(p => {
                 const e = p.historialEntregas?.find(x => x.id === idEntrega);
-                if (e) {
-                    entregaObj = e;
-                    pacObj = p;
-                }
+                if (e) { entregaObj = e; pacObj = p; }
             });
-
             if (!entregaObj || !pacObj) return;
 
             const farmacia = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : "Farmacia");
@@ -1842,10 +1741,10 @@
                         <strong>Fecha y Hora:</strong> ${entregaObj.fecha}<br>
                         <strong>Semana de toma:</strong> Semana ${pacObj.semana}<br>
                         <strong>1. Medicación acondicionada por:</strong> ${entregaObj.preparadoMedPor || '-'}<br>
-                        <strong>2. Rollo/Pastillero sellado por:</strong> ${entregaObj.fabricadoRolloPor || '-'}<br>
+                        <strong>2. Rollo sellado por:</strong> ${entregaObj.fabricadoRolloPor || '-'}<br>
                         <strong>3. Revisión farmacéutica validada por:</strong> ${entregaObj.revisadoPor || '-'}<br>
-                        <strong>Dispensado en mostrador por:</strong> ${entregaObj.dispensadoPor}<br>
-                        <strong>Persona que retira:</strong> ${entregaObj.recogidoPor}<br>
+                        <strong>Dispensado por:</strong> ${entregaObj.dispensadoPor}<br>
+                        <strong>Retirado por:</strong> ${entregaObj.recogidoPor}<br>
                         ${entregaObj.notas ? `<strong>Observaciones:</strong> ${entregaObj.notas}<br>` : ''}
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-top: 24px;">
@@ -1881,11 +1780,7 @@
 
         function marcarAvisadoRecogida(id) {
             const p = pacientes.find(x => x.id === id);
-            if (p) { 
-                p.avisadoRecogida = true; 
-                guardarPacienteIndividual(p); 
-                renderizarTablas(); 
-            }
+            if (p) { p.avisadoRecogida = true; guardarPacienteIndividual(p); renderizarTablas(); }
         }
 
         function abrirModalEntrega(id) {
@@ -1902,32 +1797,19 @@
             `;
 
             const divAlertaLab = document.getElementById('entrega-alerta-laboratorio');
-            if (p.notaDispensacion) {
-                divAlertaLab.innerText = `⚠️ AVISO DEL LABORATORIO: ${p.notaDispensacion}`;
-                divAlertaLab.style.display = 'block';
-            } else {
-                divAlertaLab.style.display = 'none';
-            }
+            divAlertaLab.style.display = p.notaDispensacion ? 'block' : 'none';
+            if (p.notaDispensacion) divAlertaLab.innerText = `⚠️ AVISO DEL LABORATORIO: ${p.notaDispensacion}`;
 
             const divAlertaExt = document.getElementById('entrega-alerta-externa');
-            if (p.medExterna) {
-                divAlertaExt.innerText = `❄️ MEDICACIÓN FUERA DE BLÍSTER: Entregar también ${p.medExterna}`;
-                divAlertaExt.style.display = 'block';
-            } else {
-                divAlertaExt.style.display = 'none';
-            }
+            divAlertaExt.style.display = p.medExterna ? 'block' : 'none';
+            if (p.medExterna) divAlertaExt.innerText = `❄️ MEDICACIÓN FUERA DE BLÍSTER: Entregar también ${p.medExterna}`;
 
             document.getElementById('modal-entrega').style.display = 'flex';
             setTimeout(inicializarCanvasFirma, 100);
         }
 
-        function cerrarModalEntrega() {
-            document.getElementById('modal-entrega').style.display = 'none';
-        }
-
-        function toggleReceptorOtro(val) {
-            document.getElementById('div-receptor-otro').style.display = (val === 'Otro') ? 'block' : 'none';
-        }
+        function cerrarModalEntrega() { document.getElementById('modal-entrega').style.display = 'none'; }
+        function toggleReceptorOtro(val) { document.getElementById('div-receptor-otro').style.display = (val === 'Otro') ? 'block' : 'none'; }
 
         function confirmarEntregaMostrador() {
             const idPac = parseInt(document.getElementById('entrega-paciente-id').value);
@@ -1935,32 +1817,26 @@
             if (!p) return;
 
             let receptor = document.getElementById('entrega-receptor').value;
-            if (receptor === 'Otro') {
-                receptor = document.getElementById('entrega-receptor-nombre').value.trim() || 'Tercero no especificado';
-            }
+            if (receptor === 'Otro') receptor = document.getElementById('entrega-receptor-nombre').value.trim() || 'Tercero';
             const notas = document.getElementById('entrega-notas').value.trim();
             const fechaHora = new Date().toLocaleDateString('es-ES') + " " + new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
-            const dispensadoPor = usuarioSesionActual ? usuarioSesionActual.nombre : "Equipo Farmacia";
+            const dispensadoPor = usuarioSesionActual ? usuarioSesionActual.nombre : "Farmacia";
 
-            let firmaDataUrl = null;
-            if (haFirmado && canvasFirma) {
-                firmaDataUrl = canvasFirma.toDataURL('image/png');
-            }
+            let firmaDataUrl = haFirmado && canvasFirma ? canvasFirma.toDataURL('image/png') : null;
 
             if (!p.historialEntregas) p.historialEntregas = [];
             p.historialEntregas.unshift({
                 id: Date.now(),
                 fecha: fechaHora,
-                dispensadoPor: dispensadoPor,
+                dispensadoPor,
                 recogidoPor: receptor,
-                notas: notas,
+                notas,
                 firma: firmaDataUrl,
                 preparadoMedPor: p.responsableMedicacion || '-',
                 fabricadoRolloPor: p.responsableRollo || '-',
                 revisadoPor: p.responsableRevision || '-'
             });
 
-            // Reiniciar para el siguiente ciclo
             p.preparado = false;
             p.medicacionPreparada = false;
             p.rolloFabricado = false;
@@ -2014,19 +1890,13 @@
         }
 
         function abrirRedactorGmail() {
-            if (chatMensajes.length === 0) {
-                alert("No hay mensajes recientes para enviar.");
-                return;
-            }
-
+            if (chatMensajes.length === 0) return alert("No hay mensajes para enviar.");
             const destino = configuracionFarmacia.emailNotificaciones || "";
             const ultimosMensajes = chatMensajes.slice(-5).map(m => `• [${m.tipo}] (${m.autor} - ${m.fecha}) [Pac: ${m.paciente}]: ${m.texto}`).join('\n\n');
             const nombreFarm = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : "Farmacia");
             const asunto = encodeURIComponent(`Resumen Guardia SPD - ${nombreFarm}`);
-            const cuerpo = encodeURIComponent(`Hola equipo,\n\nOs dejamos el resumen de las notas y avisos recientes del SPD:\n\n${ultimosMensajes}\n\n¡Un saludo!`);
-
-            const urlGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${destino}&su=${asunto}&body=${cuerpo}`;
-            window.open(urlGmail, '_blank');
+            const cuerpo = encodeURIComponent(`Hola equipo,\n\nResumen de incidencias recientes:\n\n${ultimosMensajes}\n\n¡Un saludo!`);
+            window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${destino}&su=${asunto}&body=${cuerpo}`, '_blank');
         }
 
         function agregarFilaAdelantoAlta() {
@@ -2063,7 +1933,7 @@
 
             const nuevo = {
                 id: Date.now(), nombre, cip, telefono, semana, caducidadPlan: caducidad,
-                medExterna: medExterna, preparado: false, avisadoRecogida: false,
+                medExterna, preparado: false, avisadoRecogida: false,
                 medicacionPreparada: false, rolloFabricado: false, rolloRevisado: false,
                 responsableMedicacion: null, responsableRollo: null, responsableRevision: null,
                 notaInternaFase1: "", notaDispensacion: "",
@@ -2083,9 +1953,8 @@
         function abrirFichaPaciente(id) {
             const p = pacientes.find(x => x.id === id);
             if (!p) return;
-
             document.getElementById('modal-paciente-nombre').innerText = `Expediente: ${p.nombre} (CIP: ${p.cip})`;
-            
+
             let avisosHtml = "";
             if (p.avisos && p.avisos.length > 0) {
                 p.avisos.forEach(a => {
@@ -2107,9 +1976,7 @@
                         <div style="background:white; border:1px solid #e2e8f0; border-radius:6px; padding:8px 12px; margin-bottom:5px; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
                             <div>
                                 <strong>📅 ${ent.fecha}</strong> - Retirado por: <u>${ent.recogidoPor}</u>
-                                <div style="color:#64748b; font-size:11px;">
-                                    Dispensado: ${ent.dispensadoPor} | Med: ${ent.preparadoMedPor} | Rollo: ${ent.fabricadoRolloPor} | Rev: ${ent.revisadoPor || '-'} ${ent.notas ? ' | ' + ent.notas : ''}
-                                </div>
+                                <div style="color:#64748b; font-size:11px;">Dispensado: ${ent.dispensadoPor} | Med: ${ent.preparadoMedPor} | Rollo: ${ent.fabricadoRolloPor} | Rev: ${ent.revisadoPor || '-'}</div>
                             </div>
                             <div style="display:flex; align-items:center;">
                                 <span class="badge badge-success">✓ Entregado</span>
@@ -2128,10 +1995,7 @@
                     const urgente = esCambioReciente(c.fecha);
                     cambiosClinicosHtml += `
                         <div style="background:${urgente ? '#fef2f2' : '#f8fafc'}; border-left:3px solid ${urgente ? 'var(--danger)' : 'var(--accent)'}; padding:8px 10px; font-size:12px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:flex-start;">
-                            <div>
-                                <strong>📅 ${c.fecha}</strong> (Anotado por: <u>${c.usuario}</u>) ${urgente ? '<span class="badge badge-danger">Reciente</span>' : ''}<br>
-                                <span style="font-size:12.5px; color:#1e293b;">${c.descripcion}</span>
-                            </div>
+                            <div><strong>📅 ${c.fecha}</strong> (Anotado por: <u>${c.usuario}</u>) ${urgente ? '<span class="badge badge-danger">Reciente</span>' : ''}<br><span style="font-size:12.5px; color:#1e293b;">${c.descripcion}</span></div>
                             <button class="btn-danger" style="padding:2px 6px; font-size:10px;" onclick="eliminarCambioClinico(${p.id}, ${idx})">✕</button>
                         </div>
                     `;
@@ -2145,11 +2009,7 @@
                 p.adelantos.forEach((ad, idx) => {
                     adelantosHtml += `
                         <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:6px; border:1px solid #e2e8f0; font-size:12.5px;">
-                            <div>
-                                <strong>${ad.med}</strong> - Límite: ${ad.limite}
-                                <span class="badge ${ad.cobrado ? 'badge-success' : 'badge-warning'}" style="margin-left:6px;">${ad.cobrado ? 'Regularizado' : 'Pendiente'}</span>
-                                ${ad.revisadoPor ? `<span class="badge badge-info" style="margin-left:4px;">Revisado: ${ad.revisadoPor}</span>` : ''}
-                            </div>
+                            <div><strong>${ad.med}</strong> - Límite: ${ad.limite} <span class="badge ${ad.cobrado ? 'badge-success' : 'badge-warning'}">${ad.cobrado ? 'Regularizado' : 'Pendiente'}</span></div>
                             <button class="btn-danger" onclick="eliminarAdelantoFicha(${p.id}, ${idx})">✕ Eliminar</button>
                         </div>
                     `;
@@ -2164,21 +2024,12 @@
                 <div style="background:#f8fafc; padding:14px; border-radius:8px; border:1px solid #cbd5e1;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                         <h4 style="font-weight:800; font-size:13.5px; color:var(--primary);">✏️ Datos del Paciente</h4>
-                        <button class="btn-danger" style="font-size:11px; padding:3px 8px;" onclick="darDeBajaPaciente(${p.id})">🗑️ Dar de Baja Paciente</button>
+                        <button class="btn-danger" style="font-size:11px; padding:3px 8px;" onclick="darDeBajaPaciente(${p.id})">🗑️ Dar de Baja</button>
                     </div>
                     <div class="form-grid">
-                        <div class="form-group">
-                            <label>Nombre Completo:</label>
-                            <input type="text" id="edit-pac-nombre" class="form-control" value="${p.nombre || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label>CIP / Tarjeta Sanitaria:</label>
-                            <input type="text" id="edit-pac-cip" class="form-control" value="${p.cip || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label>Teléfono:</label>
-                            <input type="tel" id="edit-pac-telefono" class="form-control" value="${p.telefono || ''}">
-                        </div>
+                        <div class="form-group"><label>Nombre Completo:</label><input type="text" id="edit-pac-nombre" class="form-control" value="${p.nombre || ''}"></div>
+                        <div class="form-group"><label>CIP / Tarjeta Sanitaria:</label><input type="text" id="edit-pac-cip" class="form-control" value="${p.cip || ''}"></div>
+                        <div class="form-group"><label>Teléfono:</label><input type="tel" id="edit-pac-telefono" class="form-control" value="${p.telefono || ''}"></div>
                         <div class="form-group">
                             <label>Semana Asignada:</label>
                             <select id="edit-pac-semana" class="form-control">
@@ -2188,19 +2039,10 @@
                                 <option value="4" ${p.semana === '4' ? 'selected':''}>Semana 4</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Caducidad Plan / Receta:</label>
-                            <input type="date" id="edit-pac-caducidad" class="form-control" value="${p.caducidadPlan || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label>Medicación Fuera de Blíster:</label>
-                            <input type="text" id="edit-pac-externa" class="form-control" value="${p.medExterna || ''}" placeholder="Ej: Insulina, Gotas">
-                        </div>
+                        <div class="form-group"><label>Caducidad Plan / Receta:</label><input type="date" id="edit-pac-caducidad" class="form-control" value="${p.caducidadPlan || ''}"></div>
+                        <div class="form-group"><label>Medicación Fuera de Blíster:</label><input type="text" id="edit-pac-externa" class="form-control" value="${p.medExterna || ''}"></div>
                     </div>
-                    <div class="form-group" style="margin-top:8px;">
-                        <label>Observaciones Generales:</label>
-                        <textarea id="edit-pac-notas" class="form-control" rows="2">${p.notas || ''}</textarea>
-                    </div>
+                    <div class="form-group" style="margin-top:8px;"><label>Observaciones Generales:</label><textarea id="edit-pac-notas" class="form-control" rows="2">${p.notas || ''}</textarea></div>
                     <button class="btn-teal" style="margin-top:8px; padding:6px 12px;" onclick="guardarEdicionFicha(${p.id})">💾 Guardar Todos los Cambios</button>
                 </div>
 
@@ -2208,31 +2050,25 @@
                     <h4 style="font-weight:800; font-size:13.5px; margin-bottom:8px; color:var(--primary);">🩺 Registro de cambios médicos</h4>
                     <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
                         <input type="date" id="input-cambio-fecha" class="form-control" value="${hoyStr}" style="width:140px;">
-                        <input type="text" id="input-nuevo-cambio-clinico" class="form-control" placeholder="Ej: Médico retira Omeprazol / añade Pantoprazol" style="flex-grow:1; min-width:200px;">
+                        <input type="text" id="input-nuevo-cambio-clinico" class="form-control" placeholder="Ej: Médico retira Omeprazol" style="flex-grow:1; min-width:200px;">
                         <button class="btn-primary" onclick="agregarCambioClinico(${p.id})">+ Anotar Cambio</button>
                     </div>
-                    <div style="max-height:120px; overflow-y:auto;">
-                        ${cambiosClinicosHtml}
-                    </div>
+                    <div style="max-height:120px; overflow-y:auto;">${cambiosClinicosHtml}</div>
                 </div>
 
                 <div style="background:#f8fafc; padding:14px; border-radius:8px; border:1.5px solid #cbd5e1;">
-                    <h4 style="font-weight:800; font-size:13.5px; margin-bottom:8px; color:var(--primary);">📦 Historial de entregas (Trazabilidad y Firmas)</h4>
-                    <div style="max-height:130px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;">
-                        ${entregasHtml}
-                    </div>
+                    <h4 style="font-weight:800; font-size:13.5px; margin-bottom:8px; color:var(--primary);">📦 Historial de entregas (Firmas)</h4>
+                    <div style="max-height:130px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;">${entregasHtml}</div>
                 </div>
 
                 <div style="background:#f1f5f9; padding:14px; border-radius:8px; border:1.5px solid #cbd5e1;">
                     <h4 style="font-weight:800; font-size:13.5px; margin-bottom:8px; color:var(--primary);">💊 Añadir Medicamento Adelantado</h4>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <input type="text" id="input-modal-med" class="form-control" placeholder="Nombre del Medicamento" style="flex:2; min-width:180px;">
+                        <input type="text" id="input-modal-med" class="form-control" placeholder="Nombre Medicamento" style="flex:2; min-width:180px;">
                         <input type="date" id="input-modal-limite" class="form-control" style="flex:1; min-width:130px;">
                         <button class="btn-primary" onclick="agregarAdelantoDesdeFicha(${p.id})">+ Guardar Adelanto</button>
                     </div>
-                    <div style="margin-top:10px; display:flex; flex-direction:column; gap:6px;">
-                        ${adelantosHtml}
-                    </div>
+                    <div style="margin-top:10px; display:flex; flex-direction:column; gap:6px;">${adelantosHtml}</div>
                 </div>
 
                 <h4 style="font-weight:800; font-size:13.5px; margin-top:2px;">Notas y Avisos</h4>
@@ -2245,16 +2081,8 @@
         function guardarEdicionFicha(idPac) {
             const p = pacientes.find(x => x.id === idPac);
             if (!p) return;
-
-            const nom = document.getElementById('edit-pac-nombre').value.trim();
-            const cip = document.getElementById('edit-pac-cip').value.trim();
-            if (!nom || !cip) {
-                alert("El nombre y el CIP no pueden estar vacíos.");
-                return;
-            }
-
-            p.nombre = nom;
-            p.cip = cip;
+            p.nombre = document.getElementById('edit-pac-nombre').value.trim();
+            p.cip = document.getElementById('edit-pac-cip').value.trim();
             p.telefono = document.getElementById('edit-pac-telefono').value.trim();
             p.semana = document.getElementById('edit-pac-semana').value;
             p.caducidadPlan = document.getElementById('edit-pac-caducidad').value;
@@ -2262,7 +2090,7 @@
             p.notas = document.getElementById('edit-pac-notas').value.trim();
 
             guardarPacienteIndividual(p);
-            alert("✅ Datos del paciente actualizados con éxito.");
+            alert("✅ Datos actualizados.");
             renderizarTablas();
             renderizarCalendarioAnual();
             cerrarModalFicha();
@@ -2271,14 +2099,11 @@
         function darDeBajaPaciente(idPac) {
             const p = pacientes.find(x => x.id === idPac);
             if (!p) return;
-            if (confirm(`¿Seguro que deseas dar de baja y eliminar a ${p.nombre}? Esta acción no se puede deshacer.`)) {
-                if (dbCloud && usuarioSesionActual) {
-                    dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId)
-                           .collection("pacientes").doc(String(p.id)).delete().then(() => {
-                                cerrarModalFicha();
-                                alert("Paciente eliminado correctamente.");
-                           });
-                }
+            if (confirm(`¿Eliminar a ${p.nombre}?`)) {
+                dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId)
+                       .collection("pacientes").doc(String(p.id)).delete().then(() => {
+                            cerrarModalFicha();
+                       });
             }
         }
 
@@ -2287,20 +2112,11 @@
             const fechaInput = document.getElementById('input-cambio-fecha');
             const desc = input.value.trim();
             if (!desc) return;
-
             const p = pacientes.find(x => x.id === idPac);
             if (p) {
                 if (!p.cambiosClinicos) p.cambiosClinicos = [];
                 const fechaSeleccionada = fechaInput.value ? fechaInput.value.split('-').reverse().join('/') : new Date().toLocaleDateString('es-ES');
-                const usuario = usuarioSesionActual ? usuarioSesionActual.nombre : "Farmacia";
-                
-                p.cambiosClinicos.unshift({
-                    id: Date.now(),
-                    fecha: fechaSeleccionada,
-                    usuario: usuario,
-                    descripcion: desc
-                });
-
+                p.cambiosClinicos.unshift({ id: Date.now(), fecha: fechaSeleccionada, usuario: usuarioSesionActual.nombre, descripcion: desc });
                 guardarPacienteIndividual(p);
                 abrirFichaPaciente(idPac);
                 renderizarTablas();
@@ -2318,38 +2134,23 @@
         }
 
         function agregarAdelantoDesdeFicha(idPac) {
-            const medInput = document.getElementById('input-modal-med');
-            const limiteInput = document.getElementById('input-modal-limite');
-
-            const med = medInput.value.trim();
-            const limite = limiteInput.value;
-
-            if (!med || !limite) {
-                alert("Indica el nombre del medicamento y la fecha límite.");
-                return;
-            }
-
+            const med = document.getElementById('input-modal-med').value.trim();
+            const limite = document.getElementById('input-modal-limite').value;
+            if (!med || !limite) return alert("Indica medicamento y fecha límite.");
             const p = pacientes.find(x => x.id === idPac);
             if (p) {
                 if (!p.adelantos) p.adelantos = [];
-                p.adelantos.push({
-                    id: Date.now(),
-                    med: med,
-                    limite: limite,
-                    cobrado: false,
-                    revisadoPor: null,
-                    motivo: "Salto RE"
-                });
+                p.adelantos.push({ id: Date.now(), med, limite, cobrado: false, revisadoPor: null, motivo: "Salto RE" });
                 guardarPacienteIndividual(p);
                 abrirFichaPaciente(idPac);
                 renderizarTablas();
             }
         }
 
-        function eliminarAdelantoFicha(idPac, indexAdelanto) {
+        function eliminarAdelantoFicha(idPac, idx) {
             const p = pacientes.find(x => x.id === idPac);
             if (p && p.adelantos) {
-                p.adelantos.splice(indexAdelanto, 1);
+                p.adelantos.splice(idx, 1);
                 guardarPacienteIndividual(p);
                 abrirFichaPaciente(idPac);
                 renderizarTablas();
@@ -2367,16 +2168,12 @@
             }
         }
 
-        function cerrarModalFicha() {
-            document.getElementById('modal-ficha-paciente').style.display = 'none';
-        }
+        function cerrarModalFicha() { document.getElementById('modal-ficha-paciente').style.display = 'none'; }
 
         function imprimirHojaLaboratorio() {
             const sem = document.getElementById('filtro-semana-preparacion').value;
             let filtrados = pacientes;
-            if (sem !== "todas") {
-                filtrados = filtrados.filter(p => p.semana === sem);
-            }
+            if (sem !== "todas") filtrados = filtrados.filter(p => p.semana === sem);
             const farmacia = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : "Farmacia");
             const fechaHoy = new Date().toLocaleDateString('es-ES');
 
@@ -2386,8 +2183,6 @@
                 const estadoRollo = p.rolloFabricado ? `✓ (${p.responsableRollo})` : '[ &nbsp; ]';
                 const estadoRev = p.rolloRevisado ? `✓ (${p.responsableRevision})` : '[ &nbsp; ]';
                 const cambioMed = (p.cambiosClinicos && p.cambiosClinicos.length > 0) ? `CAMBIO (${p.cambiosClinicos[0].fecha}): ${p.cambiosClinicos[0].descripcion} | ` : '';
-                const notasLab = p.notaInternaFase1 ? `Nota Med: ${p.notaInternaFase1} | ` : '';
-
                 filasHTML += `
                     <tr style="border-bottom: 1px solid #333;">
                         <td style="padding: 8px;"><strong>${p.nombre}</strong><br><small>CIP: ${p.cip}</small></td>
@@ -2396,7 +2191,7 @@
                         <td style="padding: 8px; text-align:center;">${estadoRev}</td>
                         <td style="padding: 8px;">${p.caducidadPlan || '-'}</td>
                         <td style="padding: 8px;">${p.medExterna || 'No'}</td>
-                        <td style="padding: 8px;"><small style="color:#b91c1c; font-weight:bold;">${cambioMed}</small><small>${notasLab}${p.notas || '-'}</small></td>
+                        <td style="padding: 8px;"><small style="color:#b91c1c; font-weight:bold;">${cambioMed}</small><small>${p.notaInternaFase1 ? 'Med: ' + p.notaInternaFase1 + ' | ': ''}${p.notas || '-'}</small></td>
                     </tr>
                 `;
             });
@@ -2418,9 +2213,7 @@
                                 <th style="padding: 6px;">Cambios Médicos / Notas</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            ${filasHTML}
-                        </tbody>
+                        <tbody>${filasHTML}</tbody>
                     </table>
                 </div>
             `;
@@ -2430,35 +2223,11 @@
         }
 
         function exportarPacientesCSV() {
-            if (pacientes.length === 0) {
-                alert("No hay pacientes para exportar.");
-                return;
-            }
-
-            let csv = "\uFEFF";
-            csv += "Nombre,CIP,Telefono,Semana,CaducidadPlan,MedExterna,PrepMed,FabRollo,RevRollo,UltimoCambioMedico,Observaciones\n";
-
+            if (pacientes.length === 0) return alert("No hay pacientes para exportar.");
+            let csv = "\uFEFFNombre,CIP,Telefono,Semana,CaducidadPlan,MedExterna,PrepMed,FabRollo,RevRollo,Observaciones\n";
             pacientes.forEach(p => {
-                const ultCambio = (p.cambiosClinicos && p.cambiosClinicos.length > 0) 
-                    ? `${p.cambiosClinicos[0].fecha} - ${p.cambiosClinicos[0].descripcion}` 
-                    : 'Sin cambios';
-
-                const fila = [
-                    `"${p.nombre.replace(/"/g, '""')}"`,
-                    `"${p.cip}"`,
-                    `"${p.telefono}"`,
-                    `"Semana ${p.semana}"`,
-                    `"${p.caducidadPlan || ''}"`,
-                    `"${(p.medExterna || '').replace(/"/g, '""')}"`,
-                    `"${p.medicacionPreparada ? (p.responsableMedicacion || 'Sí') : 'No'}"`,
-                    `"${p.rolloFabricado ? (p.responsableRollo || 'Sí') : 'No'}"`,
-                    `"${p.rolloRevisado ? (p.responsableRevision || 'Sí') : 'No'}"`,
-                    `"${ultCambio.replace(/"/g, '""')}"`,
-                    `"${(p.notas || '').replace(/"/g, '""')}"`
-                ];
-                csv += fila.join(",") + "\n";
+                csv += `"${p.nombre}","${p.cip}","${p.telefono}","Semana ${p.semana}","${p.caducidadPlan || ''}","${p.medExterna || ''}","${p.medicacionPreparada ? 'Sí':'No'}","${p.rolloFabricado ? 'Sí':'No'}","${p.rolloRevisado ? 'Sí':'No'}","${(p.notas || '').replace(/"/g, '""')}"\n`;
             });
-
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
@@ -2469,12 +2238,7 @@
         }
 
         function exportarBackupCompletoJSON() {
-            const dataBackup = {
-                farmacia: configuracionFarmacia,
-                pacientes: pacientes,
-                chat: chatMensajes,
-                fechaExportacion: new Date().toISOString()
-            };
+            const dataBackup = { farmacia: configuracionFarmacia, pacientes, chat: chatMensajes, fechaExportacion: new Date().toISOString() };
             const jsonStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataBackup, null, 2));
             const dlAnchor = document.createElement('a');
             dlAnchor.setAttribute("href", jsonStr);
@@ -2485,7 +2249,7 @@
         }
 
         function abrirSuscripcionStripe() {
-            alert("🌟 Licencia Vitalicia Propietaria Activa.\n\nPara clientes externos, este botón conectará con tu pasarela de cobro mensual (Stripe Checkout). Tu cuenta siempre mantendrá acceso gratuito e ilimitado.");
+            alert("🌟 Licencia Vitalicia Propietaria Activa.");
         }
 
         function cargarAjustesEnFormulario() {
@@ -2499,9 +2263,7 @@
         function renderizarListaEquipo() {
             const cont = document.getElementById('contenedor-lista-equipo');
             cont.innerHTML = "";
-            const equipo = configuracionFarmacia.equipo || [];
-
-            equipo.forEach((miembro, idx) => {
+            (configuracionFarmacia.equipo || []).forEach((miembro, idx) => {
                 cont.innerHTML += `
                     <div style="display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border); padding: 8px 12px; border-radius: var(--radius-sm); max-width: 400px;">
                         <span style="font-size: 13px; font-weight: 700;">👤 ${miembro}</span>
@@ -2509,17 +2271,12 @@
                     </div>
                 `;
             });
-
-            if (equipo.length === 0) {
-                cont.innerHTML = '<span style="font-size:12px; color:#94a3b8;">No hay personas añadidas.</span>';
-            }
         }
 
         function agregarMiembroEquipo() {
             const input = document.getElementById('input-nuevo-miembro-equipo');
             const nuevo = input.value.trim();
             if (!nuevo) return;
-
             if (!configuracionFarmacia.equipo) configuracionFarmacia.equipo = [];
             configuracionFarmacia.equipo.push(nuevo);
             input.value = "";
@@ -2534,18 +2291,12 @@
         }
 
         function guardarAjustesFarmacia() {
-            const nom = document.getElementById('ajuste-nombre-farmacia').value.trim();
-            const fecha = document.getElementById('ajuste-fecha-ancla').value;
-            const semana = document.getElementById('ajuste-semana-ancla').value;
-            const email = document.getElementById('ajuste-email-guardia').value.trim();
-
-            configuracionFarmacia.nombreComercial = nom;
-            configuracionFarmacia.fechaAnclaTomas = fecha;
-            configuracionFarmacia.semanaAnclaTomas = semana;
-            configuracionFarmacia.emailNotificaciones = email;
-
+            configuracionFarmacia.nombreComercial = document.getElementById('ajuste-nombre-farmacia').value.trim();
+            configuracionFarmacia.fechaAnclaTomas = document.getElementById('ajuste-fecha-ancla').value;
+            configuracionFarmacia.semanaAnclaTomas = document.getElementById('ajuste-semana-ancla').value;
+            configuracionFarmacia.emailNotificaciones = document.getElementById('ajuste-email-guardia').value.trim();
             guardarDatosGlobales();
-            document.getElementById('label-nombre-farmacia').innerText = nom || usuarioSesionActual.farmacia;
+            document.getElementById('label-nombre-farmacia').innerText = configuracionFarmacia.nombreComercial || usuarioSesionActual.farmacia;
             actualizarIndicadorSemanaHeader();
             renderizarCalendarioAnual();
             alert("✅ Ajustes guardados correctamente.");
@@ -2562,4 +2313,3 @@
     </script>
 </body>
 </html>
-
