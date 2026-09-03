@@ -251,7 +251,6 @@ font-size: 11.5px;
 color: #92400e;
 margin-top: 5px;
 }
-
 .box-cambio-medico-alerta.urgente {
 background: #fef2f2;
 border-color: #fca5a5;
@@ -1737,9 +1736,46 @@ tbody.innerHTML += `
 `;
 });
 if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#94a3b8;">No hay entregas registradas en el historial.</td></tr>`;
-}
+ function imprimirRecibiEntrega(idEntrega) {
+  let entregaObj = null, pacObj = null;
+  pacientes.forEach(p => {
+    const e = p.historialEntregas?.find(x => x.id === idEntrega);
+    if (e) { entregaObj = e; pacObj = p; }
+  });
+  if (!entregaObj || !pacObj) return;
 
-function imprimirRecibiEntrega(idEntrega) {
+  const farmacia = configuracionFarmacia?.nombreComercial || "Oficina de Farmacia";
+  const cuerpoOriginal = document.body.innerHTML;
+
+  document.body.innerHTML = `
+    <div style="padding:20px; font-family:Helvetica,Arial,sans-serif; color:#000; background:#fff;">
+      <div style="border-bottom:2px solid #0284c7; padding-bottom:8px; margin-bottom:12px;">
+        <h2 style="margin:0; font-size:18px; color:#0284c7;">${farmacia}</h2>
+        <h3 style="margin:4px 0; font-size:14px; color:#333;">JUSTIFICANTE DE ENTREGA DE MEDICACIÓN (SPD)</h3>
+      </div>
+      <div style="font-size:13px; line-height:1.6; margin-bottom:15px;">
+        <p><strong>Paciente:</strong> ${pacObj.nombre} (CIP: ${pacObj.cip || 'N/D'})</p>
+        <p><strong>Fecha y hora:</strong> ${entregaObj.fecha}</p>
+        <p><strong>Retirado por:</strong> ${entregaObj.recogidoPor}</p>
+        <p><strong>Dispensado por:</strong> ${entregaObj.dispensadoPor}</p>
+        <p><strong>Trazabilidad:</strong> Med: ${entregaObj.preparadoMedPor || '-'} | Rollo: ${entregaObj.fabricadoRolloPor || '-'} | Rev: ${entregaObj.revisadoPor || '-'}</p>
+      </div>
+      <div style="margin-top:15px; border:1px dashed #999; padding:10px; text-align:center; border-radius:6px;">
+        <div style="font-size:11px; font-weight:bold; margin-bottom:6px; color:#555;">FIRMA DEL RECEPTOR:</div>
+        ${entregaObj.firma ? `<img src="${entregaObj.firma}" style="max-height:70px; max-width:200px;" />` : '<em>Sin firma</em>'}
+      </div>
+      <div style="margin-top:20px; font-size:10px; color:#777; border-top:1px solid #ccc; padding-top:8px;">
+        Documento conforme a normativa PNT-SPD y custodia de datos sanitarios (RGPD/AEPD).
+      </div>
+      <button onclick="location.reload()" style="margin-top:25px; padding:10px 15px; background:#0284c7; color:#fff; border:none; border-radius:6px; font-weight:bold; width:100%;">⬅️ Volver a la Aplicación</button>
+    </div>
+  `;
+
+  setTimeout(() => {
+    window.print();
+  }, 300);
+}
+ {
 let entregaObj = null, pacObj = null;
 pacientes.forEach(p => {
 const e = p.historialEntregas?.find(x => x.id === idEntrega);
