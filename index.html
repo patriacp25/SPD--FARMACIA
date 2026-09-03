@@ -44,8 +44,7 @@ f
 body { background-color: var(--bg); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; position: relative; }
 
 /* PANTALLA LOGIN */
-#pantalla-login { display: none !important;
-                 position: fixed; inset: 0; background: radial-gradient(circle at 20% 20%, #1e293b 0%, #092c4c 100%); z-index: 99999; display: flex; justify-content: center; align-items: center; padding: 20px; }
+#pantalla-login {position: fixed; inset: 0; background: radial-gradient(circle at 20% 20%, #1e293b 0%, #092c4c 100%); z-index: 99999; display: flex; justify-content: center; align-items: center; padding: 20px; }
 .login-card { background: white; width: 100%; max-width: 440px; padding: 36px 30px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); text-align: center; }
 .login-logo { width: 54px; height: 54px; background: linear-gradient(135deg, var(--brand-teal) 0%, var(--accent) 100%); color: white; font-size: 28px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: 0 6px 15px rgba(13, 148, 136, 0.35); }
 .login-card h2 { font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
@@ -264,7 +263,6 @@ body * { visibility: hidden; }
 #area-impresion-laboratorio, #area-impresion-laboratorio * { visibility: visible; }
 #area-impresion-laboratorio { position: absolute; left: 0; top: 0; width: 100%; }
 }
-
 .sidebar {
   display: flex !important;
   position: fixed !important;
@@ -273,7 +271,7 @@ body * { visibility: hidden; }
   bottom: 0 !important;
   width: 260px !important;
   z-index: 999999 !important;
-  transform: none !important;
+  transform:translateX(-100%)!important;
 }
 
 </style>
