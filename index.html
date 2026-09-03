@@ -1780,7 +1780,9 @@ ${entregaObj.firma ? `<img src="${entregaObj.firma}" style="max-height: 50px; ma
 </div>
 `;
 printDiv.style.display = 'block';
-window.print();
+const w = window.open('', '_blank');
+w.document.write(printDiv.innerHTML + '<br><button onclick="window.print()" style="padding:10px;font-size:16px;background:#0284c7;color:white;border:none;border-radius:6px;width:100%;">📥 Guardar / Imprimir PDF</button>');
+
 printDiv.style.display = 'none';
 }
 
