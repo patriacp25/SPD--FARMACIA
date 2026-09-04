@@ -1443,7 +1443,7 @@ function obtenerMesAltaNumerico(p) {
     const pts = p.fechaAltaRegistro.split('-');
     return parseInt(pts[0]) * 12 + (parseInt(pts[1]) - 1);
   }
-  return 2026 * 12 + 8; // Septiembre 2026 por defecto si no existía
+  return 2026 * 12 + 8;
 }
 
 // CALENDARIO ANUAL CON CONTABILIDAD REAL DE PASTILLEROS
