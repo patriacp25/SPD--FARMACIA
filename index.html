@@ -291,7 +291,6 @@ canvas#lienzo-firma {
   #area-impresion-laboratorio { position: absolute; left: 0; top: 0; width: 100%; }
 }
 
-/* RESPONSIVE MOBILE FIX */
 @media (max-width: 768px) {
   .sidebar { 
     position: fixed; 
@@ -314,7 +313,7 @@ canvas#lienzo-firma {
 </head>
 <body>
 
-<!-- PANTALLA LOGIN CON SEGURIDAD NATIVA -->
+<!-- PANTALLA LOGIN -->
 <div id="pantalla-login">
 <div class="login-card">
   <div class="login-logo">💊</div>
@@ -439,7 +438,7 @@ canvas#lienzo-firma {
     </div>
   </header>
 
-  <!-- BANNER NOTIFICACIÓN CUANDO HAY CUPONES PARA COBRAR HOY O VENCIDOS -->
+  <!-- ALERTA DE CUPONES -->
   <div id="alerta-cupones-hoy" style="display:none;">
     <div id="texto-alerta-cupones-hoy"></div>
     <button class="btn-primary" style="background:#092c4c; font-size:11px; padding:4px 9px;" onclick="cambiarPestana('tab-cupones', document.querySelectorAll('.nav-item')[3])">Ir a Cupones RE →</button>
@@ -597,7 +596,7 @@ canvas#lienzo-firma {
     </div>
   </section>
 
-  <!-- 4. GESTIÓN AVANZADA DE CUPONES RE -->
+  <!-- 4. GESTIÓN DE CUPONES RE -->
   <section id="tab-cupones" class="tab-content">
     <div class="panel-card">
       <div class="panel-header">
@@ -631,14 +630,18 @@ canvas#lienzo-firma {
     </div>
   </section>
 
-  <!-- 5. CALENDARIO ANUAL -->
+  <!-- 5. CALENDARIO ANUAL Y PRODUCCIÓN MENSUAL -->
   <section id="tab-calendario" class="tab-content">
     <div class="panel-card">
       <div class="panel-header">
-        <span class="panel-title">📅 Planificación anual por semanas</span>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <label style="font-size: 12px; font-weight: 700;">Año:</label>
-          <select id="select-ano-calendario" class="form-control" style="font-weight: 800;" onchange="renderizarCalendarioAnual()"></select>
+        <div>
+          <span class="panel-title">📅 Planificación Anual & Conteo de Pastilleros</span>
+          <p style="font-size:12px; color:#64748b; margin-top:2px;">Contabilidad exacta de pastilleros habituales y pastilleros adicionales de adelanto por mes.</p>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <button class="btn-teal" style="font-size:12px;" onclick="exportarProduccionAnualCSV()">📊 Exportar Registro de Pastilleros (Excel)</button>
+          <label style="font-size: 12px; font-weight: 700; margin-left:4px;">Año:</label>
+          <select id="select-ano-calendario" class="form-control" style="font-weight: 800; width:100px;" onchange="renderizarCalendarioAnual()"></select>
         </div>
       </div>
       <div class="grid-meses" id="contenedor-meses-ano"></div>
@@ -675,39 +678,21 @@ canvas#lienzo-firma {
             </select>
           </div>
           <div class="form-group">
+            <label>Fecha de Alta en el SPD (Inicio de servicio):</label>
+            <input type="date" id="alta-fecha-registro" class="form-control" required>
+          </div>
+          <div class="form-group">
             <label>Caducidad Plan Terapéutico:</label>
             <input type="date" id="alta-caducidad" class="form-control" required>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="grid-column: span 2;">
             <label>Medicación Fuera de Blíster (Nevera/Gotas):</label>
             <input type="text" id="alta-med-externa" class="form-control" placeholder="Ej: Insulina Lantus, Colirio">
-          </div>
-          <div class="form-group">
-            <label>Pastillero Adelantado (Mes):</label>
-            <select id="alta-mes-adelanto" class="form-control">
-              <option value="">Ninguno</option>
-              <option value="Enero">Enero</option>
-              <option value="Febrero">Febrero</option>
-              <option value="Marzo">Marzo</option>
-              <option value="Abril">Abril</option>
-              <option value="Mayo">Mayo</option>
-              <option value="Junio">Junio</option>
-              <option value="Julio">Julio</option>
-              <option value="Agosto">Agosto</option>
-              <option value="Septiembre">Septiembre</option>
-              <option value="Octubre">Octubre</option>
-              <option value="Noviembre">Noviembre</option>
-              <option value="Diciembre">Diciembre</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Motivo del Adelanto:</label>
-            <input type="text" id="alta-motivo-adelanto" class="form-control" placeholder="Ej: Periodo vacacional">
           </div>
         </div>
 
         <div style="margin-top: 15px; padding: 12px; background: #f8fafc; border-radius: var(--radius-sm); border: 1.5px dashed var(--border);">
-          <label style="font-size: 12.5px; font-weight: 700; color: var(--primary);">💊 Medicamento Adelantado (Salto de Receta Electrónica)</label>
+          <label style="font-size: 12.5px; font-weight: 700; color: var(--primary);">💊 Medicamento Adelantado (Salto de Receta Electrónica Inicial)</label>
           <div id="contenedor-adelantos-alta" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;"></div>
           <button type="button" class="btn-primary" style="font-size: 11.5px; padding: 5px 10px; margin-top: 8px;" onclick="agregarFilaAdelantoAlta()">+ Añadir Medicamento</button>
         </div>
@@ -955,7 +940,6 @@ canvas#lienzo-firma {
       </div>
       <div id="entrega-trazabilidad-lab" style="background:#f8fafc; border:1px solid #e2e8f0; padding:8px 12px; border-radius:6px; font-size:11.5px; color:#475569;"></div>
       
-      <!-- ALERTAS DE ADELANTO Y LABORATORIO -->
       <div id="entrega-alerta-adelanto" style="display:none; background:#fff7ed; border:1.5px solid #fdba74; padding:10px; border-radius:8px; font-size:12px; color:#c2410c; font-weight:700;"></div>
       <div id="entrega-alerta-laboratorio" style="display:none; background:#fef3c7; border:1.5px solid #f59e0b; padding:10px; border-radius:8px; font-size:12.5px; color:#92400e; font-weight:700;"></div>
       <div id="entrega-alerta-externa" style="display:none; background:#ede9fe; border:1.5px solid #8b5cf6; padding:10px; border-radius:8px; font-size:12.5px; color:#5b21b6; font-weight:700;"></div>
@@ -1401,7 +1385,7 @@ function cambiarPestana(idTab, elemento) {
     'tab-recogidas': '2. Avisos & Recogidas',
     'tab-adelantos-gestion': '3. Gestión Rápida de Adelantos (Pastilleros y Salto RE)',
     'tab-cupones': '4. Cupones & Adelantos RE (Control de Cobros)',
-    'tab-calendario': '5. Calendario Anual',
+    'tab-calendario': '5. Calendario Anual & Conteo de Pastilleros',
     'tab-alta': '6. Alta de Paciente',
     'tab-directorio': '7. Lista de Pacientes',
     'tab-mensajeria': '8. Mensajes del Equipo',
@@ -1430,7 +1414,17 @@ function inicializarSelectorAnos() {
   }
 }
 
-// CALENDARIO ANUAL CORREGIDO: VERIFICA EL MES Y RANGO EXACTO DEL ADELANTO
+// OBTENER FECHA NUMÉRICA DE ALTA DEL PACIENTE
+function obtenerMesAltaNumerico(p) {
+  if (p.fechaAltaRegistro) {
+    const pts = p.fechaAltaRegistro.split('-');
+    return parseInt(pts[0]) * 12 + (parseInt(pts[1]) - 1);
+  }
+  // Si no tiene fecha, usar septiembre de 2026 como base por defecto
+  return 2026 * 12 + 8;
+}
+
+// CALENDARIO ANUAL CON CONTABILIDAD REAL DE PASTILLEROS
 function renderizarCalendarioAnual() {
   const mesesNombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
   const cont = document.getElementById('contenedor-meses-ano');
@@ -1445,39 +1439,71 @@ function renderizarCalendarioAnual() {
 
   mesesNombres.forEach((nombreMes, indexMes) => {
     const esMesActual = esAnoActual && fechaHoy.getMonth() === indexMes;
+    const mesEvaluar = anoSeleccionado * 12 + indexMes;
     let semanasHTML = "";
+    let totalPastillerosMes = 0;
 
     for (let semNum = 1; semNum <= 4; semNum++) {
-      const pacientesSemana = pacientes.filter(p => p.semana === String(semNum));
+      // Filtrar pacientes activos en este mes exacto
+      const pacientesSemana = pacientes.filter(p => {
+        if (String(p.semana) !== String(semNum)) return false;
+        const mesAlta = obtenerMesAltaNumerico(p);
+
+        // Comprobar si tiene un adelanto que caiga en este mes
+        let tieneAdelantoEsteMes = false;
+        if (p.adelantos && Array.isArray(p.adelantos)) {
+          tieneAdelantoEsteMes = p.adelantos.some(ad => {
+            if (!ad.fechaInicio) return false;
+            const ptsIni = ad.fechaInicio.split('-');
+            const ptsFin = (ad.fechaFin || ad.fechaInicio).split('-');
+            const mIni = parseInt(ptsIni[0]) * 12 + (parseInt(ptsIni[1]) - 1);
+            const mFin = parseInt(ptsFin[0]) * 12 + (parseInt(ptsFin[1]) - 1);
+            return mesEvaluar >= mIni && mesEvaluar <= mFin;
+          });
+        }
+
+        // Solo es visible si ya estaba dado de alta en este mes o si tiene un adelanto en él
+        return (mesEvaluar >= mesAlta) || tieneAdelantoEsteMes;
+      });
+
       let chipsHTML = "";
 
       if (pacientesSemana.length === 0) {
         chipsHTML = '<span style="font-size:11px; color:#94a3b8;">Sin pacientes</span>';
       } else {
         pacientesSemana.forEach(p => {
-          // Comprobar si el adelanto aplica ÚNICAMENTE a este mes y año
-          let tieneAdelantoEsteMes = false;
-          if (p.mesAdelantado === nombreMes) {
-            tieneAdelantoEsteMes = true;
-          } else if (p.adelantos && p.adelantos.length > 0) {
-            tieneAdelantoEsteMes = p.adelantos.some(ad => {
-              if (!ad.fechaInicio) return false;
-              const fIni = new Date(ad.fechaInicio);
-              const fFin = ad.fechaFin ? new Date(ad.fechaFin) : fIni;
-              const primerDiaMes = new Date(anoSeleccionado, indexMes, 1);
-              const ultimoDiaMes = new Date(anoSeleccionado, indexMes + 1, 0, 23, 59, 59);
-              return fIni <= ultimoDiaMes && fFin >= primerDiaMes;
+          // Pastillero ordinario (1 pastillero)
+          totalPastillerosMes += 1;
+
+          // Contar pastilleros adicionales de adelanto únicamente si corresponden a este mes
+          let pastillerosExtra = 0;
+          let esAdelantadoEsteMes = false;
+
+          if (p.adelantos && Array.isArray(p.adelantos)) {
+            p.adelantos.forEach(ad => {
+              if (!ad.fechaInicio) return;
+              const ptsIni = ad.fechaInicio.split('-');
+              const ptsFin = (ad.fechaFin || ad.fechaInicio).split('-');
+              const mIni = parseInt(ptsIni[0]) * 12 + (parseInt(ptsIni[1]) - 1);
+              const mFin = parseInt(ptsFin[0]) * 12 + (parseInt(ptsFin[1]) - 1);
+
+              if (mesEvaluar >= mIni && mesEvaluar <= mFin) {
+                esAdelantadoEsteMes = true;
+                pastillerosExtra += (parseInt(ad.cantidadPastilleros) || 1);
+              }
             });
           }
+
+          totalPastillerosMes += pastillerosExtra;
 
           let claseEstado = 'pendiente';
           if (p.rolloRevisado) claseEstado = 'listo';
           else if (p.rolloFabricado || p.medicacionPreparada) claseEstado = 'en-proceso';
 
-          const badgeAdelanto = tieneAdelantoEsteMes ? '📦 ' : '';
+          const etiquetaAdelanto = esAdelantadoEsteMes ? `📦 +${pastillerosExtra} extra ` : '';
           chipsHTML += `
-            <div class="chip-paciente ${claseEstado} ${tieneAdelantoEsteMes ? 'adelantado':''}" onclick="abrirFichaPaciente(${p.id})">
-              <span>${badgeAdelanto}${p.nombre.split(' ')[0]} ${p.nombre.split(' ')[1] ? p.nombre.split(' ')[1].charAt(0)+'.' : ''}</span>
+            <div class="chip-paciente ${claseEstado} ${esAdelantadoEsteMes ? 'adelantado':''}" onclick="abrirFichaPaciente(${p.id})">
+              <span>${etiquetaAdelanto}${p.nombre.split(' ')[0]} ${p.nombre.split(' ')[1] ? p.nombre.split(' ')[1].charAt(0)+'.' : ''}</span>
             </div>
           `;
         });
@@ -1500,11 +1526,69 @@ function renderizarCalendarioAnual() {
       <div class="mes-card ${esMesActual ? 'actual' : ''}">
         <div class="mes-header">
           <span class="mes-title">${nombreMes} ${anoSeleccionado}</span>
+          <span class="badge ${totalPastillerosMes > 0 ? 'badge-info' : 'badge-neutral'}" style="font-size:11px;">
+            💊 ${totalPastillerosMes} pastillero(s)
+          </span>
         </div>
         ${semanasHTML}
       </div>
     `;
   });
+}
+
+// EXPORTACIÓN A EXCEL (CSV) DE LA PRODUCCIÓN Y PASTILLEROS POR MES
+function exportarProduccionAnualCSV() {
+  const selAno = document.getElementById('select-ano-calendario');
+  const ano = selAno ? parseInt(selAno.value) : 2026;
+  const mesesNombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+  let csv = "\uFEFFAño,Mes,Paciente,CIP,Semana,Pastilleros Habituales,Pastilleros Adelanto,Total Pastilleros Fabricados,Motivo Adelanto\n";
+  let totalAnual = 0;
+
+  mesesNombres.forEach((nombreMes, indexMes) => {
+    const mesEvaluar = ano * 12 + indexMes;
+
+    pacientes.forEach(p => {
+      const mesAlta = obtenerMesAltaNumerico(p);
+
+      // Calcular adelantos en este mes
+      let pastillerosExtra = 0;
+      let motivos = [];
+
+      if (p.adelantos && Array.isArray(p.adelantos)) {
+        p.adelantos.forEach(ad => {
+          if (!ad.fechaInicio) return;
+          const ptsIni = ad.fechaInicio.split('-');
+          const ptsFin = (ad.fechaFin || ad.fechaInicio).split('-');
+          const mIni = parseInt(ptsIni[0]) * 12 + (parseInt(ptsIni[1]) - 1);
+          const mFin = parseInt(ptsFin[0]) * 12 + (parseInt(ptsFin[1]) - 1);
+
+          if (mesEvaluar >= mIni && mesEvaluar <= mFin) {
+            pastillerosExtra += (parseInt(ad.cantidadPastilleros) || 1);
+            if (ad.motivo) motivos.push(ad.motivo);
+          }
+        });
+      }
+
+      const tieneAdelanto = pastillerosExtra > 0;
+      const tieneOrdinario = (mesEvaluar >= mesAlta);
+
+      if (tieneOrdinario || tieneAdelanto) {
+        const ord = tieneOrdinario ? 1 : 0;
+        const total = ord + pastillerosExtra;
+        totalAnual += total;
+        csv += `"${ano}","${nombreMes}","${p.nombre}","${p.cip}","Semana ${p.semana}",${ord},${pastillerosExtra},${total},"${motivos.join(' / ') || '-'}"\n`;
+      }
+    });
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute("download", `Produccion_Pastilleros_SPD_${ano}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 function renderizarTablas() {
@@ -2379,10 +2463,9 @@ function guardarNuevoPaciente(e) {
   const cip = document.getElementById('alta-cip').value.trim();
   const telefono = document.getElementById('alta-telefono').value.trim();
   const semana = document.getElementById('alta-semana').value;
+  const fechaAltaRegistro = document.getElementById('alta-fecha-registro').value || new Date().toISOString().split('T')[0];
   const caducidad = document.getElementById('alta-caducidad').value;
   const medExterna = document.getElementById('alta-med-externa').value.trim();
-  const mesAdelantado = document.getElementById('alta-mes-adelanto').value;
-  const motivoAdelanto = document.getElementById('alta-motivo-adelanto').value.trim();
   const notas = document.getElementById('alta-notas').value.trim();
 
   let adelantos = [];
@@ -2393,13 +2476,12 @@ function guardarNuevoPaciente(e) {
   });
 
   const nuevo = {
-    id: Date.now(), nombre, cip, telefono, semana, caducidadPlan: caducidad,
+    id: Date.now(), nombre, cip, telefono, semana, fechaAltaRegistro, caducidadPlan: caducidad,
     medExterna, preparado: false, avisadoRecogida: false,
     medicacionPreparada: false, rolloFabricado: false, rolloRevisado: false,
     responsableMedicacion: null, responsableRollo: null, responsableRevision: null,
     notaInternaFase1: "", notaDispensacion: "",
-    mesAdelantado, motivoAdelanto, adelantos, avisos: [],
-    historialEntregas: [], cambiosClinicos: [], notas
+    adelantos, avisos: [], historialEntregas: [], cambiosClinicos: [], notas
   };
 
   guardarPacienteIndividual(nuevo);
@@ -2533,8 +2615,9 @@ function abrirFichaPaciente(id) {
             <option value="4" ${p.semana === '4' ? 'selected':''}>Semana 4</option>
           </select>
         </div>
+        <div class="form-group"><label>Fecha de Alta:</label><input type="date" id="edit-pac-fecha-alta" class="form-control" value="${p.fechaAltaRegistro || ''}"></div>
         <div class="form-group"><label>Caducidad Plan / Receta:</label><input type="date" id="edit-pac-caducidad" class="form-control" value="${p.caducidadPlan || ''}"></div>
-        <div class="form-group"><label>Medicación Fuera de Blíster:</label><input type="text" id="edit-pac-externa" class="form-control" value="${p.medExterna || ''}"></div>
+        <div class="form-group" style="grid-column: span 2;"><label>Medicación Fuera de Blíster:</label><input type="text" id="edit-pac-externa" class="form-control" value="${p.medExterna || ''}"></div>
       </div>
       <div class="form-group" style="margin-top:8px;"><label>Observaciones Generales:</label><textarea id="edit-pac-notas" class="form-control" rows="2">${p.notas || ''}</textarea></div>
       <button class="btn-teal" style="margin-top:8px; padding:6px 12px;" onclick="guardarEdicionFicha(${p.id})">💾 Guardar Todos los Cambios</button>
@@ -2574,6 +2657,7 @@ function guardarEdicionFicha(idPac) {
   p.cip = document.getElementById('edit-pac-cip').value.trim();
   p.telefono = document.getElementById('edit-pac-telefono').value.trim();
   p.semana = document.getElementById('edit-pac-semana').value;
+  p.fechaAltaRegistro = document.getElementById('edit-pac-fecha-alta').value || p.fechaAltaRegistro;
   p.caducidadPlan = document.getElementById('edit-pac-caducidad').value;
   p.medExterna = document.getElementById('edit-pac-externa').value.trim();
   p.notas = document.getElementById('edit-pac-notas').value.trim();
@@ -2731,9 +2815,9 @@ function imprimirHojaLaboratorio() {
 
 function exportarPacientesCSV() {
   if (pacientes.length === 0) return alert("No hay pacientes para exportar.");
-  let csv = "\uFEFFNombre,CIP,Telefono,Semana,CaducidadPlan,MedExterna,PrepMed,FabRollo,RevRollo,Observaciones\n";
+  let csv = "\uFEFFNombre,CIP,Telefono,Semana,FechaAlta,CaducidadPlan,MedExterna,PrepMed,FabRollo,RevRollo,Observaciones\n";
   pacientes.forEach(p => {
-    csv += `"${p.nombre}","${p.cip}","${p.telefono}","Semana ${p.semana}","${p.caducidadPlan || ''}","${p.medExterna || ''}","${p.medicacionPreparada ? 'Sí':'No'}","${p.rolloFabricado ? 'Sí':'No'}","${p.rolloRevisado ? 'Sí':'No'}","${(p.notas || '').replace(/"/g, '""')}"\n`;
+    csv += `"${p.nombre}","${p.cip}","${p.telefono}","Semana ${p.semana}","${p.fechaAltaRegistro || ''}","${p.caducidadPlan || ''}","${p.medExterna || ''}","${p.medicacionPreparada ? 'Sí':'No'}","${p.rolloFabricado ? 'Sí':'No'}","${p.rolloRevisado ? 'Sí':'No'}","${(p.notas || '').replace(/"/g, '""')}"\n`;
   });
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement("a");
@@ -2810,7 +2894,10 @@ function guardarAjustesFarmacia() {
   alert("✅ Ajustes guardados correctamente.");
 }
 
-// Event Listeners y arranque
+// Configurar fecha de alta por defecto a hoy al abrir formulario
+const inputFechaAltaAlta = document.getElementById('alta-fecha-registro');
+if (inputFechaAltaAlta) inputFechaAltaAlta.value = new Date().toISOString().split('T')[0];
+
 document.getElementById('filtro-semana-preparacion').addEventListener('change', function() {
   this.dataset.modificadoManual = "true";
 });
@@ -2820,7 +2907,7 @@ inicializarSelectorAnos();
 renderizarTablas();
 renderizarCalendarioAnual();
 
-// LIBRO OFICIAL DE REGISTRO Y ENTREGA CON PREVISUALIZACIÓN Y TRAZABILIDAD TÉCNICA
+// LIBRO OFICIAL DE REGISTRO Y ENTREGA CON REVISIÓN TÉCNICA
 function generarInformeEntregasSemanalPDF() {
   const selectorSemana = document.getElementById('filtro-semana-preparacion');
   const semanaFiltro = selectorSemana ? selectorSemana.value : "todas";
