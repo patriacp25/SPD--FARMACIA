@@ -205,6 +205,7 @@ body { background-color: var(--bg); color: var(--text-main); height: 100vh; over
 .btn-orange:hover { background: #ea580c; }
 .btn-success { background: var(--success); color: white; border: none; padding: 7px 11px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 11.5px; display: inline-flex; align-items: center; gap: 4px; }
 .btn-whatsapp { background: #25d366; color: white; border: none; padding: 7px 11px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; }
+.btn-disabled { background: #94a3b8; color: white; border: none; padding: 7px 11px; border-radius: var(--radius-sm); font-weight: 700; font-size: 11.5px; cursor: not-allowed; display: inline-flex; align-items: center; gap: 5px; opacity: 0.65; }
 .btn-danger { background: var(--danger); color: white; border: none; padding: 6px 10px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-size: 11px; }
 
 table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; min-width: 820px; }
@@ -500,7 +501,7 @@ canvas#lienzo-firma {
               <th>Semana</th>
               <th>Trazabilidad Laboratorio</th>
               <th>Medicación Externa / Notas Mostrador</th>
-              <th>Avisar Paciente</th>
+              <th>Avisar Paciente (RGPD)</th>
               <th>Dispensación Mostrador</th>
             </tr>
           </thead>
@@ -648,12 +649,19 @@ canvas#lienzo-firma {
     </div>
   </section>
 
-  <!-- 6. ALTA PACIENTE -->
+  <!-- 6. ALTA PACIENTE (CUMPLIMIENTO RGPD ART. 9) -->
   <section id="tab-alta" class="tab-content">
-    <div class="panel-card" style="max-width: 800px; margin: 0 auto;">
+    <div class="panel-card" style="max-width: 820px; margin: 0 auto;">
       <div class="panel-header">
-        <span class="panel-title">➕ Registro de paciente en SPD</span>
+        <div>
+          <span class="panel-title">➕ Registro de Paciente en SPD</span>
+          <p style="font-size:11.5px; color:#64748b; margin-top:2px;">Custodia conforme a RGPD / AEPD (Categoría Especial de Datos de Salud).</p>
+        </div>
+        <button type="button" class="btn-primary" style="background:#475569; font-size:11px;" onclick="imprimirPlantillaConsentimientoRGPD()">
+          📄 Imprimir Modelo Consentimiento Informado (PDF)
+        </button>
       </div>
+
       <form id="form-nuevo-paciente" onsubmit="guardarNuevoPaciente(event)">
         <div class="form-grid">
           <div class="form-group">
@@ -702,7 +710,25 @@ canvas#lienzo-firma {
           <textarea id="alta-notas" class="form-control" rows="2" placeholder="Pautas, horarios especiales u observaciones..."></textarea>
         </div>
 
-        <button type="submit" class="btn-teal" style="margin-top: 16px; width: 100%; justify-content: center; padding: 11px;">Guardar Paciente</button>
+        <!-- BLOQUE OBLIGATORIO DE CONSENTIMIENTO RGPD -->
+        <div style="margin-top: 16px; padding: 14px; background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 8px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display:flex; align-items:flex-start; gap:10px;">
+            <input type="checkbox" id="alta-consentimiento-rgpd" required style="width:18px; height:18px; margin-top:2px; cursor:pointer;">
+            <label for="alta-consentimiento-rgpd" style="font-size:12px; color:#166534; font-weight:700; cursor:pointer; line-height:1.4;">
+              He verificado que el paciente (o su tutor legal) ha firmado el documento de Consentimiento Informado para el tratamiento de datos de salud en el SPD conforme al Art. 9 del RGPD.
+            </label>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px; margin-top:4px;">
+            <input type="checkbox" id="alta-autoriza-whatsapp" checked style="width:18px; height:18px; cursor:pointer;">
+            <label for="alta-autoriza-whatsapp" style="font-size:12px; color:#1e293b; font-weight:600; cursor:pointer;">
+              📲 El paciente autoriza expresamente avisos de recogida por WhatsApp / Mensajería electrónica.
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-teal" style="margin-top: 16px; width: 100%; justify-content: center; padding: 11px; font-size:13px;">
+          Guardar Paciente y Validar Expediente
+        </button>
       </form>
     </div>
   </section>
@@ -711,7 +737,7 @@ canvas#lienzo-firma {
   <section id="tab-directorio" class="tab-content">
     <div class="panel-card">
       <div class="panel-header">
-        <span class="panel-title">👥 Directorio general de pacientes</span>
+        <span class="panel-title">👥 Directorio General de Pacientes</span>
         <div style="display:flex; gap:8px;">
           <button class="btn-teal" style="font-size:11.5px;" onclick="exportarPacientesCSV()">📥 Exportar a Excel (CSV)</button>
           <input type="text" id="buscador-directorio" class="form-control" placeholder="🔍 Buscar paciente..." style="width: 220px;" oninput="renderizarTablas()">
@@ -726,7 +752,7 @@ canvas#lienzo-firma {
               <th>Teléfono</th>
               <th>Semana</th>
               <th>Caducidad Tratamiento</th>
-              <th>Avisos Activos</th>
+              <th>Consentimiento RGPD</th>
               <th>Ficha / Editar</th>
             </tr>
           </thead>
@@ -798,7 +824,7 @@ canvas#lienzo-firma {
         <div>
           <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.85;">Aislamiento Criptográfico Activo</div>
           <h3 style="margin-top: 2px;" id="etiqueta-plan-licencia">FarmaSPD Pro (Licencia Sanitaria UE)</h3>
-          <small style="opacity: 0.8;">Firebase Auth Conectado · Cifrado SHA-256 + Salt</small>
+          <small style="opacity: 0.8;">Servidor Cloud Madrid (europe-southwest1) · Cifrado SHA-256</small>
         </div>
         <div style="display:flex; gap:8px;">
           <button class="btn-success" onclick="abrirSuscripcionStripe()">💳 Gestionar Suscripción</button>
@@ -903,7 +929,7 @@ canvas#lienzo-firma {
   </div>
 </div>
 
-<!-- MODAL FASE 3: REVISIÓN Y WHATSAPP -->
+<!-- MODAL FASE 3: REVISIÓN Y NOTIFICACIÓN -->
 <div id="modal-fase-revision" class="modal-overlay">
   <div class="modal-box" style="max-width: 480px;">
     <div class="modal-header">
@@ -917,10 +943,8 @@ canvas#lienzo-firma {
         <label>¿Quién realiza la revisión del rollo?:</label>
         <select id="fase-revision-responsable" class="form-control" style="font-weight:700;"></select>
       </div>
-      <div style="background:#f0fdf4; border:1.5px solid #bbf7d0; padding:10px; border-radius:8px; font-size:12.5px; color:#166534;">
-        📲 <strong>Aviso automático por WhatsApp:</strong> Al pulsar, el rollo quedará revisado y se abrirá WhatsApp con el aviso listo para el paciente.
-      </div>
-      <button class="btn-success" style="padding: 11px; width: 100%; justify-content: center; font-size: 13px;" onclick="confirmarRevisionYDispararWhatsapp()">✓ Guardar Revisión y Notificar WhatsApp</button>
+      <div id="fase-revision-info-consentimiento" style="background:#f0fdf4; border:1.5px solid #bbf7d0; padding:10px; border-radius:8px; font-size:12.5px; color:#166534;"></div>
+      <button id="btn-validar-fase3" class="btn-success" style="padding: 11px; width: 100%; justify-content: center; font-size: 13px;" onclick="confirmarRevisionYDispararWhatsapp()">✓ Guardar Revisión</button>
     </div>
   </div>
 </div>
@@ -1386,7 +1410,7 @@ function cambiarPestana(idTab, elemento) {
     'tab-adelantos-gestion': '3. Gestión Rápida de Adelantos (Pastilleros y Salto RE)',
     'tab-cupones': '4. Cupones & Adelantos RE (Control de Cobros)',
     'tab-calendario': '5. Calendario Anual & Conteo de Pastilleros',
-    'tab-alta': '6. Alta de Paciente',
+    'tab-alta': '6. Alta de Paciente (Consentimiento RGPD)',
     'tab-directorio': '7. Lista de Pacientes',
     'tab-mensajeria': '8. Mensajes del Equipo',
     'tab-auditoria': '9. Historial de Entregas',
@@ -1414,14 +1438,12 @@ function inicializarSelectorAnos() {
   }
 }
 
-// OBTENER FECHA NUMÉRICA DE ALTA DEL PACIENTE
 function obtenerMesAltaNumerico(p) {
   if (p.fechaAltaRegistro) {
     const pts = p.fechaAltaRegistro.split('-');
     return parseInt(pts[0]) * 12 + (parseInt(pts[1]) - 1);
   }
-  // Si no tiene fecha, usar septiembre de 2026 como base por defecto
-  return 2026 * 12 + 8;
+  return 2026 * 12 + 8; // Septiembre 2026 por defecto si no existía
 }
 
 // CALENDARIO ANUAL CON CONTABILIDAD REAL DE PASTILLEROS
@@ -1444,12 +1466,10 @@ function renderizarCalendarioAnual() {
     let totalPastillerosMes = 0;
 
     for (let semNum = 1; semNum <= 4; semNum++) {
-      // Filtrar pacientes activos en este mes exacto
       const pacientesSemana = pacientes.filter(p => {
         if (String(p.semana) !== String(semNum)) return false;
         const mesAlta = obtenerMesAltaNumerico(p);
 
-        // Comprobar si tiene un adelanto que caiga en este mes
         let tieneAdelantoEsteMes = false;
         if (p.adelantos && Array.isArray(p.adelantos)) {
           tieneAdelantoEsteMes = p.adelantos.some(ad => {
@@ -1462,7 +1482,6 @@ function renderizarCalendarioAnual() {
           });
         }
 
-        // Solo es visible si ya estaba dado de alta en este mes o si tiene un adelanto en él
         return (mesEvaluar >= mesAlta) || tieneAdelantoEsteMes;
       });
 
@@ -1472,10 +1491,8 @@ function renderizarCalendarioAnual() {
         chipsHTML = '<span style="font-size:11px; color:#94a3b8;">Sin pacientes</span>';
       } else {
         pacientesSemana.forEach(p => {
-          // Pastillero ordinario (1 pastillero)
           totalPastillerosMes += 1;
 
-          // Contar pastilleros adicionales de adelanto únicamente si corresponden a este mes
           let pastillerosExtra = 0;
           let esAdelantadoEsteMes = false;
 
@@ -1536,22 +1553,18 @@ function renderizarCalendarioAnual() {
   });
 }
 
-// EXPORTACIÓN A EXCEL (CSV) DE LA PRODUCCIÓN Y PASTILLEROS POR MES
 function exportarProduccionAnualCSV() {
   const selAno = document.getElementById('select-ano-calendario');
   const ano = selAno ? parseInt(selAno.value) : 2026;
   const mesesNombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
   let csv = "\uFEFFAño,Mes,Paciente,CIP,Semana,Pastilleros Habituales,Pastilleros Adelanto,Total Pastilleros Fabricados,Motivo Adelanto\n";
-  let totalAnual = 0;
 
   mesesNombres.forEach((nombreMes, indexMes) => {
     const mesEvaluar = ano * 12 + indexMes;
 
     pacientes.forEach(p => {
       const mesAlta = obtenerMesAltaNumerico(p);
-
-      // Calcular adelantos en este mes
       let pastillerosExtra = 0;
       let motivos = [];
 
@@ -1576,7 +1589,6 @@ function exportarProduccionAnualCSV() {
       if (tieneOrdinario || tieneAdelanto) {
         const ord = tieneOrdinario ? 1 : 0;
         const total = ord + pastillerosExtra;
-        totalAnual += total;
         csv += `"${ano}","${nombreMes}","${p.nombre}","${p.cip}","Semana ${p.semana}",${ord},${pastillerosExtra},${total},"${motivos.join(' / ') || '-'}"\n`;
       }
     });
@@ -1778,6 +1790,24 @@ function abrirModalFaseRevision(id) {
   (configuracionFarmacia.equipo || [usuarioSesionActual.nombre]).forEach(m => {
     sel.innerHTML += `<option value="${m}" ${m === usuarioSesionActual.nombre ? 'selected':''}>${m}</option>`;
   });
+
+  const divInfo = document.getElementById('fase-revision-info-consentimiento');
+  const btnVal = document.getElementById('btn-validar-fase3');
+
+  if (p.autorizaWhatsapp) {
+    divInfo.style.background = "#f0fdf4";
+    divInfo.style.borderColor = "#bbf7d0";
+    divInfo.style.color = "#166534";
+    divInfo.innerHTML = `📲 <strong>Aviso por WhatsApp autorizado (RGPD):</strong> Al guardar, el rollo quedará validado y se abrirá WhatsApp con el aviso al paciente.`;
+    btnVal.innerText = "✓ Validar Rollo y Notificar WhatsApp";
+  } else {
+    divInfo.style.background = "#fffbeb";
+    divInfo.style.borderColor = "#fde68a";
+    divInfo.style.color = "#92400e";
+    divInfo.innerHTML = `📞 <strong>Sin autorización de WhatsApp:</strong> El paciente no autorizó mensajería instantánea. Se validará el rollo pero el aviso debe realizarse por llamada telefónica tradicional.`;
+    btnVal.innerText = "✓ Validar Rollo (Aviso Telefónico)";
+  }
+
   document.getElementById('modal-fase-revision').style.display = 'flex';
 }
 
@@ -1792,17 +1822,18 @@ function confirmarRevisionYDispararWhatsapp() {
   p.preparado = true;
   p.responsableRevision = document.getElementById('fase-revision-responsable').value;
   p.fechaRevision = new Date().toLocaleDateString('es-ES') + " " + new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
-  p.avisadoRecogida = true;
+
+  if (p.autorizaWhatsapp) {
+    p.avisadoRecogida = true;
+    const nombreFarmacia = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : "la Farmacia");
+    const tlfLimpio = p.telefono.replace(/[^0-9]/g, '');
+    const textoWhatsapp = encodeURIComponent(`Hola ${p.nombre}, le informamos de que desde ${nombreFarmacia} ya hemos revisado su pastillero SPD. Puede pasar a recogerlo cuando lo desee. ¡Un saludo!`);
+    const urlWhatsapp = `https://wa.me/34${tlfLimpio}?text=${textoWhatsapp}`;
+    window.open(urlWhatsapp, '_blank');
+  }
 
   guardarPacienteIndividual(p);
   cerrarModalFaseRevision();
-
-  const nombreFarmacia = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : "la Farmacia");
-  const tlfLimpio = p.telefono.replace(/[^0-9]/g, '');
-  const textoWhatsapp = encodeURIComponent(`Hola ${p.nombre}, le informamos de que desde ${nombreFarmacia} ya hemos revisado su pastillero SPD. Puede pasar a recogerlo cuando lo desee. ¡Un saludo!`);
-  const urlWhatsapp = `https://wa.me/34${tlfLimpio}?text=${textoWhatsapp}`;
-
-  window.open(urlWhatsapp, '_blank');
   renderizarTablas();
   renderizarCalendarioAnual();
 }
@@ -1826,6 +1857,7 @@ function reiniciarFasesLab(id) {
   }
 }
 
+// RENDERIZADO DE RECOGIDAS CON CONTROL LEGAL DE WHATSAPP
 function renderizarRecogidas() {
   const tbody = document.getElementById('tabla-recogidas-body');
   if (!tbody) return;
@@ -1837,9 +1869,17 @@ function renderizarRecogidas() {
     const textoWhatsapp = encodeURIComponent(`Hola ${p.nombre}, le informamos de que desde ${nombreFarmacia} ya tenemos preparado y revisado su pastillero SPD. Puede pasar a recogerlo cuando lo desee. ¡Un saludo!`);
     const enlaceWhatsapp = `https://api.whatsapp.com/send?phone=34${p.telefono.replace(/[^0-9]/g, '')}&text=${textoWhatsapp}`;
 
-    const estadoAviso = p.avisadoRecogida
-      ? `<span class="badge badge-success">✓ Avisado Automático</span>`
-      : `<a href="${enlaceWhatsapp}" target="_blank" class="btn-whatsapp" onclick="marcarAvisadoRecogida(${p.id})">📲 WhatsApp</a> <button class="btn-primary" style="font-size:11px; padding:5px 8px;" onclick="marcarAvisadoRecogida(${p.id})">📞 Llamado</button>`;
+    let estadoAviso = "";
+    if (p.avisadoRecogida) {
+      estadoAviso = `<span class="badge badge-success">✓ Avisado</span>`;
+    } else {
+      const btnWA = p.autorizaWhatsapp 
+        ? `<a href="${enlaceWhatsapp}" target="_blank" class="btn-whatsapp" onclick="marcarAvisadoRecogida(${p.id})">📲 WhatsApp</a>` 
+        : `<span class="btn-disabled" title="No autorizó mensajería instantánea (RGPD)">🚫 Sin WhatsApp</span>`;
+
+      const btnLlamar = `<button class="btn-primary" style="font-size:11px; padding:5px 8px;" onclick="marcarAvisadoRecogida(${p.id})">📞 Llamado</button>`;
+      estadoAviso = `<div style="display:flex; gap:4px; align-items:center;">${btnWA} ${btnLlamar}</div>`;
+    }
 
     let alertaHTML = "";
     if (p.adelantos && p.adelantos.length > 0) {
@@ -2006,7 +2046,7 @@ function eliminarAdelantoGestion(idPac, idx) {
   }
 }
 
-// CONTROL DE CUPONES RE Y SEMÁFORO DE COBRO
+// CONTROL DE CUPONES RE
 function getSemaforoCobroCupon(fechaLimiteStr, estado) {
   if (estado === "anulado") {
     return { texto: "⛔ Anulado por médico", clase: "badge-danger", nivel: "anulado" };
@@ -2155,6 +2195,7 @@ function conmutarRevisionEquipo(idPac, indexAdelanto) {
   }
 }
 
+// DIRECTORIO CON INDICADOR DE CUMPLIMIENTO RGPD
 function renderizarDirectorio() {
   const inputDir = document.getElementById('buscador-directorio');
   const query = inputDir ? inputDir.value.toLowerCase() : "";
@@ -2163,8 +2204,16 @@ function renderizarDirectorio() {
   tbody.innerHTML = "";
 
   pacientes.filter(p => p.nombre.toLowerCase().includes(query) || p.cip.toLowerCase().includes(query)).forEach(p => {
-    const numAvisos = p.avisos ? p.avisos.filter(a => !a.resuelto).length : 0;
     const semaforo = getSemaforoCaducidad(p.caducidadPlan);
+    
+    let badgeRGPD = p.consentimientoFirmado 
+      ? `<span class="badge badge-success" title="Consentimiento de datos sanitarios firmado">✓ Firmado</span>`
+      : `<span class="badge badge-danger" title="Falta consentimiento físico/digital">⚠️ Pendiente</span>`;
+
+    if (p.autorizaWhatsapp) {
+      badgeRGPD += ` <span class="badge badge-info" style="font-size:10px;">📲 WA</span>`;
+    }
+
     tbody.innerHTML += `
       <tr>
         <td><code>${p.cip}</code></td>
@@ -2172,7 +2221,7 @@ function renderizarDirectorio() {
         <td>${p.telefono}</td>
         <td>Semana ${p.semana}</td>
         <td><span class="badge ${semaforo.clase}">${semaforo.texto}</span></td>
-        <td><span class="badge ${numAvisos > 0 ? 'badge-warning' : 'badge-neutral'}">${numAvisos} notas</span></td>
+        <td>${badgeRGPD}</td>
         <td><button class="btn-primary" style="padding:4px 8px; font-size:11px;" onclick="abrirFichaPaciente(${p.id})">Ficha / Editar</button></td>
       </tr>
     `;
@@ -2232,7 +2281,7 @@ function renderizarAuditoria() {
   if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#94a3b8;">No hay entregas registradas en el historial.</td></tr>`;
 }
 
-// JUSTIFICANTE DE DISPENSACIÓN CON REVISIÓN TÉCNICA
+// JUSTIFICANTE DE DISPENSACIÓN
 function imprimirRecibiEntrega(idEntrega) {
   let entregaObj = null, pacObj = null;
   pacientes.forEach(p => {
@@ -2295,6 +2344,87 @@ function imprimirRecibiEntrega(idEntrega) {
             <p style="font-size: 12px; margin-bottom: 4px;">Firma de Conformidad Receptor:</p>
             ${entregaObj.firma ? `<img src="${entregaObj.firma}" style="max-height: 50px; margin-bottom: 4px;">` : '<div style="height: 50px;"></div>'}
             <div style="border-top: 1px solid black; padding-top: 4px; font-size: 11px;">${entregaObj.recogidoPor}</div>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+  ventana.document.close();
+}
+
+// GENERAR DOCUMENTO OFICIAL DE CONSENTIMIENTO INFORMADO RGPD (PDF)
+function imprimirPlantillaConsentimientoRGPD() {
+  const farmacia = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : "OFICINA DE FARMACIA");
+  const ventana = window.open('', '_blank');
+  ventana.document.write(`
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8">
+      <title>Consentimiento Informado SPD - RGPD</title>
+      <style>
+        body { font-family: Arial, sans-serif; font-size: 11px; line-height: 1.5; color: #0f172a; margin: 0; padding: 25px; background: #f8fafc; }
+        .toolbar { background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 18px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .doc-box { background: white; border: 1px solid #000; padding: 30px; border-radius: 4px; max-width: 750px; margin: 0 auto; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        h2 { font-size: 14px; text-transform: uppercase; text-align: center; margin-bottom: 4px; }
+        h3 { font-size: 11px; color: #475569; text-align: center; margin-top: 0; margin-bottom: 18px; }
+        .campo { margin-bottom: 8px; font-size: 11.5px; }
+        .campo-linea { border-bottom: 1px dotted #333; display: inline-block; min-width: 250px; height: 14px; }
+        .caja-clausula { border: 1px solid #94a3b8; padding: 10px; border-radius: 4px; font-size: 10px; text-align: justify; color: #334155; margin: 12px 0; background: #f8fafc; }
+        .btn-print { background: #0284c7; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .btn-close { background: #64748b; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        @media print {
+          body { background: white; padding: 0; }
+          .toolbar { display: none; }
+          .doc-box { border: none; box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="toolbar">
+        <div><strong>Modelo Normalizado de Consentimiento Informado (PNT-SPD)</strong></div>
+        <div>
+          <button class="btn-print" onclick="window.print()">🖨️ Imprimir Formulario</button>
+          <button class="btn-close" onclick="window.close()">✕ Cerrar</button>
+        </div>
+      </div>
+      <div class="doc-box">
+        <h2>Consentimiento Informado del Paciente / Usuario</h2>
+        <h3>SERVICIO PERSONALIZADO DE DOSIFICACIÓN (SPD) · ${farmacia.toUpperCase()}</h3>
+
+        <p><strong>1. DATOS DEL PACIENTE:</strong></p>
+        <div class="campo">D./Dña: <span class="campo-linea" style="min-width: 400px;"></span> DNI/NIE: <span class="campo-linea" style="min-width: 120px;"></span></div>
+        <div class="campo">CIP Autonómico: <span class="campo-linea" style="min-width: 180px;"></span> Teléfono: <span class="campo-linea" style="min-width: 150px;"></span></div>
+        <div class="campo">Representante / Cuidador (en su caso): <span class="campo-linea" style="min-width: 420px;"></span></div>
+
+        <p style="margin-top:14px;"><strong>2. INFORMACIÓN DEL SERVICIO:</strong></p>
+        <p style="font-size:10.5px; text-align:justify;">
+          El paciente o su representante legal solicita y autoriza expresamente a la Oficina de Farmacia <strong>${farmacia}</strong> a acondicionar sus medicamentos prescritos en Sistemas Personalizados de Dosificación (SPD) para facilitar el cumplimiento farmacoterapéutico, de acuerdo con el Procedimiento Normalizado de Trabajo (PNT).
+        </p>
+
+        <p style="margin-top:10px;"><strong>3. CLÁUSULA DE INFORMACIÓN Y PROTECCIÓN DE DATOS (RGPD Art. 9 y LOPDGDD):</strong></p>
+        <div class="caja-clausula">
+          <strong>Responsable:</strong> ${farmacia}.<br>
+          <strong>Finalidad:</strong> Gestión asistencial, preparación y control de calidad de la medicación en SPD, seguimiento farmacoterapéutico y comunicación de disponibilidad para recogida.<br>
+          <strong>Legitimación:</strong> Consentimiento explícito del interesado (Art. 9.2.a RGPD) y cumplimiento de obligaciones en el ámbito de la salud pública y asistencia farmacéutica.<br>
+          <strong>Custodia:</strong> Los datos se almacenan en servidores seguros dentro del Espacio Económico Europeo (Madrid, España) con aislamiento criptográfico.<br>
+          <strong>Derechos:</strong> Acceso, rectificación, supresión y limitación del tratamiento dirigiéndose a la Oficina de Farmacia.
+        </div>
+
+        <div style="margin: 14px 0; font-size:11px;">
+          <input type="checkbox" checked> <strong>Autorizo</strong> expresamente el tratamiento de mis datos de salud con fines farmacoterapéuticos.<br>
+          <input type="checkbox" checked> <strong>Autorizo</strong> la recepción de avisos de recogida y disponibilidad mediante mensajería electrónica (WhatsApp / SMS).
+        </div>
+
+        <div style="margin-top: 35px; display: flex; justify-content: space-between;">
+          <div style="text-align: center; width: 45%;">
+            <p style="font-size: 11px; margin-bottom: 40px;">Firma del Paciente o Representante Legal:</p>
+            <div style="border-top: 1px solid black; padding-top: 4px;">DNI: </div>
+          </div>
+          <div style="text-align: center; width: 45%;">
+            <p style="font-size: 11px; margin-bottom: 40px;">Firma y Sello Farmacia:</p>
+            <div style="border-top: 1px solid black; padding-top: 4px;">${farmacia}</div>
           </div>
         </div>
       </div>
@@ -2457,6 +2587,7 @@ function agregarFilaAdelantoAlta() {
   cont.appendChild(div);
 }
 
+// GUARDAR NUEVO PACIENTE CON VALIDACIÓN RGPD
 function guardarNuevoPaciente(e) {
   e.preventDefault();
   const nombre = document.getElementById('alta-nombre').value.trim();
@@ -2467,6 +2598,12 @@ function guardarNuevoPaciente(e) {
   const caducidad = document.getElementById('alta-caducidad').value;
   const medExterna = document.getElementById('alta-med-externa').value.trim();
   const notas = document.getElementById('alta-notas').value.trim();
+  const consentimientoFirmado = document.getElementById('alta-consentimiento-rgpd').checked;
+  const autorizaWhatsapp = document.getElementById('alta-autoriza-whatsapp').checked;
+
+  if (!consentimientoFirmado) {
+    return alert("⚠️ Es obligatorio certificar que el paciente ha firmado el documento de Consentimiento Informado RGPD.");
+  }
 
   let adelantos = [];
   document.querySelectorAll('#contenedor-adelantos-alta > div').forEach(fila => {
@@ -2476,18 +2613,41 @@ function guardarNuevoPaciente(e) {
   });
 
   const nuevo = {
-    id: Date.now(), nombre, cip, telefono, semana, fechaAltaRegistro, caducidadPlan: caducidad,
-    medExterna, preparado: false, avisadoRecogida: false,
-    medicacionPreparada: false, rolloFabricado: false, rolloRevisado: false,
-    responsableMedicacion: null, responsableRollo: null, responsableRevision: null,
-    notaInternaFase1: "", notaDispensacion: "",
-    adelantos, avisos: [], historialEntregas: [], cambiosClinicos: [], notas
+    id: Date.now(), 
+    nombre, 
+    cip, 
+    telefono, 
+    semana, 
+    fechaAltaRegistro, 
+    caducidadPlan: caducidad,
+    medExterna, 
+    preparado: false, 
+    avisadoRecogida: false,
+    medicacionPreparada: false, 
+    rolloFabricado: false, 
+    rolloRevisado: false,
+    responsableMedicacion: null, 
+    responsableRollo: null, 
+    responsableRevision: null,
+    notaInternaFase1: "", 
+    notaDispensacion: "",
+    consentimientoFirmado: true,
+    autorizaWhatsapp: autorizaWhatsapp,
+    fechaConsentimiento: new Date().toLocaleDateString('es-ES'),
+    responsableConsentimiento: usuarioSesionActual ? usuarioSesionActual.nombre : "Farmacia",
+    adelantos, 
+    avisos: [], 
+    historialEntregas: [], 
+    cambiosClinicos: [], 
+    notas
   };
 
   guardarPacienteIndividual(nuevo);
-  alert("✅ Paciente registrado con éxito.");
+  alert("✅ Paciente registrado y expediente RGPD validado.");
   document.getElementById('form-nuevo-paciente').reset();
   document.getElementById('contenedor-adelantos-alta').innerHTML = "";
+  document.getElementById('alta-fecha-registro').value = new Date().toISOString().split('T')[0];
+  document.getElementById('alta-autoriza-whatsapp').checked = true;
   renderizarTablas();
   renderizarCalendarioAnual();
   cambiarPestana('tab-directorio', document.querySelectorAll('.nav-item')[6]);
@@ -2619,6 +2779,14 @@ function abrirFichaPaciente(id) {
         <div class="form-group"><label>Caducidad Plan / Receta:</label><input type="date" id="edit-pac-caducidad" class="form-control" value="${p.caducidadPlan || ''}"></div>
         <div class="form-group" style="grid-column: span 2;"><label>Medicación Fuera de Blíster:</label><input type="text" id="edit-pac-externa" class="form-control" value="${p.medExterna || ''}"></div>
       </div>
+      
+      <div style="margin-top:10px; padding:8px 10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" id="edit-pac-whatsapp" ${p.autorizaWhatsapp ? 'checked' : ''} style="cursor:pointer;">
+        <label for="edit-pac-whatsapp" style="font-size:12px; color:#166534; font-weight:700; cursor:pointer;">
+          Autoriza notificaciones automáticas por WhatsApp (Consentimiento RGPD activo)
+        </label>
+      </div>
+
       <div class="form-group" style="margin-top:8px;"><label>Observaciones Generales:</label><textarea id="edit-pac-notas" class="form-control" rows="2">${p.notas || ''}</textarea></div>
       <button class="btn-teal" style="margin-top:8px; padding:6px 12px;" onclick="guardarEdicionFicha(${p.id})">💾 Guardar Todos los Cambios</button>
     </div>
@@ -2660,6 +2828,7 @@ function guardarEdicionFicha(idPac) {
   p.fechaAltaRegistro = document.getElementById('edit-pac-fecha-alta').value || p.fechaAltaRegistro;
   p.caducidadPlan = document.getElementById('edit-pac-caducidad').value;
   p.medExterna = document.getElementById('edit-pac-externa').value.trim();
+  p.autorizaWhatsapp = document.getElementById('edit-pac-whatsapp').checked;
   p.notas = document.getElementById('edit-pac-notas').value.trim();
 
   guardarPacienteIndividual(p);
@@ -2815,9 +2984,9 @@ function imprimirHojaLaboratorio() {
 
 function exportarPacientesCSV() {
   if (pacientes.length === 0) return alert("No hay pacientes para exportar.");
-  let csv = "\uFEFFNombre,CIP,Telefono,Semana,FechaAlta,CaducidadPlan,MedExterna,PrepMed,FabRollo,RevRollo,Observaciones\n";
+  let csv = "\uFEFFNombre,CIP,Telefono,Semana,FechaAlta,CaducidadPlan,MedExterna,ConsentimientoRGPD,AutorizaWhatsApp,PrepMed,FabRollo,RevRollo,Observaciones\n";
   pacientes.forEach(p => {
-    csv += `"${p.nombre}","${p.cip}","${p.telefono}","Semana ${p.semana}","${p.fechaAltaRegistro || ''}","${p.caducidadPlan || ''}","${p.medExterna || ''}","${p.medicacionPreparada ? 'Sí':'No'}","${p.rolloFabricado ? 'Sí':'No'}","${p.rolloRevisado ? 'Sí':'No'}","${(p.notas || '').replace(/"/g, '""')}"\n`;
+    csv += `"${p.nombre}","${p.cip}","${p.telefono}","Semana ${p.semana}","${p.fechaAltaRegistro || ''}","${p.caducidadPlan || ''}","${p.medExterna || ''}","${p.consentimientoFirmado ? 'Sí':'No'}","${p.autorizaWhatsapp ? 'Sí':'No'}","${p.medicacionPreparada ? 'Sí':'No'}","${p.rolloFabricado ? 'Sí':'No'}","${p.rolloRevisado ? 'Sí':'No'}","${(p.notas || '').replace(/"/g, '""')}"\n`;
   });
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement("a");
@@ -2894,7 +3063,6 @@ function guardarAjustesFarmacia() {
   alert("✅ Ajustes guardados correctamente.");
 }
 
-// Configurar fecha de alta por defecto a hoy al abrir formulario
 const inputFechaAltaAlta = document.getElementById('alta-fecha-registro');
 if (inputFechaAltaAlta) inputFechaAltaAlta.value = new Date().toISOString().split('T')[0];
 
@@ -2907,7 +3075,7 @@ inicializarSelectorAnos();
 renderizarTablas();
 renderizarCalendarioAnual();
 
-// LIBRO OFICIAL DE REGISTRO Y ENTREGA CON REVISIÓN TÉCNICA
+// LIBRO OFICIAL DE REGISTRO Y ENTREGA
 function generarInformeEntregasSemanalPDF() {
   const selectorSemana = document.getElementById('filtro-semana-preparacion');
   const semanaFiltro = selectorSemana ? selectorSemana.value : "todas";
