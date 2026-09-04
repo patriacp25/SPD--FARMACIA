@@ -1,3 +1,4 @@
+Ajuste de línea
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,7 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-f
+
 <style>
 :root {
 --primary: #092c4c;
@@ -44,7 +45,7 @@ f
 body { background-color: var(--bg); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; position: relative; }
 
 /* PANTALLA LOGIN */
-#pantalla-login {position: fixed; inset: 0; background: radial-gradient(circle at 20% 20%, #1e293b 0%, #092c4c 100%); z-index: 99999; display: flex; justify-content: center; align-items: center; padding: 20px; }
+#pantalla-login { position: fixed; inset: 0; background: radial-gradient(circle at 20% 20%, #1e293b 0%, #092c4c 100%); z-index: 99999; display: flex; justify-content: center; align-items: center; padding: 20px; }
 .login-card { background: white; width: 100%; max-width: 440px; padding: 36px 30px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); text-align: center; }
 .login-logo { width: 54px; height: 54px; background: linear-gradient(135deg, var(--brand-teal) 0%, var(--accent) 100%); color: white; font-size: 28px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: 0 6px 15px rgba(13, 148, 136, 0.35); }
 .login-card h2 { font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
@@ -251,6 +252,7 @@ font-size: 11.5px;
 color: #92400e;
 margin-top: 5px;
 }
+
 .box-cambio-medico-alerta.urgente {
 background: #fef2f2;
 border-color: #fca5a5;
@@ -263,17 +265,14 @@ body * { visibility: hidden; }
 #area-impresion-laboratorio, #area-impresion-laboratorio * { visibility: visible; }
 #area-impresion-laboratorio { position: absolute; left: 0; top: 0; width: 100%; }
 }
-.sidebar {
-  display: flex !important;
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  bottom: 0 !important;
-  width: 260px !important;
-  z-index: 999999 !important;
-  transform:translateX(-100%)!important;
-}
 
+@media (max-width: 768px) {
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); }
+.sidebar.abierto-movil { transform: translateX(0); }
+.topbar { padding: 10px 14px; }
+.tab-content { padding: 12px; }
+.panel-card { padding: 14px; }
+}
 </style>
 </head>
 <body>
@@ -1737,46 +1736,9 @@ tbody.innerHTML += `
 `;
 });
 if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#94a3b8;">No hay entregas registradas en el historial.</td></tr>`;
- function imprimirRecibiEntrega(idEntrega) {
-  let entregaObj = null, pacObj = null;
-  pacientes.forEach(p => {
-    const e = p.historialEntregas?.find(x => x.id === idEntrega);
-    if (e) { entregaObj = e; pacObj = p; }
-  });
-  if (!entregaObj || !pacObj) return;
-
-  const farmacia = configuracionFarmacia?.nombreComercial || "Oficina de Farmacia";
-  const cuerpoOriginal = document.body.innerHTML;
-
-  document.body.innerHTML = `
-    <div style="padding:20px; font-family:Helvetica,Arial,sans-serif; color:#000; background:#fff;">
-      <div style="border-bottom:2px solid #0284c7; padding-bottom:8px; margin-bottom:12px;">
-        <h2 style="margin:0; font-size:18px; color:#0284c7;">${farmacia}</h2>
-        <h3 style="margin:4px 0; font-size:14px; color:#333;">JUSTIFICANTE DE ENTREGA DE MEDICACIÓN (SPD)</h3>
-      </div>
-      <div style="font-size:13px; line-height:1.6; margin-bottom:15px;">
-        <p><strong>Paciente:</strong> ${pacObj.nombre} (CIP: ${pacObj.cip || 'N/D'})</p>
-        <p><strong>Fecha y hora:</strong> ${entregaObj.fecha}</p>
-        <p><strong>Retirado por:</strong> ${entregaObj.recogidoPor}</p>
-        <p><strong>Dispensado por:</strong> ${entregaObj.dispensadoPor}</p>
-        <p><strong>Trazabilidad:</strong> Med: ${entregaObj.preparadoMedPor || '-'} | Rollo: ${entregaObj.fabricadoRolloPor || '-'} | Rev: ${entregaObj.revisadoPor || '-'}</p>
-      </div>
-      <div style="margin-top:15px; border:1px dashed #999; padding:10px; text-align:center; border-radius:6px;">
-        <div style="font-size:11px; font-weight:bold; margin-bottom:6px; color:#555;">FIRMA DEL RECEPTOR:</div>
-        ${entregaObj.firma ? `<img src="${entregaObj.firma}" style="max-height:70px; max-width:200px;" />` : '<em>Sin firma</em>'}
-      </div>
-      <div style="margin-top:20px; font-size:10px; color:#777; border-top:1px solid #ccc; padding-top:8px;">
-        Documento conforme a normativa PNT-SPD y custodia de datos sanitarios (RGPD/AEPD).
-      </div>
-      <button onclick="location.reload()" style="margin-top:25px; padding:10px 15px; background:#0284c7; color:#fff; border:none; border-radius:6px; font-weight:bold; width:100%;">⬅️ Volver a la Aplicación</button>
-    </div>
-  `;
-
-  setTimeout(() => {
-    window.print();
-  }, 300);
 }
- {
+
+function imprimirRecibiEntrega(idEntrega) {
 let entregaObj = null, pacObj = null;
 pacientes.forEach(p => {
 const e = p.historialEntregas?.find(x => x.id === idEntrega);
@@ -1797,8 +1759,8 @@ printDiv.innerHTML = `
 <strong>Fecha y Hora:</strong> ${entregaObj.fecha}<br>
 <strong>Semana de toma:</strong> Semana ${pacObj.semana}<br>
 <strong>1. Medicación acondicionada por:</strong> ${entregaObj.preparadoMedPor || '-'}<br>
-<strong>2. Rollo fabricado por:</strong> ${entregaObj.fabricadoRolloPor || '-'}<br>
-<strong>3. Revisión validada por:</strong> ${entregaObj.revisadoPor || '-'}<br>
+<strong>2. Rollo sellado por:</strong> ${entregaObj.fabricadoRolloPor || '-'}<br>
+<strong>3. Revisión farmacéutica validada por:</strong> ${entregaObj.revisadoPor || '-'}<br>
 <strong>Dispensado por:</strong> ${entregaObj.dispensadoPor}<br>
 <strong>Retirado por:</strong> ${entregaObj.recogidoPor}<br>
 ${entregaObj.notas ? `<strong>Observaciones:</strong> ${entregaObj.notas}<br>` : ''}
@@ -1817,9 +1779,7 @@ ${entregaObj.firma ? `<img src="${entregaObj.firma}" style="max-height: 50px; ma
 </div>
 `;
 printDiv.style.display = 'block';
-const w = window.open('', '_blank');
-w.document.write(printDiv.innerHTML + '<br><button onclick="window.print()" style="padding:10px;font-size:16px;background:#0284c7;color:white;border:none;border-radius:6px;width:100%;">📥 Guardar / Imprimir PDF</button>');
-
+window.print();
 printDiv.style.display = 'none';
 }
 
@@ -2516,4 +2476,5 @@ function generarInformeEntregasSemanalPDF() {
 </script>
 </body>
 </html>
+
 
