@@ -163,6 +163,25 @@ body { background-color: var(--bg); color: var(--text-main); height: 100vh; over
 
 @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
 
+/* BARRA DE ALERTAS DE CUPONES VENCIDOS/HOY */
+#alerta-cupones-hoy {
+  background: #fffbeb;
+  border-bottom: 2px solid #f59e0b;
+  padding: 9px 20px;
+  font-size: 12.5px;
+  color: #92400e;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+#alerta-cupones-hoy.critica {
+  background: #fef2f2;
+  border-bottom-color: var(--danger);
+  color: #991b1b;
+}
+
 .tab-content { flex-grow: 1; padding: 20px; overflow-y: auto; display: none; }
 .tab-content.active { display: block; }
 
@@ -420,6 +439,12 @@ canvas#lienzo-firma {
     </div>
   </header>
 
+  <!-- BANNER NOTIFICACIÓN CUANDO HAY CUPONES PARA COBRAR HOY O VENCIDOS -->
+  <div id="alerta-cupones-hoy" style="display:none;">
+    <div id="texto-alerta-cupones-hoy"></div>
+    <button class="btn-primary" style="background:#092c4c; font-size:11px; padding:4px 9px;" onclick="cambiarPestana('tab-cupones', document.querySelectorAll('.nav-item')[3])">Ir a Cupones RE →</button>
+  </div>
+
   <!-- 1. PREPARACIÓN -->
   <section id="tab-preparacion" class="tab-content active">
     <div class="panel-card">
@@ -449,7 +474,7 @@ canvas#lienzo-firma {
               <th>Semana</th>
               <th>1. Preparación Medicación</th>
               <th>2. Fabricación Rollo</th>
-              <th>3. Revisión Final</th>
+              <th>3. Revisión</th>
               <th>Notas / Alertas</th>
               <th>Caducidad</th>
               <th>Acciones</th>
@@ -486,7 +511,7 @@ canvas#lienzo-firma {
     </div>
   </section>
 
-  <!-- 3. NUEVA PESTAÑA: GESTIÓN RÁPIDA DE ADELANTOS -->
+  <!-- 3. GESTIÓN RÁPIDA DE ADELANTOS -->
   <section id="tab-adelantos-gestion" class="tab-content">
     <div class="panel-card" style="max-width: 900px; margin: 0 auto 20px;">
       <div class="panel-header">
@@ -528,13 +553,15 @@ canvas#lienzo-firma {
             <label>Fecha Fin Cobertura:</label>
             <input type="date" id="adelanto-fecha-fin" class="form-control" required>
           </div>
-          <div class="form-group" style="grid-column: span 2;">
-            <label>Medicamento específico adelantado (Salto de RE / Cupón pendiente - Opcional):</label>
-            <div style="display:flex; gap:8px;">
-              <input type="text" id="adelanto-med-nombre" class="form-control" placeholder="Ej: Eliquis 5mg / Omeprazol 20mg" style="flex:2;">
-              <input type="date" id="adelanto-med-limite" class="form-control" style="flex:1;" title="Fecha límite receta electrónica">
+          <div class="form-group" style="grid-column: span 2; background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #cbd5e1;">
+            <label style="color:var(--accent);">💊 Medicamento adelantado por Salto de RE (Cupón pendiente):</label>
+            <div style="display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
+              <input type="text" id="adelanto-med-nombre" class="form-control" placeholder="Nombre Medicamento (Ej: Sintrom 4mg)" style="flex:2; min-width:180px;">
+              <div style="flex:1; min-width:160px;">
+                <label style="font-size:11px; font-weight:700; color:#64748b;">¿Cuándo sale para cobrar en RE?:</label>
+                <input type="date" id="adelanto-fecha-cobro-prevista" class="form-control">
+              </div>
             </div>
-            <small style="color:var(--text-muted); font-size:11px;">Si se adelanta un envase por falta de receta, anótalo aquí para controlarlo en la pestaña de cupones.</small>
           </div>
           <div class="form-group" style="grid-column: span 2;">
             <label>Observaciones para el Laboratorio y Mostrador:</label>
@@ -542,7 +569,7 @@ canvas#lienzo-firma {
           </div>
         </div>
         <button type="submit" class="btn-orange" style="margin-top:16px; width:100%; justify-content:center; padding:11px; font-size:13px;">
-          ✓ Guardar y Registrar Adelanto de Pastillero(s)
+          ✓ Guardar y Registrar Adelanto
         </button>
       </form>
     </div>
@@ -556,11 +583,11 @@ canvas#lienzo-firma {
           <thead>
             <tr>
               <th>Paciente</th>
-              <th>Semana Base</th>
+              <th>Semana</th>
               <th>Pastilleros</th>
-              <th>Periodo de Cobertura</th>
+              <th>Periodo Cobertura</th>
               <th>Motivo & Detalle</th>
-              <th>Medicación RE Adelantada</th>
+              <th>Medicación / Cobro RE</th>
               <th>Acción</th>
             </tr>
           </thead>
@@ -570,11 +597,20 @@ canvas#lienzo-firma {
     </div>
   </section>
 
-  <!-- 4. CUPONES -->
+  <!-- 4. GESTIÓN AVANZADA DE CUPONES RE -->
   <section id="tab-cupones" class="tab-content">
     <div class="panel-card">
       <div class="panel-header">
-        <span class="panel-title">📋 Medicación adelantada & Gestión de cupones RE</span>
+        <span class="panel-title">📋 Medicación adelantada & Control de Cupones RE</span>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <label style="font-size:12px; font-weight:700;">Ver:</label>
+          <select id="filtro-estado-cupones" class="form-control" style="font-size:12px; padding:4px 8px;" onchange="renderizarCupones()">
+            <option value="pendientes">⚠️ Solo pendientes de cobro</option>
+            <option value="todos">⭐ Ver todos (Cobrados y Anulados)</option>
+            <option value="cobrados">✅ Cobrados</option>
+            <option value="anulados">⛔ Anulados por médico</option>
+          </select>
+        </div>
       </div>
       <div class="table-responsive">
         <table>
@@ -583,9 +619,10 @@ canvas#lienzo-firma {
               <th>Paciente</th>
               <th>Teléfono</th>
               <th>Medicamento Adelantado</th>
-              <th>Fecha Límite RE</th>
+              <th>Fecha de Cobro (RE)</th>
+              <th>Alerta Semáforo</th>
               <th>Revisión Equipo</th>
-              <th>Estado Receta</th>
+              <th>Estado del Cupón</th>
             </tr>
           </thead>
           <tbody id="tabla-cupones-body"></tbody>
@@ -743,7 +780,7 @@ canvas#lienzo-firma {
         <span class="panel-title">📋 Historial de entregas y firmas digitales</span>
         <span class="badge badge-success">Conforme RGPD / AEPD</span>
       </div>
-      <p style="font-size:12.5px; color:#64748b; margin-bottom:12px;">Registro inmutable con firmas, responsables de preparación/fabricación/revisión y dispensación.</p>
+      <p style="font-size:12.5px; color:#64748b; margin-bottom:12px;">Registro inmutable con firmas, responsables de preparación, fabricación, revisión técnica y dispensación.</p>
       <div class="table-responsive">
         <table>
           <thead>
@@ -809,7 +846,7 @@ canvas#lienzo-firma {
 
       <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);">
         <label style="font-size: 13px; font-weight: 800; color: var(--primary);">👥 Equipo Técnico y Farmacéutico:</label>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Personal para asignación de preparación, fabricación y validación farmacéutica.</p>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Personal para asignación de preparación, fabricación, revisión técnica y dispensación.</p>
         <div id="contenedor-lista-equipo" style="display: flex; flex-direction: column; gap: 8px;"></div>
         <div style="display: flex; gap: 8px; margin-top: 10px;">
           <input type="text" id="input-nuevo-miembro-equipo" class="form-control" placeholder="Nombre (ej: Patricia)" style="max-width: 300px;">
@@ -885,20 +922,20 @@ canvas#lienzo-firma {
 <div id="modal-fase-revision" class="modal-overlay">
   <div class="modal-box" style="max-width: 480px;">
     <div class="modal-header">
-      <h3>🔍 Fase 3: Validación y Revisión Final de SPD</h3>
+      <h3>🔍 Fase 3: Revisión y Validación de SPD</h3>
       <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="cerrarModalFaseRevision()">&times;</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="fase-revision-id">
       <p style="font-size: 13px; color: var(--text-muted);">Comprueba que todas las cavidades y tomas concuerdan con la pauta médica vigente.</p>
       <div class="form-group">
-        <label>¿Quién revisa y valida el rollo?:</label>
+        <label>¿Quién realiza la revisión del rollo?:</label>
         <select id="fase-revision-responsable" class="form-control" style="font-weight:700;"></select>
       </div>
       <div style="background:#f0fdf4; border:1.5px solid #bbf7d0; padding:10px; border-radius:8px; font-size:12.5px; color:#166534;">
-        📲 <strong>Aviso automático por WhatsApp:</strong> Al pulsar, el rollo quedará validado y se abrirá WhatsApp con el aviso listo para el paciente.
+        📲 <strong>Aviso automático por WhatsApp:</strong> Al pulsar, el rollo quedará revisado y se abrirá WhatsApp con el aviso listo para el paciente.
       </div>
-      <button class="btn-success" style="padding: 11px; width: 100%; justify-content: center; font-size: 13px;" onclick="confirmarRevisionYDispararWhatsapp()">✓ Validar Rollo y Notificar WhatsApp</button>
+      <button class="btn-success" style="padding: 11px; width: 100%; justify-content: center; font-size: 13px;" onclick="confirmarRevisionYDispararWhatsapp()">✓ Guardar Revisión y Notificar WhatsApp</button>
     </div>
   </div>
 </div>
@@ -1013,7 +1050,7 @@ function cambiarModoAuth(modo) {
   }
 }
 
-// SEGURIDAD RGPD: CONTROL DE INACTIVIDAD (10 MINUTOS)
+// CONTROL DE INACTIVIDAD (RGPD)
 let temporizadorInactividad;
 const TIEMPO_LIMITE_INACTIVIDAD = 10 * 60 * 1000;
 
@@ -1032,7 +1069,7 @@ function activarVigilanciaInactividad() {
 function cerrarSesionPorInactividad() {
   if (authCloud && authCloud.currentUser) {
     authCloud.signOut().then(() => {
-      alert("⚠️ Sesión cerrada automáticamente por inactividad para garantizar la custodia de datos sanitarios (RGPD).");
+      alert("⚠️ Sesión cerrada por inactividad (Custodia de datos de salud RGPD).");
       window.location.reload();
     });
   }
@@ -1090,13 +1127,7 @@ async function procesarLogin(e) {
       });
     }
 
-    usuarioSesionActual = {
-      farmacia: farmaciaNombre,
-      farmaciaId: farmaciaId,
-      nombre: usuario,
-      user: usuario
-    };
-
+    usuarioSesionActual = { farmacia: farmaciaNombre, farmaciaId, nombre: usuario, user: usuario };
     localStorage.setItem('spd_sesion_activa_v21', JSON.stringify(usuarioSesionActual));
     document.getElementById('pantalla-login').style.display = 'none';
     document.getElementById('nombre-usuario-sesion').innerText = usuarioSesionActual.nombre;
@@ -1120,10 +1151,9 @@ async function procesarRegistro(e) {
 
   try {
     await authCloud.createUserWithEmailAndPassword(emailAuth, pass);
-
     const nuevaData = {
-      farmaciaId: farmaciaId,
-      nombreReal: nombreReal,
+      farmaciaId,
+      nombreReal,
       creadoEn: new Date().toISOString(),
       chatMensajes: [],
       configuracion: {
@@ -1135,16 +1165,8 @@ async function procesarRegistro(e) {
         licenciaPro: true
       }
     };
-
     await dbCloud.collection("farmacias").doc(farmaciaId).set(nuevaData);
-
-    usuarioSesionActual = {
-      farmacia: nombreReal,
-      farmaciaId: farmaciaId,
-      nombre: nombre,
-      user: user
-    };
-
+    usuarioSesionActual = { farmacia: nombreReal, farmaciaId, nombre, user };
     localStorage.setItem('spd_sesion_activa_v21', JSON.stringify(usuarioSesionActual));
     document.getElementById('pantalla-login').style.display = 'none';
     document.getElementById('nombre-usuario-sesion').innerText = usuarioSesionActual.nombre;
@@ -1177,7 +1199,6 @@ function iniciarEscuchaTiempoReal() {
         if (!configuracionFarmacia.equipo || configuracionFarmacia.equipo.length === 0) {
           configuracionFarmacia.equipo = [usuarioSesionActual.nombre];
         }
-
         document.getElementById('label-nombre-farmacia').innerText = configuracionFarmacia.nombreComercial || usuarioSesionActual.farmacia;
         cargarAjustesEnFormulario();
         renderizarChat();
@@ -1208,7 +1229,7 @@ function guardarPacienteIndividual(pacienteObj) {
 function guardarDatosGlobales() {
   if (dbCloud && usuarioSesionActual) {
     dbCloud.collection("farmacias").doc(usuarioSesionActual.farmaciaId).set({
-      chatMensajes: chatMensajes,
+      chatMensajes,
       configuracion: configuracionFarmacia,
       ultimaActualizacion: new Date().toISOString()
     }, { merge: true });
@@ -1379,7 +1400,7 @@ function cambiarPestana(idTab, elemento) {
     'tab-preparacion': '1. Preparación de SPD (Fases 1, 2 y 3)',
     'tab-recogidas': '2. Avisos & Recogidas',
     'tab-adelantos-gestion': '3. Gestión Rápida de Adelantos (Pastilleros y Salto RE)',
-    'tab-cupones': '4. Cupones y Adelantos RE',
+    'tab-cupones': '4. Cupones & Adelantos RE (Control de Cobros)',
     'tab-calendario': '5. Calendario Anual',
     'tab-alta': '6. Alta de Paciente',
     'tab-directorio': '7. Lista de Pacientes',
@@ -1483,6 +1504,7 @@ function renderizarTablas() {
   actualizarSelectPacientesChat();
   actualizarSelectPacientesAdelanto();
   actualizarIndicadorSemanaHeader();
+  comprobarAlertasCuponesHoy();
 }
 
 function renderizarPreparacion() {
@@ -1510,7 +1532,6 @@ function renderizarPreparacion() {
       `;
     }
 
-    // Badge adelanto en preparación si aplica
     let badgeAdelantoLab = "";
     if (p.adelantos && p.adelantos.length > 0) {
       const ultimoAd = p.adelantos[0];
@@ -1526,8 +1547,8 @@ function renderizarPreparacion() {
       : (p.medicacionPreparada ? `<button class="btn-teal" style="font-size:11px; padding:5px 8px;" onclick="abrirModalFaseRollo(${p.id})">2. Fabricar Rollo</button>` : `<span style="font-size:11px; color:#94a3b8;">Esperando fase 1...</span>`);
 
     let colFase3 = p.rolloRevisado
-      ? `<span class="badge badge-success">✓ Revisado & Validado</span><div style="font-size:11px; color:#059669; margin-top:2px;">Por: <strong>${p.responsableRevision}</strong></div>`
-      : (p.rolloFabricado ? `<button class="btn-success" style="font-size:11px; padding:5px 8px;" onclick="abrirModalFaseRevision(${p.id})">3. Validar Revisión</button>` : `<span style="font-size:11px; color:#94a3b8;">Esperando rollo...</span>`);
+      ? `<span class="badge badge-success">✓ Revisado</span><div style="font-size:11px; color:#059669; margin-top:2px;">Por: <strong>${p.responsableRevision}</strong></div>`
+      : (p.rolloFabricado ? `<button class="btn-success" style="font-size:11px; padding:5px 8px;" onclick="abrirModalFaseRevision(${p.id})">3. Revisar Rollo</button>` : `<span style="font-size:11px; color:#94a3b8;">Esperando rollo...</span>`);
 
     let notasInternasHTML = "";
     if (p.notaInternaFase1) notasInternasHTML += `<div style="font-size:11px; background:#e0f2fe; padding:4px 6px; border-radius:4px; margin-bottom:3px; color:#0369a1;"><strong>Med:</strong> ${p.notaInternaFase1}</div>`;
@@ -1679,7 +1700,7 @@ function confirmarRevisionYDispararWhatsapp() {
 
   const nombreFarmacia = configuracionFarmacia.nombreComercial || (usuarioSesionActual ? usuarioSesionActual.farmacia : "la Farmacia");
   const tlfLimpio = p.telefono.replace(/[^0-9]/g, '');
-  const textoWhatsapp = encodeURIComponent(`Hola ${p.nombre}, le informamos de que desde ${nombreFarmacia} ya hemos revisado y validado su pastillero SPD. Puede pasar a recogerlo cuando lo desee. ¡Un saludo!`);
+  const textoWhatsapp = encodeURIComponent(`Hola ${p.nombre}, le informamos de que desde ${nombreFarmacia} ya hemos revisado su pastillero SPD. Puede pasar a recogerlo cuando lo desee. ¡Un saludo!`);
   const urlWhatsapp = `https://wa.me/34${tlfLimpio}?text=${textoWhatsapp}`;
 
   window.open(urlWhatsapp, '_blank');
@@ -1745,9 +1766,7 @@ function renderizarRecogidas() {
   if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No hay pastilleros validados pendientes de entrega.</td></tr>`;
 }
 
-// ==========================================================
-// NUEVA FUNCIONALIDAD: GESTIÓN DE ADELANTOS
-// ==========================================================
+// GESTIÓN RÁPIDA DE ADELANTOS
 function actualizarSelectPacientesAdelanto() {
   const sel = document.getElementById('adelanto-paciente-id');
   if (!sel) return;
@@ -1760,17 +1779,18 @@ function actualizarSelectPacientesAdelanto() {
 
 function actualizarInfoPacienteAdelanto(idPac) {
   if (!idPac) return;
-  const p = pacientes.find(x => String(x.id) === String(idPac));
-  if (!p) return;
-  // Sugerir fecha de inicio hoy
   const hoy = new Date().toISOString().split('T')[0];
   const inputIni = document.getElementById('adelanto-fecha-inicio');
   const inputFin = document.getElementById('adelanto-fecha-fin');
+  const inputCobro = document.getElementById('adelanto-fecha-cobro-prevista');
   if (inputIni && !inputIni.value) inputIni.value = hoy;
   if (inputFin && !inputFin.value) {
     const fin = new Date();
     fin.setDate(fin.getDate() + 7);
     inputFin.value = fin.toISOString().split('T')[0];
+  }
+  if (inputCobro && !inputCobro.value) {
+    inputCobro.value = inputFin.value || hoy;
   }
 }
 
@@ -1782,7 +1802,7 @@ function guardarAdelantoRapido(e) {
   const fechaInicio = document.getElementById('adelanto-fecha-inicio').value;
   const fechaFin = document.getElementById('adelanto-fecha-fin').value;
   const medNombre = document.getElementById('adelanto-med-nombre').value.trim();
-  const medLimite = document.getElementById('adelanto-med-limite').value;
+  const fechaCobroPrevista = document.getElementById('adelanto-fecha-cobro-prevista').value || fechaFin;
   const observaciones = document.getElementById('adelanto-observaciones').value.trim();
 
   const p = pacientes.find(x => x.id === idPac);
@@ -1797,8 +1817,10 @@ function guardarAdelantoRapido(e) {
     fechaInicio: fechaInicio,
     fechaFin: fechaFin,
     med: medNombre || `${cantidadPastilleros} pastillero(s) por ${motivo}`,
-    limite: medLimite || fechaFin,
+    limite: fechaCobroPrevista,
+    estadoCupon: "pendiente",
     cobrado: false,
+    anulado: false,
     revisadoPor: null,
     observaciones: observaciones,
     creadoPor: usuarioSesionActual ? usuarioSesionActual.nombre : "Farmacia",
@@ -1807,7 +1829,6 @@ function guardarAdelantoRapido(e) {
 
   p.adelantos.unshift(nuevoAdelanto);
   
-  // Si dejó una observación, la agregamos a la nota de mostrador para que salte en la entrega
   if (observaciones) {
     p.notaDispensacion = `ADELANTO: ${observaciones} (Retira ${cantidadPastilleros} past.)`;
   }
@@ -1837,6 +1858,13 @@ function renderizarGestionAdelantos() {
           ? `<span class="badge badge-orange">${ad.cantidadPastilleros} pastillero(s)</span>` 
           : `<span class="badge badge-neutral">1 pastillero</span>`;
 
+        let estadoCobroBadge = '<span class="badge badge-warning">Cobro Pendiente</span>';
+        if (ad.estadoCupon === 'cobrado' || ad.cobrado) {
+          estadoCobroBadge = '<span class="badge badge-success">✓ Cobrado</span>';
+        } else if (ad.estadoCupon === 'anulado' || ad.anulado) {
+          estadoCobroBadge = '<span class="badge badge-danger">⛔ Anulado RE</span>';
+        }
+
         tbody.innerHTML += `
           <tr>
             <td><strong>${p.nombre}</strong><br><small style="color:#64748b;">CIP: ${p.cip} | Tlf: ${p.telefono}</small></td>
@@ -1847,7 +1875,11 @@ function renderizarGestionAdelantos() {
               <strong>${ad.motivo || 'Adelanto general'}</strong>
               ${ad.observaciones ? `<br><small style="color:#64748b;">${ad.observaciones}</small>` : ''}
             </td>
-            <td>${ad.med ? `<span class="badge badge-info">${ad.med}</span>` : '<span style="color:#94a3b8;">-</span>'}</td>
+            <td>
+              ${ad.med ? `<strong>${ad.med}</strong><br>` : ''}
+              <small style="color:#64748b;">Fecha cobro: <strong>${ad.limite || '-'}</strong></small><br>
+              ${estadoCobroBadge}
+            </td>
             <td>
               <button class="btn-danger" style="padding:4px 8px; font-size:11px;" onclick="eliminarAdelantoGestion(${p.id}, ${idx})">✕ Eliminar</button>
             </td>
@@ -1875,29 +1907,143 @@ function eliminarAdelantoGestion(idPac, idx) {
   }
 }
 
+// CONTROL DE CUPONES RE Y SEMÁFORO DE COBRO
+function getSemaforoCobroCupon(fechaLimiteStr, estado) {
+  if (estado === "anulado") {
+    return { texto: "⛔ Anulado por médico", clase: "badge-danger", nivel: "anulado" };
+  }
+  if (estado === "cobrado") {
+    return { texto: "✅ Cobrado en RE", clase: "badge-success", nivel: "cobrado" };
+  }
+  if (!fechaLimiteStr) {
+    return { texto: "⚠️ Fecha sin fijar", clase: "badge-warning", nivel: "proximo" };
+  }
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const fechaCobro = new Date(fechaLimiteStr);
+  fechaCobro.setHours(0, 0, 0, 0);
+
+  const diffDias = Math.round((fechaCobro - hoy) / (1000 * 60 * 60 * 24));
+
+  if (diffDias < 0) {
+    return { texto: `🔴 Vencido hace ${Math.abs(diffDias)}d (¡Cobrar ya!)`, clase: "badge-danger", nivel: "urgente" };
+  } else if (diffDias === 0) {
+    return { texto: `🚨 Cobrar HOY en RE`, clase: "badge-danger", nivel: "hoy" };
+  } else if (diffDias <= 3) {
+    return { texto: `🟡 Cobrar en ${diffDias} día(s)`, clase: "badge-warning", nivel: "proximo" };
+  } else {
+    return { texto: `🟢 Sale el ${fechaLimiteStr} (en ${diffDias}d)`, clase: "badge-info", nivel: "futuro" };
+  }
+}
+
+function comprobarAlertasCuponesHoy() {
+  const bannerAlerta = document.getElementById('alerta-cupones-hoy');
+  const textoAlerta = document.getElementById('texto-alerta-cupones-hoy');
+  if (!bannerAlerta || !textoAlerta) return;
+
+  let urgentesHoy = [];
+  pacientes.forEach(p => {
+    if (p.adelantos && p.adelantos.length > 0) {
+      p.adelantos.forEach(ad => {
+        const estado = ad.estadoCupon || (ad.cobrado ? 'cobrado' : (ad.anulado ? 'anulado' : 'pendiente'));
+        if (estado === 'pendiente') {
+          const semaforo = getSemaforoCobroCupon(ad.limite, estado);
+          if (semaforo.nivel === "hoy" || semaforo.nivel === "urgente") {
+            urgentesHoy.push(`${p.nombre} (${ad.med})`);
+          }
+        }
+      });
+    }
+  });
+
+  if (urgentesHoy.length > 0) {
+    bannerAlerta.className = "critica";
+    bannerAlerta.style.display = "flex";
+    textoAlerta.innerHTML = `🚨 <strong>AVISO DE COBRO RE HOY:</strong> Tienes ${urgentesHoy.length} cupón(es) listos o vencidos para pasar por receta: <u>${urgentesHoy.slice(0, 3).join(', ')}${urgentesHoy.length > 3 ? '...' : ''}</u>`;
+  } else {
+    bannerAlerta.style.display = "none";
+  }
+}
+
 function renderizarCupones() {
+  const filtroEstado = document.getElementById('filtro-estado-cupones') ? document.getElementById('filtro-estado-cupones').value : "pendientes";
   const tbody = document.getElementById('tabla-cupones-body');
   if (!tbody) return;
   tbody.innerHTML = "";
-  const conAdelantos = pacientes.filter(p => p.adelantos && p.adelantos.length > 0);
 
-  conAdelantos.forEach(p => {
-    p.adelantos.forEach((ad, idx) => {
-      const revisadoPorTexto = ad.revisadoPor ? `✓ ${ad.revisadoPor}` : 'Sin revisar';
-      const revisadoClase = ad.revisadoPor ? 'badge-success' : 'badge-neutral';
-      tbody.innerHTML += `
-        <tr>
-          <td><strong>${p.nombre}</strong></td>
-          <td><a href="tel:${p.telefono}" style="color:var(--accent); font-weight:700; text-decoration:none;">📞 ${p.telefono}</a></td>
-          <td><span class="badge badge-info">${ad.med}</span></td>
-          <td><strong>${ad.limite || ad.fechaFin || '-'}</strong></td>
-          <td><button class="badge ${revisadoClase}" style="border:none; cursor:pointer; font-size:11px;" onclick="conmutarRevisionEquipo(${p.id}, ${idx})">${revisadoPorTexto}</button></td>
-          <td><button class="btn-primary" style="font-size:11px; padding:4px 8px;" onclick="conmutarCobroAdelanto(${p.id}, ${idx})">${ad.cobrado ? '✓ Regularizado' : '⚠️ Pendiente'}</button></td>
-        </tr>
-      `;
-    });
+  let contadorPendientes = 0;
+
+  pacientes.forEach(p => {
+    if (p.adelantos && p.adelantos.length > 0) {
+      p.adelantos.forEach((ad, idx) => {
+        const estado = ad.estadoCupon || (ad.cobrado ? 'cobrado' : (ad.anulado ? 'anulado' : 'pendiente'));
+        
+        if (estado === 'pendiente') contadorPendientes++;
+
+        if (filtroEstado === 'pendientes' && estado !== 'pendiente') return;
+        if (filtroEstado === 'cobrados' && estado !== 'cobrado') return;
+        if (filtroEstado === 'anulados' && estado !== 'anulado') return;
+
+        const semaforo = getSemaforoCobroCupon(ad.limite, estado);
+        const revisadoPorTexto = ad.revisadoPor ? `✓ ${ad.revisadoPor}` : 'Sin revisar';
+        const revisadoClase = ad.revisadoPor ? 'badge-success' : 'badge-neutral';
+
+        tbody.innerHTML += `
+          <tr style="${semaforo.nivel === 'hoy' || semaforo.nivel === 'urgente' ? 'background:#fff7ed;' : ''}">
+            <td><strong>${p.nombre}</strong><br><small style="color:#64748b;">CIP: ${p.cip}</small></td>
+            <td><a href="tel:${p.telefono}" style="color:var(--accent); font-weight:700; text-decoration:none;">📞 ${p.telefono}</a></td>
+            <td>
+              <span class="badge badge-info">${ad.med}</span>
+              ${ad.observaciones ? `<br><small style="color:#64748b;">${ad.observaciones}</small>` : ''}
+            </td>
+            <td>
+              <input type="date" value="${ad.limite || ''}" class="form-control" style="width:135px; padding:4px 6px; font-size:11.5px; font-weight:700;" onchange="actualizarFechaCobroCupon(${p.id}, ${idx}, this.value)">
+            </td>
+            <td><span class="badge ${semaforo.clase}">${semaforo.texto}</span></td>
+            <td><button class="badge ${revisadoClase}" style="border:none; cursor:pointer; font-size:11px;" onclick="conmutarRevisionEquipo(${p.id}, ${idx})">${revisadoPorTexto}</button></td>
+            <td>
+              <select class="form-control" style="font-size:11px; padding:4px 8px; font-weight:700;" onchange="cambiarEstadoCupon(${p.id}, ${idx}, this.value)">
+                <option value="pendiente" ${estado === 'pendiente' ? 'selected' : ''}>🟡 Pendiente Cobrar</option>
+                <option value="cobrado" ${estado === 'cobrado' ? 'selected' : ''}>✅ Cobrado en RE</option>
+                <option value="anulado" ${estado === 'anulado' ? 'selected' : ''}>⛔ Anulado Médico / RE</option>
+              </select>
+            </td>
+          </tr>
+        `;
+      });
+    }
   });
-  if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">No hay medicamentos adelantados pendientes.</td></tr>`;
+
+  if (tbody.innerHTML === "") {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:16px;">No hay registros de cupones para el filtro seleccionado.</td></tr>`;
+  }
+
+  const badgeCupones = document.getElementById('badge-cupones-count');
+  if (badgeCupones) badgeCupones.innerText = contadorPendientes;
+}
+
+function cambiarEstadoCupon(idPac, indexAdelanto, nuevoEstado) {
+  const p = pacientes.find(x => x.id === idPac);
+  if (p && p.adelantos && p.adelantos[indexAdelanto]) {
+    p.adelantos[indexAdelanto].estadoCupon = nuevoEstado;
+    p.adelantos[indexAdelanto].cobrado = (nuevoEstado === "cobrado");
+    p.adelantos[indexAdelanto].anulado = (nuevoEstado === "anulado");
+    p.adelantos[indexAdelanto].fechaResolucion = new Date().toLocaleDateString('es-ES');
+    p.adelantos[indexAdelanto].resueltoPor = usuarioSesionActual ? usuarioSesionActual.nombre : "Farmacia";
+
+    guardarPacienteIndividual(p);
+    renderizarTablas();
+  }
+}
+
+function actualizarFechaCobroCupon(idPac, indexAdelanto, nuevaFecha) {
+  const p = pacientes.find(x => x.id === idPac);
+  if (p && p.adelantos && p.adelantos[indexAdelanto]) {
+    p.adelantos[indexAdelanto].limite = nuevaFecha;
+    guardarPacienteIndividual(p);
+    renderizarTablas();
+  }
 }
 
 function conmutarRevisionEquipo(idPac, indexAdelanto) {
@@ -1987,7 +2133,7 @@ function renderizarAuditoria() {
   if (tbody.innerHTML === "") tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#94a3b8;">No hay entregas registradas en el historial.</td></tr>`;
 }
 
-// PREVISUALIZACIÓN LIMPIA DE RECIBÍ DE ENTREGA (SIN LANZAR IMPRESIÓN FORZADA)
+// JUSTIFICANTE DE DISPENSACIÓN CON REVISIÓN TÉCNICA
 function imprimirRecibiEntrega(idEntrega) {
   let entregaObj = null, pacObj = null;
   pacientes.forEach(p => {
@@ -2036,14 +2182,14 @@ function imprimirRecibiEntrega(idEntrega) {
           <strong>Semana de toma:</strong> Semana ${pacObj.semana}<br>
           <strong>1. Medicación acondicionada por:</strong> ${entregaObj.preparadoMedPor || '-'}<br>
           <strong>2. Rollo sellado por:</strong> ${entregaObj.fabricadoRolloPor || '-'}<br>
-          <strong>3. Revisión farmacéutica validada por:</strong> ${entregaObj.revisadoPor || '-'}<br>
+          <strong>3. Revisión por:</strong> ${entregaObj.revisadoPor || '-'}<br>
           <strong>Dispensado por:</strong> ${entregaObj.dispensadoPor}<br>
           <strong>Retirado por:</strong> ${entregaObj.recogidoPor}<br>
           ${entregaObj.notas ? `<strong>Observaciones / Pastilleros:</strong> ${entregaObj.notas}<br>` : ''}
         </div>
         <div style="display: flex; justify-content: space-between; margin-top: 24px;">
           <div style="text-align: center; width: 45%;">
-            <p style="font-size: 12px; margin-bottom: 30px;">Firma / Sello Farmacia:</p>
+            <p style="font-size: 12px; margin-bottom: 30px;">Firma / Sello Responsable:</p>
             <div style="border-top: 1px solid black; padding-top: 4px; font-size: 11px;">${entregaObj.dispensadoPor}</div>
           </div>
           <div style="text-align: center; width: 45%;">
@@ -2064,8 +2210,6 @@ function actualizarBadges() {
   if (bLab) bLab.innerText = pacientes.filter(p => !p.rolloRevisado).length;
   const bRec = document.getElementById('badge-recogidas-count');
   if (bRec) bRec.innerText = pacientes.filter(p => p.rolloRevisado && !p.avisadoRecogida).length;
-  const bCup = document.getElementById('badge-cupones-count');
-  if (bCup) bCup.innerText = pacientes.reduce((acc, p) => acc + (p.adelantos ? p.adelantos.filter(a => !a.cobrado).length : 0), 0);
   const bChat = document.getElementById('badge-chat-count');
   if (bChat) bChat.innerText = chatMensajes.length;
 }
@@ -2166,15 +2310,6 @@ function confirmarEntregaMostrador() {
   renderizarCalendarioAnual();
 }
 
-function conmutarCobroAdelanto(idPac, indexAdelanto) {
-  const p = pacientes.find(x => x.id === idPac);
-  if (p && p.adelantos && p.adelantos[indexAdelanto]) {
-    p.adelantos[indexAdelanto].cobrado = !p.adelantos[indexAdelanto].cobrado;
-    guardarPacienteIndividual(p);
-    renderizarTablas();
-  }
-}
-
 function enviarMensajeChat() {
   const input = document.getElementById('chat-input-texto');
   const texto = input.value.trim();
@@ -2217,7 +2352,7 @@ function agregarFilaAdelantoAlta() {
   div.style.gap = '8px';
   div.innerHTML = `
     <input type="text" class="form-control input-alta-med" placeholder="Medicamento" style="flex-grow:1;" required>
-    <input type="date" class="form-control input-alta-limite" required>
+    <input type="date" class="form-control input-alta-limite" title="Fecha prevista cobro RE" required>
     <button type="button" class="btn-primary" style="background:var(--danger); padding:4px 8px;" onclick="this.parentElement.remove()">✕</button>
   `;
   cont.appendChild(div);
@@ -2239,7 +2374,7 @@ function guardarNuevoPaciente(e) {
   document.querySelectorAll('#contenedor-adelantos-alta > div').forEach(fila => {
     const med = fila.querySelector('.input-alta-med').value.trim();
     const limite = fila.querySelector('.input-alta-limite').value;
-    if (med) adelantos.push({ id: Date.now(), med, limite, cobrado: false, revisadoPor: null, motivo: "Salto RE", cantidadPastilleros: 1 });
+    if (med) adelantos.push({ id: Date.now(), med, limite, estadoCupon: "pendiente", cobrado: false, revisadoPor: null, motivo: "Salto RE", cantidadPastilleros: 1 });
   });
 
   const nuevo = {
@@ -2347,11 +2482,12 @@ function abrirFichaPaciente(id) {
   let adelantosHtml = "";
   if (p.adelantos && p.adelantos.length > 0) {
     p.adelantos.forEach((ad, idx) => {
+      const estado = ad.estadoCupon || (ad.cobrado ? 'cobrado' : (ad.anulado ? 'anulado' : 'pendiente'));
       adelantosHtml += `
         <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:6px; border:1px solid #e2e8f0; font-size:12.5px;">
           <div>
             <strong>${ad.cantidadPastilleros || 1} Pastillero(s)</strong> - ${ad.motivo || ad.med}
-            <div style="color:#64748b; font-size:11px;">Periodo: ${ad.fechaInicio || ''} al ${ad.fechaFin || ad.limite || ''}</div>
+            <div style="color:#64748b; font-size:11px;">Fecha de cobro: <strong>${ad.limite || '-'}</strong> | Estado: <strong>${estado.toUpperCase()}</strong></div>
           </div>
           <button class="btn-danger" onclick="eliminarAdelantoFicha(${p.id}, ${idx})">✕ Eliminar</button>
         </div>
@@ -2494,7 +2630,6 @@ function resolverAvisoModal(idPac, idAviso) {
 
 function cerrarModalFicha() { document.getElementById('modal-ficha-paciente').style.display = 'none'; }
 
-// PREVISUALIZACIÓN DE HOJA DE LABORATORIO CON BARRA SUPERIOR
 function imprimirHojaLaboratorio() {
   const sem = document.getElementById('filtro-semana-preparacion').value;
   let filtrados = pacientes;
@@ -2564,7 +2699,7 @@ function imprimirHojaLaboratorio() {
               <th style="padding: 6px;">Paciente / CIP</th>
               <th style="padding: 6px; width: 95px;">1. Prep. Med</th>
               <th style="padding: 6px; width: 95px;">2. Fab. Rollo</th>
-              <th style="padding: 6px; width: 95px;">3. Rev. Valid.</th>
+              <th style="padding: 6px; width: 95px;">3. Revisión</th>
               <th style="padding: 6px; width: 80px;">Caducidad</th>
               <th style="padding: 6px;">Medicación Externa</th>
               <th style="padding: 6px;">Adelantos / Cambios Médicos / Notas</th>
@@ -2693,6 +2828,9 @@ function generarInformeEntregasSemanalPDF() {
             fechaHora: ent.fecha,
             recogidoPor: ent.recogidoPor,
             dispensadoPor: ent.dispensadoPor,
+            preparadoMedPor: ent.preparadoMedPor || '-',
+            fabricadoRolloPor: ent.fabricadoRolloPor || '-',
+            revisadoPor: ent.revisadoPor || '-',
             firma: ent.firma,
             notas: ent.notas,
             id: ent.id
@@ -2724,6 +2862,11 @@ function generarInformeEntregasSemanalPDF() {
           <div style="color: #64748b; font-size: 10px;">CIP: ${item.cip} | Sem ${item.semana}</div>
         </td>
         <td style="padding: 6px; font-size: 10px; border-right: 1px solid #cbd5e1;">${item.fechaHora}</td>
+        <td style="padding: 6px; font-size: 10px; border-right: 1px solid #cbd5e1;">
+          <div>Med: <strong>${item.preparadoMedPor}</strong></div>
+          <div>Rollo: <strong>${item.fabricadoRolloPor}</strong></div>
+          <div>Revisión: <strong>${item.revisadoPor}</strong></div>
+        </td>
         <td style="padding: 6px; border-right: 1px solid #cbd5e1;">
           <div style="font-size: 11px;">${item.recogidoPor}</div>
           ${item.notas ? `<div style="font-size:10px; color:#c2410c;">Obs: ${item.notas}</div>` : ''}
@@ -2789,18 +2932,19 @@ function generarInformeEntregasSemanalPDF() {
           <thead>
             <tr>
               <th style="width: 4%; text-align: center;">Nº</th>
-              <th style="width: 26%;">Paciente / CIP</th>
-              <th style="width: 15%;">Fecha/Hora</th>
-              <th style="width: 22%;">Retirado por / Detalle</th>
-              <th style="width: 15%;">Dispensador</th>
-              <th style="width: 18%; text-align: center;">Firma Receptor</th>
+              <th style="width: 24%;">Paciente / CIP</th>
+              <th style="width: 14%;">Fecha/Hora</th>
+              <th style="width: 18%;">Trazabilidad Lab</th>
+              <th style="width: 18%;">Retirado por / Detalle</th>
+              <th style="width: 10%;">Dispensador</th>
+              <th style="width: 12%; text-align: center;">Firma Receptor</th>
             </tr>
           </thead>
           <tbody>${filasHTML}</tbody>
         </table>
         <div class="pie">
           <div class="pie-izq">Registro conforme a exigencias de PNT y custodia de datos de salud (RGPD).</div>
-          <div class="pie-der">Firma y Sello Farmacéutico Responsable</div>
+          <div class="pie-der">Firma y Sello del Responsable</div>
         </div>
       </div>
     </body>
